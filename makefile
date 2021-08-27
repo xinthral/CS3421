@@ -1,3 +1,10 @@
+#/**************************************
+# Author: Jesse Hassell
+# Date: Aug, 2021
+# Purpose: Make file to manage the different components of this
+# build and be able to compile them individually.
+#**************************************/
+
 # the compiler: gcc for C program, define as g++ for C++
 CC = g++
 
@@ -19,11 +26,13 @@ all: $(EXECUTABLE)
 $(EXECUTABLE): $(CLK).o $(CPU).o $(MEM).o $(PRS).o
 	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(CLK).o $(CPU).o $(MEM).o $(PRS).o
 
+# This is how the instructions say to do it
 #$(CLK).o: $(CLK).h
 #$(CPU).o: $(CPU).h
 #$(MEM).o: $(MEM).h
 #$(PRS).o: $(CLK).h $(CPU).h $(MEM).h
 
+# This makes more sense to me but is probably wrong
 $(CLK).o: $(CLK).cpp $(CLK).h
 	$(CC) $(CFLAGS) -c $(CLK).cpp
 
