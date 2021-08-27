@@ -6,4 +6,7 @@
 # through high entropy.
 **************************************/
 
-#include "Test.h"
+int int main(int argc, char const *argv[]) {
+    
+    return 0;
+}
