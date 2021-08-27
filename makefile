@@ -1,5 +1,5 @@
 # the compiler: gcc for C program, define as g++ for C++
-CC = gcc
+CC = g++
 
 # compiler flags:
 #  -g     - this flag adds debugging information to the executable file
@@ -18,6 +18,11 @@ all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(CLK).o $(CPU).o $(MEM).o $(PRS).o
 	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(CLK).o $(CPU).o $(MEM).o $(PRS).o
+
+#$(CLK).o: $(CLK).h
+#$(CPU).o: $(CPU).h
+#$(MEM).o: $(MEM).h
+#$(PRS).o: $(CLK).h $(CPU).h $(MEM).h
 
 $(CLK).o: $(CLK).cpp $(CLK).h
 	$(CC) $(CFLAGS) -c $(CLK).cpp
