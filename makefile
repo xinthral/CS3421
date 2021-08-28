@@ -6,44 +6,60 @@
 #**************************************/
 
 # the compiler: gcc for C program, define as g++ for C++
-CC = g++
+CC = gcc
 
 # compiler flags:
 #  -g     - this flag adds debugging information to the executable file
 #  -Wall  - this flag is used to turn on most compiler warnings
-#  -std	  - compile with c99 compatibility
-CFLAGS  = -g -Wall -std=c99
+#  -std	  - compile with version compatibility
+CFLAGS  = -g -Wall -std=c++11
 
 # The build target
 EXECUTABLE = emul
+TESTFILES = emul_t
 CLK = clock
 CPU = cpu
 MEM = memory
 PRS = parser
+TST = test
 
 all: $(EXECUTABLE)
-
-$(EXECUTABLE): $(CLK).o $(CPU).o $(MEM).o $(PRS).o
-	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(CLK).o $(CPU).o $(MEM).o $(PRS).o
-
+	
+test: $(TESTFILES)
 # This is how the instructions say to do it
 #$(CLK).o: $(CLK).h
 #$(CPU).o: $(CPU).h
 #$(MEM).o: $(MEM).h
 #$(PRS).o: $(CLK).h $(CPU).h $(MEM).h
+#$(TST).o: $(CLK).h $(CPU).h $(MEM).h
 
-# This makes more sense to me but is probably wrong
+# Compile Clock component
 $(CLK).o: $(CLK).cpp $(CLK).h
 	$(CC) $(CFLAGS) -c $(CLK).cpp
 
+# Compile CPU component
 $(CPU).o: $(CPU).cpp $(CPU).h
 	$(CC) $(CFLAGS) -c $(CPU).cpp
 
+# Compile Memory component
 $(MEM).o: $(MEM).cpp $(MEM).h
 	$(CC) $(CFLAGS) -c $(MEM).cpp
 
+# Compile Parser component
 $(PRS).o: $(PRS).cpp $(PRS).h
 	$(CC) $(CFLAGS) -c $(PRS).cpp
 
+# Compile Testing component
+$(TST).o: $(TST).cpp $(TST).h
+	$(CC) $(CFLAGS) -c $(TST).cpp
+
+# Compile Full porgram
+$(EXECUTABLE): $(CLK).h $(CLK).o $(CPU).h $(CPU).o $(MEM).h $(MEM).o $(PRS).o
+	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(CLK).o $(CPU).o $(MEM).o $(PRS).o
+
+# Compile Full program plus tests
+$(TESTFILES): $(CLK).o $(CPU).o $(MEM).o $(TST).o
+	$(CC) $(CFLAGS) -o $(TESTFILES) $(CLK).o $(CPU).o $(MEM).o $(TST).o
+
 clean:
-	$(RM) *.o $(EXECUTABLE)
+	$(RM) *.o $(EXECUTABLE) $(TESTFILES)

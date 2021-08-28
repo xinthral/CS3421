@@ -6,7 +6,13 @@
 # through high entropy.
 **************************************/
 
-int int main(int argc, char const *argv[]) {
-    
+#include "clock.h"
+#include "cpu.h"
+#include "memory.h"
+
+int main(int argc, char const *argv[]) {
+    extern Clock clk;
+    Clock clk1 = clk.getClock();
+    clk1.dump();
     return 0;
 }

@@ -8,10 +8,9 @@
 #include "clock.h"
 #include "cpu.h"
 #include "memory.h"
-#include <stdio.h>
-#include <iostream>
 
 int main(int argc, char const *argv[]) {
-    cout << "Hello World" << endl;
+    printf("Hello World\n");
+    //CPU &cpu1 = getCPU();
     return 0;
 }
