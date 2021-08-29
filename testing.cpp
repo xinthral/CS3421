@@ -6,13 +6,13 @@
 # through high entropy.
 **************************************/
 
-#include "clock.h"
-#include "cpu.h"
-#include "memory.h"
+#include "testing.h"
 
-int main(int argc, char const *argv[]) {
-    extern Clock clk;
-    Clock clk1 = clk.getClock();
-    clk1.dump();
-    return 0;
+testing::testCase1() {
+    // TestCase1
+
+}
+
+testing::testSwitch() {
+    // Case statement for which case to test
 }

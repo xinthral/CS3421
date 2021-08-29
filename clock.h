@@ -11,7 +11,7 @@ private:
 
 public:
     Clock();
-    // Singleton Methods
+    // Singleton Method
     Clock& getClock();
 
     // Class Methods

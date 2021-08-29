@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 class Memory {
-    // code here
+public:
+    Memory();
 };
 #endif

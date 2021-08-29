@@ -9,10 +9,11 @@
 CC = gcc
 
 # compiler flags:
-#  -g     - this flag adds debugging information to the executable file
-#  -Wall  - this flag is used to turn on most compiler warnings
-#  -std	  - compile with version compatibility
-CFLAGS  = -g -Wall -std=c++11
+#  	-g			- this flag adds debugging information to the executable file
+#  	-Wall		- this flag is used to turn on most compiler warnings
+#  	-std		- compile with version compatibility
+#  	-no-pie 	- do not produce a position-independent executable
+CFLAGS  = -g -Wall
 
 # The build target
 EXECUTABLE = emul
@@ -21,17 +22,23 @@ CLK = clock
 CPU = cpu
 MEM = memory
 PRS = parser
-TST = test
+TST = testing
 
 all: $(EXECUTABLE)
-	
+
+parser: $(EXECUTABLE)
+
 test: $(TESTFILES)
 # This is how the instructions say to do it
-#$(CLK).o: $(CLK).h
-#$(CPU).o: $(CPU).h
-#$(MEM).o: $(MEM).h
-#$(PRS).o: $(CLK).h $(CPU).h $(MEM).h
-#$(TST).o: $(CLK).h $(CPU).h $(MEM).h
+# $(CLK).o: $(CLK).h
+# $(CPU).o: $(CPU).h
+# $(MEM).o: $(MEM).h
+# $(PRS).o: $(CLK).h $(CPU).h $(MEM).h
+# $(TST).o: $(CLK).h $(CPU).h $(MEM).h $(TST).h
+
+# Dynamically assign *.o to be compiled from its .cpp counterpart
+# %.o: %.cpp
+# 	$(CC) $(CFLAGS) -c $<
 
 # Compile Clock component
 $(CLK).o: $(CLK).cpp $(CLK).h
@@ -54,12 +61,12 @@ $(TST).o: $(TST).cpp $(TST).h
 	$(CC) $(CFLAGS) -c $(TST).cpp
 
 # Compile Full porgram
-$(EXECUTABLE): $(CLK).h $(CLK).o $(CPU).h $(CPU).o $(MEM).h $(MEM).o $(PRS).o
-	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(CLK).o $(CPU).o $(MEM).o $(PRS).o
+$(EXECUTABLE): $(CLK).o $(CPU).o $(MEM).o $(PRS).o
+	$(CC) $(CFLAGS) -o $(EXECUTABLE) $^
 
 # Compile Full program plus tests
 $(TESTFILES): $(CLK).o $(CPU).o $(MEM).o $(TST).o
-	$(CC) $(CFLAGS) -o $(TESTFILES) $(CLK).o $(CPU).o $(MEM).o $(TST).o
+	$(CC) $(CFLAGS) -o $(TESTFILES) $^
 
 clean:
 	$(RM) *.o $(EXECUTABLE) $(TESTFILES)
