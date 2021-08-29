@@ -18,16 +18,23 @@ CFLAGS  = -g -Wall -fPIC
 
 # The build target
 EXECUTABLE = emul
-TESTFILES = emul_t
 CLK = clock
 CPU = cpu
 MEM = memory
 PRS = parser
 TST = test
 
-build: $(EXECUTABLE)
+# Compile Full porgram
+all: $(CLK).o $(CPU).o $(MEM).o $(PRS).o
+	$(CC) $(CFLAGS) -o $(EXECUTABLE) $^
 
-test: $(TESTFILES)
+# Compile Full program plus tests
+test: $(CLK).o $(CPU).o $(MEM).o $(TST).o
+	$(CC) $(CFLAGS) -o $(TST) $^
+
+clean:
+	$(RM) *.o $(EXECUTABLE) $(TST) 
+
 # This is how the instructions say to do it
 # $(CLK).o: $(CLK).h
 # $(CPU).o: $(CPU).h
@@ -58,14 +65,3 @@ $(PRS).o: $(PRS).cpp $(PRS).h $(CLK).h $(CPU).h $(MEM).h
 # Compile Testing component
 $(TST).o: $(TST).cpp $(TST).h $(CLK).h $(CPU).h $(MEM).h
 	$(CC) $(CFLAGS) -c $(TST).cpp
-
-# Compile Full porgram
-$(EXECUTABLE): $(CLK).o $(CPU).o $(MEM).o $(PRS).o
-	$(CC) $(CFLAGS) -o $(EXECUTABLE) $^
-
-# Compile Full program plus tests
-$(TESTFILES): $(CLK).o $(CPU).o $(MEM).o $(TST).o
-	$(CC) $(CFLAGS) -o $(TESTFILES) $^
-
-clean:
-	$(RM) *.o $(EXECUTABLE) $(TESTFILES) $(TST)
