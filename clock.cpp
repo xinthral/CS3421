@@ -7,7 +7,6 @@
 # that need a clock. For diagnostic purposes, the clock
 # will maintain a monotonically increasing unsigned 16 bit
 # count that can be displayed.
-#
 **************************************/
 #include "clock.h"
 
@@ -24,7 +23,7 @@ Clock& Clock::getClock() {
 void Clock::reset() {
     /*
     # The reset command sets the internal counter to zero.
-    # Example: “clock reset”.
+    # Example: "clock reset".
     */
     Clock::cycle = 0;
 }

@@ -6,11 +6,17 @@
 #**************************************/
 
 #include "parser.h"
+#include <stdio.h>
 
 Parser::Parser() {
-    //
+    // 
 }
 
 Parser::~Parser() {
     //
+}
+
+int main(int argc, char const *argv[]) {
+    printf("Hello Program!\n");
+    return 0;
 }

@@ -9,3 +9,7 @@
 Memory::Memory() {
     // Constructor
 }
+
+Memory::~Memory() {
+    // Deconstructor
+}

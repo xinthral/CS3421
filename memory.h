@@ -4,5 +4,6 @@
 class Memory {
 public:
     Memory();
+    ~Memory();
 };
 #endif

@@ -7,6 +7,7 @@
 **************************************/
 
 #include "testing.h"
+#include <stdio.h>
 
 testing::testCase1() {
     // TestCase1
@@ -15,4 +16,9 @@ testing::testCase1() {
 
 testing::testSwitch() {
     // Case statement for which case to test
+}
+
+int main(int argc, char const *argv[]) {
+    printf("Hello Test!\n");
+    return 0;
 }

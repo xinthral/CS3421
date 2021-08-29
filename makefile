@@ -13,7 +13,8 @@ CC = gcc
 #  	-Wall		- this flag is used to turn on most compiler warnings
 #  	-std		- compile with version compatibility
 #  	-no-pie 	- do not produce a position-independent executable
-CFLAGS  = -g -Wall
+#	-fPIC		- Format position-independent code
+CFLAGS  = -g -Wall -fPIC
 
 # The build target
 EXECUTABLE = emul
@@ -26,7 +27,7 @@ TST = testing
 
 all: $(EXECUTABLE)
 
-parser: $(EXECUTABLE)
+build: $(EXECUTABLE)
 
 test: $(TESTFILES)
 # This is how the instructions say to do it
@@ -69,4 +70,4 @@ $(TESTFILES): $(CLK).o $(CPU).o $(MEM).o $(TST).o
 	$(CC) $(CFLAGS) -o $(TESTFILES) $^
 
 clean:
-	$(RM) *.o $(EXECUTABLE) $(TESTFILES)
+	$(RM) *.o $(EXECUTABLE) $(TESTFILES) $(TST)
