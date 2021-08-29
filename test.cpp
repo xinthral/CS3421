@@ -6,15 +6,14 @@
 # through high entropy.
 **************************************/
 
-#include "testing.h"
+#include "test.h"
 #include <stdio.h>
 
-testing::testCase1() {
+void Test::testCase1() {
     // TestCase1
-
 }
 
-testing::testSwitch() {
+void Test::testSwitch() {
     // Case statement for which case to test
 }
 

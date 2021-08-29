@@ -23,9 +23,7 @@ CLK = clock
 CPU = cpu
 MEM = memory
 PRS = parser
-TST = testing
-
-all: $(EXECUTABLE)
+TST = test
 
 build: $(EXECUTABLE)
 
@@ -54,11 +52,11 @@ $(MEM).o: $(MEM).cpp $(MEM).h
 	$(CC) $(CFLAGS) -c $(MEM).cpp
 
 # Compile Parser component
-$(PRS).o: $(PRS).cpp $(PRS).h
+$(PRS).o: $(PRS).cpp $(PRS).h $(CLK).h $(CPU).h $(MEM).h
 	$(CC) $(CFLAGS) -c $(PRS).cpp
 
 # Compile Testing component
-$(TST).o: $(TST).cpp $(TST).h
+$(TST).o: $(TST).cpp $(TST).h $(CLK).h $(CPU).h $(MEM).h
 	$(CC) $(CFLAGS) -c $(TST).cpp
 
 # Compile Full porgram
