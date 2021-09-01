@@ -10,7 +10,7 @@
 #include "test.h"
 
 int main() {
-    printf("Hello Test!\n");
+    printf("Test Parser!!\n");
     Cpu cpu = getCpu();
     cpu.dump();
     return 0;
