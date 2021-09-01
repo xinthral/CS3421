@@ -11,13 +11,10 @@ private:
 
 public:
     Clock();
-    // Singleton Method
-    Clock& getClock();
 
     // Class Methods
     void reset();
     void tick(uint16_t);
     void dump();
-    ~Clock();
 };
 #endif
