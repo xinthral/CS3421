@@ -6,7 +6,6 @@
 # through high entropy.
 **************************************/
 
-#include "cpu.h"
 #include "test.h"
 
 int main() {
