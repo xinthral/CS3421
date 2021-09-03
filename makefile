@@ -5,24 +5,23 @@
 # build and be able to compile them individually.
 # This is how the instructions say to do it
 
-# Dynamically assign *.o to be compiled from its .cpp counterpart
-# %.o: %.cpp
-# 	$(CC) $(CFLAGS) -c $<
 #**************************************/
 
 # the compiler: gcc for C program, define as g++ for C++
 CC = gcc
 
+# https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 # compiler flags:
-#  	-g			- this flag adds debugging information to the executable file
-#  	-Wall		- this flag is used to turn on most compiler warnings
+#  	-g			- adds debugging information to the executable file
+#  	-Wall		- is used to turn on most compiler warnings
+#  	-Wextra		- turns on extra compiler checks unchecked by -Wall
 # 	-O			- optimization level (ie -O3)
 #  	-std		- compile with version compatibility
 #  	-no-pie 	- do not produce a position-independent executable
 #	-fPIC		- Format position-independent code
-CFLAGS   = -g -Wall -O3
-CXFLAGS  = -fPIC
-CXXFLAGS = -fPIC
+CFLAGS   = -g
+CXFLAGS  = -O3 -fPIC
+CXXFLAGS = -Wall -Wextra -fPIC
 
 # The build target
 EXECUTABLE = cs3421_emul
@@ -38,7 +37,7 @@ all: $(CLK).o $(CPU).o $(MEM).o $(PRS).o
 
 # Compile Full program plus tests
 test: $(CLK).o $(CPU).o $(MEM).o $(TST).o
-	$(CC) $(CFLAGS) $(CXFLAGS) -o $(TST) $^
+	$(CC) $(CFLAGS) $(CXXFLAGS) -o $(TST) $^
 
 # Define Object Files
 $(CLK).o: $(CLK).h
@@ -48,29 +47,9 @@ $(PRS).o: $(CLK).h $(CPU).h $(MEM).h
 $(TST).o: $(CLK).h $(CPU).h $(MEM).h $(TST).h
 
 # Template function to compile defined objects files
+# Dynamically assign *.o to be compiled from its .cpp counterpart
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(CXFLAGS) -c $<
 
 clean:
 	$(RM) *.o $(EXECUTABLE) $(TST)
-
-
-# Compiled Clock component
-# $(CLK).o: $(CLK).cpp $(CLK).h
-# 	$(CC) $(CFLAGS) $(CXFLAGS) -c $(CLK).cpp
-
-# Compile CPU component
-# $(CPU).o: $(CPU).cpp $(CPU).h
-# 	$(CC) $(CFLAGS) $(CXFLAGS) -c $(CPU).cpp
-
-# Compile Memory component
-# $(MEM).o: $(MEM).cpp $(MEM).h
-# 	$(CC) $(CFLAGS) $(CXFLAGS) -c $(MEM).cpp
-
-# Compile Parser component
-# $(PRS).o: $(PRS).cpp $(PRS).h $(CLK).h $(CPU).h $(MEM).h
-# 	$(CC) $(CFLAGS) $(CXFLAGS) -c $(PRS).cpp
-
-# Compile Testing component
-# $(TST).o: $(TST).cpp $(TST).h $(CLK).h $(CPU).h $(MEM).h
-# 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $(TST).cpp
