@@ -8,7 +8,7 @@
 #**************************************/
 
 # the compiler: gcc for C program, define as g++ for C++
-CC = gcc
+CC = g++
 
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 # compiler flags:
