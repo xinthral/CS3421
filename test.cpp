@@ -6,18 +6,12 @@
 # through high entropy.
 **************************************/
 
+#include "cpu.h"
 #include "test.h"
-#include <stdio.h>
 
-void Test::testCase1() {
-    // TestCase1
-}
-
-void Test::testSwitch() {
-    // Case statement for which case to test
-}
-
-int main(int argc, char const *argv[]) {
-    printf("Hello Test!\n");
+int main() {
+    printf("Test Parser!!\n");
+    Cpu cpu = getCpu();
+    cpu.dump();
     return 0;
 }

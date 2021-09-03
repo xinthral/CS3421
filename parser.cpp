@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 Parser::Parser() {
-    // 
+    //
 }
 
 Parser::~Parser() {
@@ -17,6 +17,6 @@ Parser::~Parser() {
 }
 
 int main(int argc, char const *argv[]) {
-    printf("Hello Program!\n");
+    printf("Main Parser!!\n");
     return 0;
 }

@@ -1,11 +1,6 @@
 #ifndef TEST_H
 #define TEST_H
 
-class Test {
-public:
-    Test();
-    void testCase1();
-    void testSwitch();
-    ~Test();
-};
+#include <stdio.h>
+int main();
 #endif

@@ -15,11 +15,6 @@ Clock::Clock() {
     Clock::reset();
 }
 
-Clock& Clock::getClock() {
-    extern Clock clock;
-    return clock;
-}
-
 void Clock::reset() {
     /*
     # The reset command sets the internal counter to zero.
@@ -47,5 +42,3 @@ void Clock::dump() {
     //const char* cycle_str = reinterpret_cast<const char*>(Clock::cycle);
     printf("Clock: %u", cycle);
 }
-
-Clock::~Clock() {}

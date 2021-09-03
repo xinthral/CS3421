@@ -31,6 +31,7 @@ void Cpu::dump() {
     # RG: 0x09
     # RH: 0x18
     */
+    printf("Cpu Dump.\n");
 }
 
 void Cpu::reset() {
@@ -39,4 +40,9 @@ void Cpu::reset() {
 
 void Cpu::set_reg(char* registry, unsigned char hbyte) {
     //
+}
+
+extern Cpu& getCpu() {
+    static Cpu cpu;
+    return cpu;
 }
