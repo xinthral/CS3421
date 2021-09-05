@@ -1,8 +1,8 @@
 #ifndef CLOCK_H
 #define CLOCK_H
 
-#include <stdio.h>
-#include <stdint.h>
+#include <stdint.h>             // uint16_t
+#include <stdio.h>              // printf
 
 class Clock {
 private:
@@ -17,4 +17,8 @@ public:
     void tick(uint16_t);
     void dump();
 };
+
+// Singleton method
+extern Clock& getClock();
+
 #endif

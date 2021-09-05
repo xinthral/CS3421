@@ -1,17 +1,17 @@
 #ifndef CPU_H
 #define CPU_H
 
-// #include <iomanip>      // std::setiosflags, std::resetiosflags
-// #include <iostream>     // std::cout, std::hex, std::endl
-#include <map>          // std::map
-#include <stdio.h>      // std::prinf
-#include <string>       // std::string
+#include <map>                  // std::map
+#include <stdint.h>             // uint16_t
+#include <stdio.h>              // printf
+#include <string>               // std::string
 
 class Cpu {
-public:
+private:
     std::string registry[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
     std::map<std::string, int> registers;
 
+public:
     Cpu();
     void dump();
     void reset();

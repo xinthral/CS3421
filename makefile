@@ -19,9 +19,9 @@ CC = g++
 #  	-std		- compile with version compatibility
 #  	-no-pie 	- do not produce a position-independent executable
 #	-fPIC		- Format position-independent code
-CFLAGS   = -g
-CXFLAGS  = -O3 -fPIC
-CXXFLAGS = -Wall -Wextra -fPIC
+CFLAGS   = -g -fPIC
+CXFLAGS  = -O3 -Wunused-result -Wno-format-extra-args
+CXXFLAGS = -Wall -Wextra
 
 # The build target
 EXECUTABLE = cs3421_emul

@@ -38,7 +38,6 @@ void Cpu::dump() {
     for (auto reg : registers) {
         const char* idx = reg.first.c_str();
         std::printf("%2s: 0x%02X\n", idx, reg.second);
-        // std::cout << reg.first << ": " << reg.second << std::endl;
     }
 }
 
@@ -57,10 +56,12 @@ void Cpu::set_reg(std::string location, int hbyte) {
 }
 
 Cpu::~Cpu() {
+    // Deconstructor
     registers.clear();
 }
 
 extern Cpu& getCpu() {
+    // Returns a statically derived singleton instance of this object
     static Cpu cpu;
     return cpu;
 }
