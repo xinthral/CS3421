@@ -8,9 +8,9 @@
 
 #include "test.h"
 
-int main() {
+int main(int argc, char const *argv[]) {
     printf("Test Parser!!\n");
-    Cpu cpu = getCpu();
-    cpu.dump();
+    Parser p;
+    p.parseInput(const_cast<char *>(argv[1]));
     return 0;
 }

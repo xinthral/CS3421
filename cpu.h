@@ -14,6 +14,7 @@ private:
 public:
     Cpu();
     void dump();
+    void cpuParser(char*,std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     ~Cpu();

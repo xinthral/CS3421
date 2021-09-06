@@ -12,12 +12,13 @@ private:
 public:
     void create(uint16_t);
     void dump(int,int);
+    void memoryParser(char*,std::string);
     void printBankHeaders();
     void reset();
     ~Memory();
 };
 
 // Singleton method
-Memory &getMemory();
+extern Memory &getMemory();
 
 #endif

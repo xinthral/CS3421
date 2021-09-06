@@ -4,4 +4,5 @@ A few things I struggled with:
 * I was using the wrong compiler
 * Converting c++11+ basic_string to be printable with printf
 * How to do proper linking with makefiles
-* 
+* Getting down a solid method of testing functions
+*

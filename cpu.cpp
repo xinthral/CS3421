@@ -41,6 +41,10 @@ void Cpu::dump() {
     }
 }
 
+void cpuParser(char* operation,std::string instructionSet) {
+    // Handle Instruction Parsing for the CPU Class
+}
+
 void Cpu::reset() {
     // Reset Memory Registers
     registers.clear();

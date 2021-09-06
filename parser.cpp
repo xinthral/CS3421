@@ -8,38 +8,57 @@
 #include "parser.h"
 
 Parser::Parser() {
-    // Load up device list
-    deviceList.insert(std::pair<std::string, int>("clock", 0));
-    deviceList.insert(std::pair<std::string, int>("cpu", 1));
-    deviceList.insert(std::pair<std::string, int>("memory", 2));
-    deviceList.insert(std::pair<std::string, int>("parser", 3));
+    // Devices Options
+    int clk_num = 3, cpu_num = 3, mem_num = 4;
+    char* clk_operations[clk_num] = {"dump", "reset", "tick"};
+    char* cpu_operations[cpu_num] = {"dump", "reset", "set_reg"};
+    char* mem_operations[mem_num] = {"create", "dump", "reset", "set"};
+
+    // Load up device list, and options
+    loadOptions(clk_num, clk_operations, clkOperations);
+    loadOptions(cpu_num, cpu_operations, cpuOperations);
+    loadOptions(mem_num, mem_operations, memOperations);
 }
 
-void Parser::parseClock() {
+void Parser::loadOptions(int inputSize, char* options[], std::map<std::string, int> &kvpairs) {
+    // Load options into object mappings for quick lookups
+    for (int i = 0; i < inputSize; i++) {
+        kvpairs.insert(std::pair<std::string, int>(options[i], i));
+    }
 }
 
-void Parser::parseCpu() {
+void Parser::parseClock(char* operation, std::string instructionSet) {
+
+    printf("%s\n", instructionSet.c_str());
 }
 
-void Parser::parseMemory(std::string instructions) {
-    // std::string test = "dump";
-    // if (instructions == test) {
-    //     memory.dump(begin, items);
-    // }
+void Parser::parseCpu(char* operation, std::string instructionSet) {
+    printf("%s\n", instructionSet.c_str());
 }
 
-void Parser::parseInput(std::string fileName) {
+void Parser::parseMemory(char* operation, std::string instructionSet) {
+    printf("%s\n", instructionSet.c_str());
+}
+
+void Parser::parseInput(char* fileName) {
     std::ifstream inputFile(fileName);
     if (!inputFile) {
-        printf("Error: Failed to open input file <%s>", fileName.c_str());
+        printf("Error: Failed to open input file < %s >!\n", fileName);
         return;
     }
-    char deviceName[7];
-    std::string operation, instructions;
+
+    char deviceName[7], operation[8];
+    std::string instructions;
+
     while (!inputFile.eof()) {
-        for (operation; std::getline(inputFile, operation);) {
-            printf("%s\n", operation.c_str());
-            sscanf(operation.c_str(), "%s %*s", deviceName, instructions);
+        for (instructions; std::getline(inputFile, instructions);) {
+
+            char* instructionSet = const_cast<char*>(instructions.c_str());
+            Parser::utilz.toLower(instructionSet, instructions.size());
+
+            // Strip out the first two words in the instruction set
+            instructions = Parser::utilz.chunkInstruction(instructions, deviceName);
+            instructions = Parser::utilz.chunkInstruction(instructions, operation);
 
             // Convert deviceName to switch statement
             int device = deviceList[deviceName];
@@ -48,17 +67,19 @@ void Parser::parseInput(std::string fileName) {
                     case 0:
                         // Clock Execution
                         printf("Clock Execution Sent.\n");
+                        parseClock(operation, instructions);
                         break;
 
                     case 1:
                         // CPU Execution
                         printf("CPU Execution Sent.\n");
+                        parseCpu(operation, instructions);
                         break;
 
                     case 2:
                         // Memory Execution
                         printf("Memory Execution Sent.\n");
-                        parseMemory(instructions);
+                        parseMemory(operation, instructions);
                         break;
                     default:
                         // Catch-all condition incase command is invalid.
@@ -68,15 +89,47 @@ void Parser::parseInput(std::string fileName) {
     }
 }
 
+// std::string chunkInstruction(std::string instructions, char* element) {
+//     // Peel off first word and return them both
+//     sscanf(instructions.c_str(), "%s", element);
+//     return instructions.substr(instructions.find_first_of(" \t") + 1);
+// }
+//
+// int wordCount(char* input) {
+//     /*
+//     # Count the number of words in a string
+//     # This function was derived from the following URL:
+//     # https://www.tutorialspoint.com/count-words-in-a-given-string-in-cplusplus
+//     */
+//     int number_of_words = 0, sentinal = 0;
+//     while (*input) {
+//         if (*input == ' ' || *input == '\n' || *input == '\t') {
+//             sentinal = 0;
+//         } else if (sentinal == 0) {
+//             sentinal = 1;
+//             number_of_words++;
+//         }
+//         ++input;
+//     }
+//     return number_of_words;
+// }
+//
+// void toLower(char* input, int inputSize) {
+//     // Branchless method for converting a string to lowercase
+//     for (int i = 0; i < inputSize; i++) {
+//         input[i] += 32 * (input[i] >= 'A' && input[i] <= 'Z');
+//     }
+// }
+
 int main(int argc, const char *argv[]) {
     printf("Main Parser!!\n");
+    // Conditional to ensure filename was provided.
     if (argc < 2) {
-        printf("Error: Missing Filename\n\tUsage: ./cs3421_emul <filename>.\n");
+        printf("Error: Filename\n\tUsage: ./cs3421_emul <filename>.\n");
         return 1;
     }
-    // Parser p;
-    // printf("Filename: %s\n", argv[1]);
-    // p.parseInput(argv[1]);
+    Parser p;
+    p.parseInput( const_cast<char *>(argv[1]) );
     // p.memory.create(0x0100);
     // int begin = (int)atol(argv[2]);
     // int items = (int)atol(argv[3]);

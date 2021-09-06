@@ -49,6 +49,10 @@ void Memory::dump(int begin, int number_of_elements) {
     printf("\n");
 }
 
+void memoryParser(char* operation,std::string instructionSet) {
+    // Handle Instruction Parsing for the Memory Class
+}
+
 void Memory::printBankHeaders() {
     std::string bits[16] = {"00", "01", "02", "03", "04", "05",
     "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F"};
@@ -76,8 +80,8 @@ Memory::~Memory() {
     delete[] banks;
 }
 
-Memory &getMemory() {
-    // Returns a statically derived singleton instance of this object
-    static Memory memory;
-    return memory;
+extern Memory &getMemory() {
+   // Returns a statically derived singleton instance of this object
+   static Memory memory;
+   return memory;
 }
