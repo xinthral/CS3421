@@ -17,6 +17,10 @@
 #**************************************/
 #include "cpu.h"
 
+Cpu::Cpu() {
+    reset();
+}
+
 void Cpu::dump() {
     /*
     # The "dump" command shows the value of all of the CPU
@@ -31,18 +35,37 @@ void Cpu::dump() {
     # RG: 0x09
     # RH: 0x18
     */
-    printf("Cpu Dump.\n");
+    for (auto reg : registers) {
+        const char* idx = reg.first.c_str();
+        std::printf("%2s: 0x%02X\n", idx, reg.second);
+    }
+}
+
+void cpuParser(char* operation,std::string instructionSet) {
+    // Handle Instruction Parsing for the CPU Class
 }
 
 void Cpu::reset() {
-    //
+    // Reset Memory Registers
+    registers.clear();
+    int len = *(&registry + 1) - registry;
+    for (int step = 0; step < len; step++) {
+        registers[registry[step]] = 0x00;
+    }
 }
 
-void Cpu::set_reg(char* registry, unsigned char hbyte) {
+void Cpu::set_reg(std::string location, int hbyte) {
     //
+    registers.emplace(std::pair<std::string, int>(location, hbyte));
+}
+
+Cpu::~Cpu() {
+    // Deconstructor
+    registers.clear();
 }
 
 extern Cpu& getCpu() {
+    // Returns a statically derived singleton instance of this object
     static Cpu cpu;
     return cpu;
 }
