@@ -7,6 +7,7 @@
 #include "utilities.h"          // toLower, wordCount
 #include <fstream>              // std::ifstream
 #include <map>                  // std::map
+#include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf, sscanf
 #include <utility>              // std::pair
 
@@ -20,10 +21,10 @@ private:
 
 public:
     // Establish Singleton Objects
-    Clock clock     = getClock();
-    Cpu cpu         = getCpu();
-    Memory memory   = getMemory();
-    Utilities utilz = getUtilities();
+    Clock clock;
+    Cpu cpu;
+    Memory memory;
+    Utilities utilz;
 
     // Instance Methods
     Parser();

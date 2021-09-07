@@ -5,7 +5,7 @@
 # registers labeled RA through RH. The CPU also has a 1 byte
 # program counter (PC) register that holds the address in
 # memory of the next CPU instruction to fetch. For this
-# assignment, CPU “instructions” will simply be 1 byte of
+# assignment, CPU "instructions" will simply be 1 byte of
 # data. On each clock cycle, the CPU will shift the contents
 # of each register to the next higher register, such that RH
 # receives the content of RG, RG receives what is in RF, and
@@ -64,7 +64,7 @@ Cpu::~Cpu() {
     registers.clear();
 }
 
-extern Cpu& getCpu() {
+extern Cpu &getCpu() {
     // Returns a statically derived singleton instance of this object
     static Cpu cpu;
     return cpu;

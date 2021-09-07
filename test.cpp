@@ -10,7 +10,6 @@
 
 int main(int argc, char const *argv[]) {
     printf("Test Parser!!\n");
-    Parser p;
-    p.parseInput(const_cast<char *>(argv[1]));
+    
     return 0;
 }

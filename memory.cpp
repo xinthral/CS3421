@@ -7,7 +7,10 @@
 #include "memory.h"
 
 void Memory::create(uint16_t inputSize) {
-    // Constructor
+    /* The "create" command accepts a single integer parameter
+    # which indicates the size of the memory in bytes.
+    #   Example: "memory create 0x10000".
+    */
     banks = new int[inputSize];
     bankSize = inputSize;
 }
@@ -73,6 +76,18 @@ void Memory::reset() {
         banks[step] = 0x00;
     }
     bankSize = 0;
+}
+
+void Memory::set() {
+    /* The set commands initializes memory to a user
+    # supplied set of values. The "hex address" specifies
+    # where to begin setting memory values, "hex count"
+    # is how many bytes will be assigned, and is followed
+    # by "hex count" number of hex bytes, separated by a
+    # single space. For this assignment, the command will
+    # never be used with more than 100 hex bytes.
+    #   Example: "memory set 0x10 0x05 0x08 0xDE 0xAD 0xBE 0xEF"
+    */
 }
 
 Memory::~Memory() {

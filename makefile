@@ -20,16 +20,17 @@ CC = g++
 #  	-no-pie 	- do not produce a position-independent executable
 #	-fPIC		- Format position-independent code
 CFLAGS   = -g -fPIC
-CXFLAGS  = -Wall -Wextra
-CXXFLAGS = -O3 -Wunused-result -Wno-format-extra-args
+CXFLAGS  = -O -Wall -Wextra -Werror -Wfatal-errors -pedantic
+CXXFLAGS = -O3 -Wno-unused-result -Wno-format-extra-args -Wno-unused-variable -Wno-unused-parameter -Wno-write-strings
 
 # The build target
 EXECUTABLE = cs3421_emul
+TESTOUTPUT = tester_emul
 CLK = clock
 CPU = cpu
 MEM = memory
 PRS = parser
-TST = test
+TST = parser
 UTL = utilities
 
 # Compile Full porgram
@@ -38,7 +39,7 @@ all: $(CLK).o $(CPU).o $(MEM).o $(PRS).o $(UTL).o
 
 # Compile Full program plus tests
 test: $(CLK).o $(CPU).o $(MEM).o $(PRS).o $(TST).o $(UTL).o
-	$(CC) $(CFLAGS) $(CXXFLAGS) -o $(TST) $^
+	$(CC) $(CFLAGS) $(CXXFLAGS) -o $(TESTOUTPUT) $^
 
 # Define Object Files
 $(CLK).o: $(CLK).h
@@ -51,7 +52,11 @@ $(TST).o: $(CLK).h $(CPU).h $(MEM).h $(PRS).h $(TST).h $(UTL).h
 # Template function to compile defined objects files
 # Dynamically assign *.o to be compiled from its .cpp counterpart
 %.o: %.cpp
+ifeq ($(DEBUG), 1)
 	$(CC) $(CFLAGS) $(CXFLAGS) -c $<
+else
+	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<
+endif
 
 clean:
-	$(RM) *.o $(EXECUTABLE) $(TST)
+	$(RM) *.o $(EXECUTABLE) $(TESTOUTPUT)

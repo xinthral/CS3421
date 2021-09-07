@@ -15,6 +15,7 @@ public:
     void memoryParser(char*,std::string);
     void printBankHeaders();
     void reset();
+    void set();
     ~Memory();
 };
 

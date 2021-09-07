@@ -3,7 +3,7 @@
 # Date: Aug, 2021
 # Purpose: The clock device is the heart of the system,
 # providing synchronization between all other devices. On
-# command, it provides a “tick pulse” to all other devices
+# command, it provides a "tick pulse" to all other devices
 # that need a clock. For diagnostic purposes, the clock
 # will maintain a monotonically increasing unsigned 16 bit
 # count that can be displayed.
@@ -21,7 +21,7 @@ void Clock::dump() {
     # internal clock in decimal. Example: "clock dump" might show:
     # Clock: 148
     */
-    printf("Clock: %u", cycle);
+    printf("Clock: %u\n", cycle);
 }
 
 void clockParser(char* operation,std::string instructionSet) {
@@ -33,7 +33,7 @@ void Clock::reset() {
     # The reset command sets the internal counter to zero.
     # Example: "clock reset".
     */
-    cycle = 0;
+    cycle = 0x0000;
 }
 
 void Clock::tick(uint16_t variant) {
@@ -46,7 +46,7 @@ void Clock::tick(uint16_t variant) {
     cycle += variant;
 }
 
-extern Clock& getClock() {
+extern Clock &getClock() {
     // Returns a statically derived singleton instance of this object
     static Clock clock;
     return clock;
