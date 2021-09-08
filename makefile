@@ -30,7 +30,7 @@ CLK = clock
 CPU = cpu
 MEM = memory
 PRS = parser
-TST = parser
+TST = test
 UTL = utilities
 
 # Compile Full porgram
@@ -38,7 +38,7 @@ all: $(CLK).o $(CPU).o $(MEM).o $(PRS).o $(UTL).o
 	$(CC) $(CFLAGS) $(CXFLAGS) -o $(EXECUTABLE) $^
 
 # Compile Full program plus tests
-test: $(CLK).o $(CPU).o $(MEM).o $(PRS).o $(TST).o $(UTL).o
+test: $(CLK).o $(CPU).o $(MEM).o $(TST).o $(UTL).o
 	$(CC) $(CFLAGS) $(CXXFLAGS) -o $(TESTOUTPUT) $^
 
 # Define Object Files
@@ -47,7 +47,7 @@ $(CPU).o: $(CPU).h
 $(MEM).o: $(MEM).h
 $(UTL).o: $(UTL).h
 $(PRS).o: $(CLK).h $(CPU).h $(MEM).h $(PRS).h $(UTL).h
-$(TST).o: $(CLK).h $(CPU).h $(MEM).h $(PRS).h $(TST).h $(UTL).h
+$(TST).o: $(CLK).h $(CPU).h $(MEM).h $(TST).h $(UTL).h
 
 # Template function to compile defined objects files
 # Dynamically assign *.o to be compiled from its .cpp counterpart

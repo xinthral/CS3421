@@ -6,6 +6,10 @@
 #**************************************/
 #include "memory.h"
 
+Memory::Memory() {
+    utilz = getUtilities();
+}
+
 void Memory::create(uint16_t inputSize) {
     /* The "create" command accepts a single integer parameter
     # which indicates the size of the memory in bytes.
@@ -52,10 +56,6 @@ void Memory::dump(int begin, int number_of_elements) {
     printf("\n");
 }
 
-void memoryParser(char* operation,std::string instructionSet) {
-    // Handle Instruction Parsing for the Memory Class
-}
-
 void Memory::printBankHeaders() {
     std::string bits[16] = {"00", "01", "02", "03", "04", "05",
     "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F"};
@@ -78,7 +78,7 @@ void Memory::reset() {
     bankSize = 0;
 }
 
-void Memory::set() {
+void Memory::set(int starting, int number_of_elements, std::string elements) {
     /* The set commands initializes memory to a user
     # supplied set of values. The "hex address" specifies
     # where to begin setting memory values, "hex count"
@@ -88,12 +88,23 @@ void Memory::set() {
     # never be used with more than 100 hex bytes.
     #   Example: "memory set 0x10 0x05 0x08 0xDE 0xAD 0xBE 0xEF"
     */
+    int devint = 0;
+    int ending = (starting + number_of_elements);
+    for (int i = starting; i < (starting + number_of_elements); i++) {
+        set_memory(i, devint);
+        devint++;
+    }
 }
 
-Memory::~Memory() {
-    // Deconstructor
-    delete[] banks;
+void Memory::set_memory(int position, int hexValue) {
+    banks[position] = hexValue;
+    printf("Adding Memory: %d.\n", banks[position]);
 }
+
+// Memory::~Memory() {
+//     // Deconstructor 
+//     delete[] banks;
+// }
 
 extern Memory &getMemory() {
    // Returns a statically derived singleton instance of this object

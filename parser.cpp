@@ -97,21 +97,23 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
             break;
         case 1:
             // dump
-            memory.dump(0x00, 0x03);
+            memory.dump(0x00, 0x08);
             break;
         case 2:
             // reset
             memory.reset();
             break;
-        case 3:
+        case 3: {
             // set
-            memory.set();
+            std::string values = "0x08 0x07 0x06 0x05 0x04 0x03 0x02 0X01";
+            memory.set(0x00, 0x08, values);
+            }
             break;
         default:
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
     // DEBUG: This line can be removed after testing
-    // printf("%s\n", instructionSet.c_str());
+    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseInput(char* fileName) {
