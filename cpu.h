@@ -9,7 +9,7 @@
 class Cpu {
 private:
     static Cpu* cpu_instance;
-    std::string registry[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
+    std::string registrar[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
     std::map<std::string, int> registers;
     Cpu();                      // Forces Public Instantiation
 public:

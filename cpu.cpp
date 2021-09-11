@@ -44,9 +44,9 @@ void Cpu::dump() {
 void Cpu::reset() {
     // Reset Memory Registers
     registers.clear();
-    int len = *(&registry + 1) - registry;
+    int len = *(&regirstrar + 1) - regirstrar;
     for (int step = 0; step < len; step++) {
-        registers[registry[step]] = 0x00;
+        registers[regirstrar[step]] = 0x00;
     }
 }
 
