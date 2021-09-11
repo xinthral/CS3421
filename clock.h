@@ -18,7 +18,7 @@ private:
 
 public:
     // Singleton Method
-    static Clock * GetInstance();
+    static Clock* getClock();
 
     // Class Methods
     void dump();

@@ -43,9 +43,9 @@ void Clock::tick(int cycles) {
     cycle += variant;
 }
 
-Clock * Clock::clk_instance(nullptr);
+Clock* Clock::clk_instance(nullptr);
 
-Clock * Clock::GetInstance() {
+Clock* Clock::getClock() {
     // Singleton Method
     if (clk_instance == nullptr) {
         clk_instance = new Clock();
