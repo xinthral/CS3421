@@ -33,9 +33,8 @@ void Memory::dump(int begin, int number_of_elements) {
     #   Example: "memory dump 0x04 0x20"
     */
     int displayCursor=0, displayWidth=16, rowCount=0;
-    int beginning = (begin) * 2;
-    int ending = (begin + number_of_elements) * 2;
-    printf("Ending: %d\n", ending);
+    int beginning = (begin);// * 2;
+    int ending = (begin + number_of_elements);// * 2;
     printBankHeaders();
     printf("0x%02X", rowCount);
     for (int step = 0; step < registry.size(); step++) {
@@ -45,12 +44,11 @@ void Memory::dump(int begin, int number_of_elements) {
             displayCursor = 0;
             rowCount++;
         }
-        if (step >= beginning && step < ending) {
+        if (beginning <= step && step <= ending) {
             printf(" %02X", registry.at(step));
         } else {
             printf(" %2s", "");
         }
-        step++;
         displayCursor++;
     }
     printf("\n");
@@ -88,19 +86,20 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     # never be used with more than 100 hex bytes.
     #   Example: "memory set 0x10 0x05 0x08 0xDE 0xAD 0xBE 0xEF"
     */
-    int devint = 0;
-    int ending = (starting + number_of_elements);
+    int ending = (starting + number_of_elements), value;
+    char chunk[6];
     for (int i = 0; i < registry.size(); i++) {
         if (starting <= i && i < ending) {
-            set_memory(i, devint);
+            elements = Utilities::chunkInstruction(elements, chunk);
+            value = std::stoi(chunk, 0, 16);
+            printf("Set Memory: %d\n", value);
+            registry[i] = value;
         }
-        devint++;
     }
 }
 
 void Memory::set_memory(int position, int hexValue) {
     registry[position] = hexValue;
-    printf("Adding Memory: %d.\n", registry[position]);
 }
 
 Memory* Memory::mem_instance(nullptr);      // Instance Instantiation
