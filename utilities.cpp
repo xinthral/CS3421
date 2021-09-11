@@ -13,6 +13,20 @@ namespace Utilities {
         return instructions.substr(instructions.find_first_of(" \t") + 1);
     }
 
+    void toLower(char* input, int inputSize) {
+        // Branchless method for converting a string to lowercase
+        for (int i = 0; i < inputSize; i++) {
+            input[i] += 32 * (input[i] >= 'A' && input[i] <= 'Z');
+        }
+    }
+
+    void toUpperbl(char* str, int count) {
+        // Branchless method for converting a string to lowercase
+        for (int i = 0; i < count; i++) {
+            str[i] -= 32 * (str[i] >= 'a' && str[i] <= 'z');
+        }
+    }
+    
     int wordCount(char* input) {
         /*
         # Count the number of words in a string
@@ -30,12 +44,5 @@ namespace Utilities {
             ++input;
         }
         return number_of_words;
-    }
-
-    void toLower(char* input, int inputSize) {
-        // Branchless method for converting a string to lowercase
-        for (int i = 0; i < inputSize; i++) {
-            input[i] += 32 * (input[i] >= 'A' && input[i] <= 'Z');
-        }
     }
 }

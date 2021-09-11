@@ -7,6 +7,7 @@ namespace Utilities {
     // Helper Functions
     std::string chunkInstruction(std::string,char*);
     void toLower(char*,int);
+    void toUpper(char*,int);
     int wordCount(char*);
 };
 
