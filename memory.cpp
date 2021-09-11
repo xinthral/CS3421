@@ -7,7 +7,6 @@
 #include "memory.h"
 
 Memory::Memory() {
-    utilz = getUtilities();
 }
 
 void Memory::create(uint16_t inputSize) {
@@ -15,8 +14,9 @@ void Memory::create(uint16_t inputSize) {
     # which indicates the size of the memory in bytes.
     #   Example: "memory create 0x10000".
     */
-    banks = new int[inputSize];
-    bankSize = inputSize;
+    for (uint16_t i = 0; i < inputSize; i++) {
+        registry.push_back(0);
+    }
 }
 
 void Memory::dump(int begin, int number_of_elements) {
@@ -38,7 +38,7 @@ void Memory::dump(int begin, int number_of_elements) {
     printf("Ending: %d\n", ending);
     printBankHeaders();
     printf("0x%02X", rowCount);
-    for (int step = 0; step < bankSize; step++) {
+    for (int step = 0; step < registry.size(); step++) {
 
         if (displayCursor == displayWidth) {
             printf("\n0x%02X", rowCount);
@@ -46,7 +46,7 @@ void Memory::dump(int begin, int number_of_elements) {
             rowCount++;
         }
         if (step >= beginning && step < ending) {
-            printf(" %02X", *(banks + step));
+            printf(" %02X", registry.at(step));
         } else {
             printf(" %2s", "");
         }
@@ -72,10 +72,10 @@ void Memory::reset() {
     # memory to be set to zero.
     #   Example: "memory reset"
     */
-    for (int step = 0; step < bankSize; step++) {
-        banks[step] = 0x00;
-    }
-    bankSize = 0;
+    // for (int step = 0; step < registry.size(); step++) {
+    //     registry[step] = 0x00;
+    // }
+    registry.empty();
 }
 
 void Memory::set(int starting, int number_of_elements, std::string elements) {
@@ -90,24 +90,30 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     */
     int devint = 0;
     int ending = (starting + number_of_elements);
-    for (int i = starting; i < (starting + number_of_elements); i++) {
-        set_memory(i, devint);
+    for (int i = 0; i < registry.size(); i++) {
+        if (starting <= i && i < ending) {
+            set_memory(i, devint);
+        }
         devint++;
     }
 }
 
 void Memory::set_memory(int position, int hexValue) {
-    banks[position] = hexValue;
-    printf("Adding Memory: %d.\n", banks[position]);
+    registry[position] = hexValue;
+    printf("Adding Memory: %d.\n", registry[position]);
 }
 
-// Memory::~Memory() {
-//     // Deconstructor 
-//     delete[] banks;
-// }
+Memory* Memory::mem_instance(nullptr);      // Instance Instantiation
+Memory* Memory::getMemory() {
+    // Singleton Method
+    if (mem_instance == nullptr) {
+        mem_instance = new Memory();
+    }
+    return mem_instance;
+}
 
-extern Memory &getMemory() {
-   // Returns a statically derived singleton instance of this object
-   static Memory memory;
-   return memory;
+Memory::~Memory() {
+    // Deconstructor
+    delete mem_instance;
+    mem_instance = nullptr;
 }

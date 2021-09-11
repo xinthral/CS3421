@@ -21,10 +21,9 @@ private:
 
 public:
     // Establish Singleton Objects
-    Clock clock;
-    Cpu cpu;
-    Memory memory;
-    Utilities utilz;
+    Clock* clock;
+    Cpu* cpu;
+    Memory* memory;
 
     // Instance Methods
     Parser();

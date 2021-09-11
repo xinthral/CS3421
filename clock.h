@@ -7,15 +7,9 @@
 
 class Clock {
 private:
-    // Singleton Object
-    static Clock* clk_instance;
-
-    // Class Scope Variables
-    uint16_t cycle;
-
-    // Private Constructor
+    static Clock* clk_instance; // Singleton Object
+    uint16_t cycle;             // Current cycle of clock
     Clock();                    // Forces Public Instantiation
-
 public:
     // Singleton Method
     static Clock* getClock();

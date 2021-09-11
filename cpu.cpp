@@ -44,21 +44,15 @@ void Cpu::dump() {
 void Cpu::reset() {
     // Reset Memory Registers
     registers.clear();
-    int len = *(&regirstrar + 1) - regirstrar;
+    int len = *(&registrar + 1) - registrar;
     for (int step = 0; step < len; step++) {
-        registers[regirstrar[step]] = 0x00;
+        registers[registrar[step]] = 0x00;
     }
 }
 
 void Cpu::set_reg(std::string location, int hbyte) {
     //
     registers.emplace(std::pair<std::string, int>(location, hbyte));
-}
-
-Cpu::~Cpu() {
-    // Deconstructor
-    delete cpu_instance;
-    cpu_instance = nullptr;
 }
 
 Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation
@@ -68,4 +62,10 @@ Cpu* Cpu::getCpu() {
         cpu_instance = new Cpu();
     }
     return cpu_instance;
+}
+
+Cpu::~Cpu() {
+    // Deconstructor
+    delete cpu_instance;
+    cpu_instance = nullptr;
 }
