@@ -41,12 +41,16 @@ void Cpu::dump() {
     }
 }
 
+void cpuParser(char* operation,std::string instructionSet) {
+    // Handle Instruction Parsing for the CPU Class
+}
+
 void Cpu::reset() {
     // Reset Memory Registers
     registers.clear();
-    int len = *(&registrar + 1) - registrar;
+    int len = *(&registry + 1) - registry;
     for (int step = 0; step < len; step++) {
-        registers[registrar[step]] = 0x00;
+        registers[registry[step]] = 0x00;
     }
 }
 
@@ -55,17 +59,13 @@ void Cpu::set_reg(std::string location, int hbyte) {
     registers.emplace(std::pair<std::string, int>(location, hbyte));
 }
 
-Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation
-Cpu* Cpu::getCpu() {
-    // Singleton Method
-    if (cpu_instance == nullptr) {
-        cpu_instance = new Cpu();
-    }
-    return cpu_instance;
-}
-
 Cpu::~Cpu() {
     // Deconstructor
-    delete cpu_instance;
-    cpu_instance = nullptr;
+    registers.clear();
+}
+
+extern Cpu &getCpu() {
+    // Returns a statically derived singleton instance of this object
+    static Cpu cpu;
+    return cpu;
 }

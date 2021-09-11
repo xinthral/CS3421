@@ -8,10 +8,11 @@
 #include "parser.h"
 
 Parser::Parser() {
-    // Singleton Instantiation
-    clock   = Clock::getClock();
-    cpu     = Cpu::getCpu();
-    memory  = Memory::getMemory();
+
+    clock   = getClock();
+    cpu     = getCpu();
+    memory  = getMemory();
+    utilz   = getUtilities();
 
     // Devices Options
     int dev_num = 3, clk_num = 3, cpu_num = 3, mem_num = 4;
@@ -40,15 +41,15 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
     switch (op) {
         case 0:
             // dump
-            clock->dump();
+            clock.dump();
             break;
         case 1:
             // reset
-            clock->reset();
+            clock.reset();
             break;
         case 2:
             // tick
-            clock->tick(0x0002);
+            clock.tick(0x0002);
             break;
         default:
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
@@ -63,16 +64,16 @@ void Parser::parseCpu(char* operation, std::string instructionSet) {
     switch (op) {
         case 0:
             // dump
-            cpu->dump();
+            cpu.dump();
             break;
         case 1:
             // reset
-            cpu->reset();
+            cpu.reset();
             break;
         case 2: {
             // set reg
             std::string values = "0x08 0x08 0x07 0x06 0x05 0x04 0x03 0x02 0X01";
-            cpu->set_reg(values, 0x0002);
+            cpu.set_reg(values, 0x0002);
             }
             break;
         default:
@@ -89,23 +90,23 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
         case 0: {
             // create
             char memSizeStr[6];
-            instructionSet = Utilities::chunkInstruction(instructionSet, memSizeStr);
+            instructionSet = utilz.chunkInstruction(instructionSet, memSizeStr);
             uint16_t memSize = (uint16_t)atoi(memSizeStr);
-            memory->create(memSize);
+            memory.create(memSize);
             }
             break;
         case 1:
             // dump
-            memory->dump(0x00, 0x08);
+            memory.dump(0x00, 0x08);
             break;
         case 2:
             // reset
-            memory->reset();
+            memory.reset();
             break;
         case 3: {
             // set
             std::string values = "0x08 0x07 0x06 0x05 0x04 0x03 0x02 0X01";
-            memory->set(0x00, 0x08, values);
+            memory.set(0x00, 0x08, values);
             }
             break;
         default:
@@ -130,11 +131,11 @@ void Parser::parseInput(char* fileName) {
         while (getline(inputFile, instructions)) {
 
             char* instructionSet = const_cast<char*>(instructions.c_str());
-            Utilities::toLower(instructionSet, instructions.size());
+            utilz.toLower(instructionSet, instructions.size());
 
             // Strip out the first two words in the instruction set
-            instructions = Utilities::chunkInstruction(instructions, deviceName);
-            instructions = Utilities::chunkInstruction(instructions, operation);
+            instructions = utilz.chunkInstruction(instructions, deviceName);
+            instructions = utilz.chunkInstruction(instructions, operation);
 
             // Convert deviceName to switch statement
             device = deviceList[deviceName];
@@ -176,7 +177,7 @@ int main(int argc, const char *argv[]) {
     }
     Parser p;
     p.parseInput( const_cast<char *>(argv[1]) );
-    // p.memory->create(0x0100);
+    // p.memory.create(0x0100);
     // int begin = (int)atol(argv[2]);
     // int items = (int)atol(argv[3]);
     // p.parseMemory(argv[1], begin, items);
