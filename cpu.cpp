@@ -37,22 +37,30 @@ void Cpu::dump() {
     */
     for (auto reg : registers) {
         const char* idx = reg.first.c_str();
-        std::printf("%2s: 0x%02X\n", idx, reg.second);
+        printf("%2s: 0x%02X\n", idx, reg.second);
     }
 }
 
 void Cpu::reset() {
     // Reset Memory Registers
     registers.clear();
-    int len = *(&registrar + 1) - registrar;
+    int len = 9; //*(&registrar + 1) - registrar;
     for (int step = 0; step < len; step++) {
         registers[registrar[step]] = 0x00;
     }
 }
 
 void Cpu::set_reg(std::string location, int hbyte) {
-    //
-    registers.emplace(std::pair<std::string, int>(location, hbyte));
+    // Insert value into registry
+    transform(location.begin(), location.end(), location.begin(), ::toupper);
+    registers[location] = hbyte;
+}
+
+void Cpu::printRegistry(std::string location) {
+    // Prints individual registries rather than whole thing
+    std::map<std::string, int>::iterator it = registers.find(location);
+    assert(it != registers.end());
+    printf("%s: [%d]\n", (it->first).c_str(), it->second);
 }
 
 Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation

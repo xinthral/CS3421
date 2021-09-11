@@ -1,10 +1,12 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include <algorithm>            // std::transform
 #include <map>                  // std::map
 #include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf
 #include <string>               // std::string
+#include <cassert>              // assert
 
 class Cpu {
 private:
@@ -16,6 +18,7 @@ public:
     // Singleton Method
     static Cpu* getCpu();
     void dump();
+    void printRegistry(std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     ~Cpu();
