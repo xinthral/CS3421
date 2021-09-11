@@ -57,7 +57,8 @@ void Cpu::set_reg(std::string location, int hbyte) {
 
 Cpu::~Cpu() {
     // Deconstructor
-    registers.clear();
+    delete cpu_instance;
+    cpu_instance = nullptr;
 }
 
 Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation
