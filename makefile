@@ -19,7 +19,7 @@ CC = g++
 #  	-std		- compile with version compatibility
 #  	-no-pie 	- do not produce a position-independent executable
 #	-fPIC		- Format position-independent code
-CFLAGS   = -g -fPIC
+CFLAGS   = -g -fPIC -std=c++11
 CXFLAGS  = -O -Wall -Wextra -Werror -Wfatal-errors -pedantic
 CXXFLAGS = -O3 -Wno-unused-result -Wno-format-extra-args -Wno-unused-variable -Wno-unused-parameter -Wno-write-strings
 
