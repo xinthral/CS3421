@@ -60,8 +60,11 @@ Cpu::~Cpu() {
     registers.clear();
 }
 
-extern Cpu &getCpu() {
-    // Returns a statically derived singleton instance of this object
-    static Cpu cpu;
-    return cpu;
+Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation
+Cpu* Cpu::getCpu() {
+    // Singleton Method
+    if (cpu_instance == nullptr) {
+        cpu_instance = new Cpu();
+    }
+    return cpu_instance;
 }

@@ -43,7 +43,7 @@ void Clock::tick(int cycles) {
     cycle += variant;
 }
 
-Clock* Clock::clk_instance(nullptr);
+Clock* Clock::clk_instance(nullptr);        // Instance Instantiation
 
 Clock* Clock::getClock() {
     // Singleton Method

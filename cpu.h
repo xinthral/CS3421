@@ -8,19 +8,17 @@
 
 class Cpu {
 private:
+    static Cpu* cpu_instance;
     std::string registry[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
     std::map<std::string, int> registers;
-
+    Cpu();                      // Forces Public Instantiation
 public:
-    Cpu();
+    // Singleton Method
+    static Cpu* getCpu();
     void dump();
-    void cpuParser(char*,std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     ~Cpu();
 };
-
-// Singleton Method
-extern Cpu& getCpu();
 
 #endif
