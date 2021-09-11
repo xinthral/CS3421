@@ -3,24 +3,30 @@
 
 #include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf
-#include <string>
+#include <string>               // std::string
 
 class Clock {
 private:
+    // Singleton Object
+    static Clock* clk_instance;
+
     // Class Scope Variables
     uint16_t cycle;
 
+    // Private Constructor
+    Clock();                    // Forces Public Instantiation
+
 public:
-    Clock();
+    // Singleton Method
+    static Clock * GetInstance();
 
     // Class Methods
     void dump();
-    void clockParser(char*,std::string);
     void reset();
-    void tick(uint16_t);
-};
+    void tick(int);
 
-// Singleton method
-extern Clock& getClock();
+    // Deconstructor
+    ~Clock();
+};
 
 #endif
