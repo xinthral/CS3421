@@ -52,6 +52,8 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
             instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
             int cycles = atoi(clockCycles);
             clock->tick(cycles);
+            // doWorkCpu()
+            // doWorkMemory()
             }
             break;
         default:
