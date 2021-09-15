@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include <algorithm>            // std::transform
+#include <iterator>             // std::next
 #include <map>                  // std::map
 #include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf
@@ -21,6 +22,7 @@ public:
     void printRegistry(std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)
+    void shift_registers();
     ~Cpu();
 };
 

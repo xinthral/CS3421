@@ -41,6 +41,13 @@ void Cpu::dump() {
     }
 }
 
+void Cpu::printRegistry(std::string location) {
+    // Prints individual registries rather than whole thing
+    std::map<std::string, int>::iterator it = registers.find(location);
+    assert(it != registers.end());
+    printf("%s: [%d]\n", (it->first).c_str(), it->second);
+}
+
 void Cpu::reset() {
     // Reset Memory Registers
     registers.clear();
@@ -56,11 +63,18 @@ void Cpu::set_reg(std::string location, int hbyte) {
     registers[location] = hbyte;
 }
 
-void Cpu::printRegistry(std::string location) {
-    // Prints individual registries rather than whole thing
-    std::map<std::string, int>::iterator it = registers.find(location);
-    assert(it != registers.end());
-    printf("%s: [%d]\n", (it->first).c_str(), it->second);
+void Cpu::shift_registers() {
+    /*
+    # Shifts the CPU registry elements in ascending
+    # Alphanumeric order.
+    */
+    auto it = registers.begin();
+    auto ti = registers.end();
+    ti++;
+    while(--ti != it) {
+        printf("Shifting %s -> %s\n", ti->first.c_str(), std::next(ti)->first.c_str());
+        set_reg(std::next(ti)->first.c_str(), ti->second);
+    }
 }
 
 Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation
