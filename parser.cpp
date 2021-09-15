@@ -14,7 +14,7 @@ Parser::Parser() {
     memory  = Memory::getMemory();
 
     // Devices Options
-    int dev_num = 3, clk_num = 3, cpu_num = 3, mem_num = 4;
+    const int dev_num = 3, clk_num = 3, cpu_num = 3, mem_num = 4;
     char* device_objects[dev_num] = {"clock", "cpu", "memory"};
     char* clk_operations[clk_num] = {"dump", "reset", "tick"};
     char* cpu_operations[cpu_num] = {"dump", "reset", "set"};
@@ -52,8 +52,12 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
             instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
             int cycles = atoi(clockCycles);
             clock->tick(cycles);
-            // doWorkCpu()
-            // doWorkMemory()
+            // for (int i = 0; i < cycles; i++) {
+            //     // doWorkCpu()
+            //
+            //     // doWorkMemory()
+            //
+            // }
             }
             break;
         default:
@@ -78,10 +82,13 @@ void Parser::parseCpu(char* operation, std::string instructionSet) {
         case 2: {
             // set reg
             char junk[3], element[6];
+
             instructionSet = Utilities::chunkInstruction(instructionSet, junk);
             instructionSet = Utilities::chunkInstruction(instructionSet, element);
+
             int bitValue = std::stoi(instructionSet, 0, 16);
             std::string location = element;
+
             cpu->set_reg(location, bitValue);
             }
             break;
@@ -115,10 +122,13 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
         case 3: {
             // set
             char startPos[6], elementCount[6];
+
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
             instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
+
             int starting = atoi(startPos);
             int number_of_elements = atoi(elementCount);
+
             std::string values = "0x08 0x07 0x06 0x05 0x04 0x03 0x02 0X01";
             memory->set(starting, number_of_elements, instructionSet);
             }
@@ -183,7 +193,8 @@ void Parser::parseInput(char* fileName) {
 }
 
 int main(int argc, const char *argv[]) {
-    printf("Main Parser!!\n");
+    // DEBUG: This line can be removed after testing
+    // printf("Main Parser!!\n");
     // Conditional to ensure filename was provided.
     if (argc < 2) {
         printf("Error: Filename\n\tUsage: ./cs3421_emul <filename>.\n");

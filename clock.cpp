@@ -32,14 +32,6 @@ void Clock::reset() {
     cycle = 0x0000;
 }
 
-void Clock::shiftRegisters(int number_of_shifts) {
-    /*
-    # Shifts the CPU registry elements in ascending
-    # Alphanumeric order.
-    */
-    
-}
-
 void Clock::tick(int cycles) {
     /*
     # The tick command accepts a positive decimal integer

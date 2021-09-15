@@ -9,6 +9,6 @@ namespace Utilities {
     void toLower(char*,int);
     void toUpper(char*,int);
     int wordCount(char*);
-};
+}
 
 #endif
