@@ -37,7 +37,7 @@ void Memory::dump(int begin, int number_of_elements) {
     int ending = (begin + number_of_elements);// * 2;
     printBankHeaders();
     printf("0x%02X", rowCount);
-    for (int step = 0; step < registry.size(); step++) {
+    for (int step = 0; step < (int)registry.size(); step++) {
 
         if (displayCursor == displayWidth) {
             printf("\n0x%02X", rowCount);
@@ -88,7 +88,7 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     */
     int ending = (starting + number_of_elements), value;
     char chunk[6];
-    for (int i = 0; i < registry.size(); i++) {
+    for (int i = 0; i < (int)registry.size(); i++) {
         if (starting <= i && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);
             value = std::stoi(chunk, 0, 16);
