@@ -70,9 +70,6 @@ void Memory::reset() {
     # memory to be set to zero.
     #   Example: "memory reset"
     */
-    // for (int step = 0; step < registry.size(); step++) {
-    //     registry[step] = 0x00;
-    // }
     registry.empty();
 }
 
@@ -92,14 +89,21 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
         if (starting <= i && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);
             value = std::stoi(chunk, 0, 16);
-            printf("Set Memory: %d\n", value);
+            // DEBUG: This line can be removed after testing
+            // printf("Set Memory: %d\n", value);
             registry[i] = value;
         }
     }
 }
 
 void Memory::set_memory(int position, int hexValue) {
+    // Set value of position in memory banks based on index value
     registry[position] = hexValue;
+}
+
+int Memory::get_memory(int position) {
+    // Return the value of index in bank
+    return registry[position];
 }
 
 Memory* Memory::mem_instance(nullptr);      // Instance Instantiation

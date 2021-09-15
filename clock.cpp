@@ -32,7 +32,7 @@ void Clock::reset() {
     cycle = 0x0000;
 }
 
-void Clock::tick(int cycles) {
+int Clock::tick(int cycles) {
     /*
     # The tick command accepts a positive decimal integer
     # indicating how many clock ticks should be issued to
@@ -41,6 +41,7 @@ void Clock::tick(int cycles) {
     */
     uint16_t variant = (uint16_t)cycles;
     cycle += variant;
+    return cycle;
 }
 
 Clock* Clock::clk_instance(nullptr);        // Instance Instantiation

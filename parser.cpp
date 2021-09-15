@@ -51,20 +51,18 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
             char clockCycles[6];
             instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
             int cycles = atoi(clockCycles);
-            clock->tick(cycles);
-            // for (int i = 0; i < cycles; i++) {
-            //     // doWorkCpu()
-            //
-            //     // doWorkMemory()
-            //
-            // }
+            int junk = clock->tick(cycles);
+            for (int i = 0; i < cycles; i++) {
+                cpu->doWork(clock, memory);
+                // doWorkMemory()
+            }
             }
             break;
         default:
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
     // DEBUG: This line can be removed after testing
-    // printf("%s\n", instructionSet.c_str());
+    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseCpu(char* operation, std::string instructionSet) {
@@ -96,7 +94,7 @@ void Parser::parseCpu(char* operation, std::string instructionSet) {
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
     // DEBUG: This line can be removed after testing
-    // printf("%s\n", instructionSet.c_str());
+    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseMemory(char* operation, std::string instructionSet) {
@@ -137,7 +135,7 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
     // DEBUG: This line can be removed after testing
-    // printf("%s\n", instructionSet.c_str());
+    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseInput(char* fileName) {

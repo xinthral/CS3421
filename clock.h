@@ -17,7 +17,7 @@ public:
     // Class Methods
     void dump();
     void reset();
-    void tick(int);
+    int tick(int);
 
     // Deconstructor
     ~Clock();

@@ -21,6 +21,15 @@ Cpu::Cpu() {
     reset();
 }
 
+void Cpu::doWork(Clock*& clock, Memory*& memory) {
+    // Do the thing
+    shift_registers();
+    int fetchbyte = registers["PC"];
+    fetch_memory(memory, fetchbyte);
+    int current_cycle = clock->tick(1);
+    set_reg("PC", current_cycle);
+}
+
 void Cpu::dump() {
     /*
     # The "dump" command shows the value of all of the CPU
@@ -70,11 +79,21 @@ void Cpu::shift_registers() {
     */
     auto it = registers.begin();
     auto ti = registers.end();
-    ti++;
+    ti++;                           // Increment to skip element
+
     while(--ti != it) {
-        printf("Shifting %s -> %s\n", ti->first.c_str(), std::next(ti)->first.c_str());
         set_reg(std::next(ti)->first.c_str(), ti->second);
     }
+}
+
+void Cpu::fetch_memory(Memory*& memory, int position) {
+   /* Fetch new value from memory banks and place instruction
+   #  into the CPU register slot 'RA'
+   */
+   int response = memory->get_memory(position);
+   // DEBUG: This line can be removed after testing
+   printf("CPU Fetched Value: %d\n", response);
+   set_reg("RA", response);
 }
 
 Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation

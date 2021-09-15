@@ -19,6 +19,7 @@ public:
     // Class Methods
     void create(uint16_t);
     void dump(int,int);
+    int get_memory(int);
     void printBankHeaders();
     void reset();
     void set(int,int,std::string);
