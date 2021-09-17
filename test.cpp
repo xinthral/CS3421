@@ -18,15 +18,16 @@ int main(int argc, char const *argv[]) {
     Memory* _memory = Memory::getMemory();
     _memory->create(0x100);
     _memory->set(start, end, testStr);
-    _cpu->set_reg("rA", 0x01);
+    _cpu->set_reg("rA", 0x00);
     _cpu->set_reg("Rb", 0x02);
     _cpu->set_reg("rc", 0x03);
     _cpu->set_reg("rd", 0x04);
     _cpu->set_reg("re", 0x05);
     _cpu->set_reg("rh", 0x06);
     _cpu->dump();
-    _cpu->doWork(_clock, _memory);
-
+    for (size_t i = 0; i < 5; i++) {
+        _cpu->doWork(*_clock, *_memory);
+    }
     _cpu->dump();
     return 0;
 }

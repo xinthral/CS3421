@@ -7,16 +7,20 @@
 #include "memory.h"
 
 Memory::Memory() {
+    // create(0x0F);
+    capacity = 0;
 }
 
-void Memory::create(uint16_t inputSize) {
+void Memory::create(int inputSize) {
     /* The "create" command accepts a single integer parameter
     # which indicates the size of the memory in bytes.
     #   Example: "memory create 0x10000".
     */
-    for (uint16_t i = 0; i < inputSize; i++) {
-        registry.push_back(0);
-    }
+    // for (int i = 0; i < inputSize; i++) {
+    //     registry.push_back(0x00);
+    // }
+    registry = new int[inputSize];
+    capacity = inputSize;
 }
 
 void Memory::dump(int begin, int number_of_elements) {
@@ -37,15 +41,15 @@ void Memory::dump(int begin, int number_of_elements) {
     int ending = (begin + number_of_elements);// * 2;
     printBankHeaders();
     printf("0x%02X", rowCount);
-    for (int step = 0; step < (int)registry.size(); step++) {
+    for (int step = 0; step < capacity; step++) {
 
         if (displayCursor == displayWidth) {
             printf("\n0x%02X", rowCount);
             displayCursor = 0;
             rowCount++;
         }
-        if (beginning <= step && step <= ending) {
-            printf(" %02X", registry.at(step));
+        if (step >= beginning && step <= ending) {
+            printf(" %02X", registry[step]);
         } else {
             printf(" %2s", "");
         }
@@ -70,7 +74,9 @@ void Memory::reset() {
     # memory to be set to zero.
     #   Example: "memory reset"
     */
-    registry.empty();
+    for (int i = 0; i < capacity; i++) {
+        registry[i] = 0;
+    }
 }
 
 void Memory::set(int starting, int number_of_elements, std::string elements) {
@@ -83,14 +89,17 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     # never be used with more than 100 hex bytes.
     #   Example: "memory set 0x10 0x05 0x08 0xDE 0xAD 0xBE 0xEF"
     */
-    int ending = (starting + number_of_elements), value;
+    int value;
+    int ending = (starting + number_of_elements);
+    // DEBUG: This line can be removed after testing
+    printf(" Memory::Set(%d, %d, %s)\n", starting, ending, elements.c_str());
     char chunk[6];
-    for (int i = 0; i < (int)registry.size(); i++) {
-        if (starting <= i && i < ending) {
+    for (int i = 0; i < capacity; i++) {
+        if (i >= starting && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);
             value = std::stoi(chunk, 0, 16);
             // DEBUG: This line can be removed after testing
-            // printf("Set Memory: %d\n", value);
+            printf("Set Memory: %d\n", value);
             registry[i] = value;
         }
     }
@@ -103,7 +112,12 @@ void Memory::set_memory(int position, int hexValue) {
 
 int Memory::get_memory(int position) {
     // Return the value of index in bank
-    return registry[position];
+    try {
+        int response = registry[position];
+        return response;
+    } catch (const std::out_of_range& exc) {
+        throw exc.what();
+    }
 }
 
 Memory* Memory::mem_instance(nullptr);      // Instance Instantiation

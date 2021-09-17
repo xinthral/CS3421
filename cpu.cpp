@@ -21,14 +21,6 @@ Cpu::Cpu() {
     reset();
 }
 
-void Cpu::doWork(Clock*& clock, Memory*& memory) {
-    // Do the thing
-    shift_registers();
-    int fetchbyte = registers["PC"];
-    fetch_memory(memory, fetchbyte);
-    int current_cycle = clock->tick(1);
-    set_reg("PC", current_cycle);
-}
 
 void Cpu::dump() {
     /*
@@ -50,6 +42,23 @@ void Cpu::dump() {
     }
 }
 
+void Cpu::fetch_memory(Memory& memory, int current_cycle) {
+    /* Fetch new value from memory banks and place instruction
+    #  into the CPU register slot 'RA'
+    */
+    // Do the thing
+    shift_registers();
+
+    int fetchbyte = registers["PC"];
+    int response = memory.get_memory(fetchbyte);
+
+    set_reg("RA", response);
+
+    printf("Clock tick cycle for PC: %d\n", current_cycle);
+    set_reg("PC", current_cycle);
+    printf("Program Counter done!\n");
+}
+
 void Cpu::printRegistry(std::string location) {
     // Prints individual registries rather than whole thing
     std::map<std::string, int>::iterator it = registers.find(location);
@@ -69,7 +78,7 @@ void Cpu::reset() {
 void Cpu::set_reg(std::string location, int hbyte) {
     // Insert value into registry
     transform(location.begin(), location.end(), location.begin(), ::toupper);
-    registers[location] = hbyte;
+    registers.at(location) = hbyte;
 }
 
 void Cpu::shift_registers() {
@@ -79,21 +88,11 @@ void Cpu::shift_registers() {
     */
     auto it = registers.begin();
     auto ti = registers.end();
+    it--;                           // Decrement to skip element
     ti++;                           // Increment to skip element
-
     while(--ti != it) {
         set_reg(std::next(ti)->first.c_str(), ti->second);
     }
-}
-
-void Cpu::fetch_memory(Memory*& memory, int position) {
-   /* Fetch new value from memory banks and place instruction
-   #  into the CPU register slot 'RA'
-   */
-   int response = memory->get_memory(position);
-   // DEBUG: This line can be removed after testing
-   printf("CPU Fetched Value: %d\n", response);
-   set_reg("RA", response);
 }
 
 Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation

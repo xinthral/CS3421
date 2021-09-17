@@ -35,6 +35,8 @@ void Parser::loadOptions(int inputSize, char* options[], std::map<std::string, i
 }
 
 void Parser::parseClock(char* operation, std::string instructionSet) {
+    // DEBUG: This line can be removed after testing
+    printf("Clock Instruction: %s\n", instructionSet.c_str());
     int op = clkOperations[operation];
 
     switch (op) {
@@ -47,25 +49,26 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
             clock->reset();
             break;
         case 2: {
-            // tick
-            char clockCycles[6];
-            instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
-            int cycles = atoi(clockCycles);
-            int junk = clock->tick(cycles);
-            for (int i = 0; i < cycles; i++) {
-                cpu->doWork(clock, memory);
-                // doWorkMemory()
-            }
+                // tick
+                char clockCycles[3];
+                instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
+                int cycles = atoi(clockCycles);
+                int sentinal = clock->tick(0);
+                int current_cycle = sentinal;
+                while (clock->tick(1) <= sentinal) {
+                    cpu->fetch_memory(*memory, current_cycle);
+                    current_cycle++;
+                }
             }
             break;
         default:
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
-    // DEBUG: This line can be removed after testing
-    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseCpu(char* operation, std::string instructionSet) {
+    // DEBUG: This line can be removed after testing
+    printf("Cpu Instruction: %s\n", instructionSet.c_str());
     int op = cpuOperations[operation];
 
     switch (op) {
@@ -78,64 +81,69 @@ void Parser::parseCpu(char* operation, std::string instructionSet) {
             cpu->reset();
             break;
         case 2: {
-            // set reg
-            char junk[3], element[6];
+                // set reg
+                char junk[3], element[6];
 
-            instructionSet = Utilities::chunkInstruction(instructionSet, junk);
-            instructionSet = Utilities::chunkInstruction(instructionSet, element);
+                instructionSet = Utilities::chunkInstruction(instructionSet, junk);
+                instructionSet = Utilities::chunkInstruction(instructionSet, element);
 
-            int bitValue = std::stoi(instructionSet, 0, 16);
-            std::string location = element;
+                int bitValue = std::stoi(instructionSet, 0, 16);
+                std::string location = element;
 
-            cpu->set_reg(location, bitValue);
+                cpu->set_reg(location, bitValue);
             }
             break;
         default:
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
-    // DEBUG: This line can be removed after testing
-    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseMemory(char* operation, std::string instructionSet) {
+    // DEBUG: This line can be removed after testing
+    printf("Memory Instruction: %s\n", instructionSet.c_str());
     int op = memOperations[operation];
 
     switch (op) {
         case 0: {
-            // create
+            // create 0x100
             char memSizeStr[6];
             instructionSet = Utilities::chunkInstruction(instructionSet, memSizeStr);
             int memSize = atoi(memSizeStr);
             memory->create(memSize);
             }
             break;
-        case 1:
-            // dump
-            memory->dump(0x00, 0x08);
+        case 1: {
+                // dump 0 8
+                char startPos[3], elementCount[3];
+                instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
+                instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
+                int memStart = std::stoi(startPos, 0, 16);
+                int memCount = std::stoi(elementCount, 0, 16);
+                memory->dump(memStart, memCount);
+            }
             break;
         case 2:
             // reset
             memory->reset();
             break;
         case 3: {
-            // set
-            char startPos[6], elementCount[6];
+                // set 0x00 0x03 0x03 0x02 0x01
+                char startPos[3], elementCount[3];
 
-            instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
-            instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
+                instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
+                instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
 
-            int starting = atoi(startPos);
-            int number_of_elements = atoi(elementCount);
+                int starting = std::stoi(startPos, 0, 16);
+                int number_of_elements = std::stoi(elementCount, 0, 16);
 
-            std::string values = "0x08 0x07 0x06 0x05 0x04 0x03 0x02 0X01";
-            memory->set(starting, number_of_elements, instructionSet);
+                printf("Memory Elements: %s\n", instructionSet.c_str());
+
+                memory->set(0x00, 0x08, instructionSet);
             }
             break;
         default:
             printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
     }
-    // DEBUG: This line can be removed after testing
-    printf("%s\n", instructionSet.c_str());
 }
 
 void Parser::parseInput(char* fileName) {
@@ -190,6 +198,21 @@ void Parser::parseInput(char* fileName) {
     }
 }
 
+Parser* Parser::parser_instance(nullptr);        // Instance Instantiation
+Parser* Parser::getParser() {
+    if (parser_instance == nullptr) {
+        parser_instance = new Parser();
+    }
+    return parser_instance;
+}
+
+Parser::~Parser() {
+    // Deconstructor
+    delete parser_instance;
+    parser_instance = nullptr;
+}
+
+
 int main(int argc, const char *argv[]) {
     // DEBUG: This line can be removed after testing
     // printf("Main Parser!!\n");
@@ -198,7 +221,7 @@ int main(int argc, const char *argv[]) {
         printf("Error: Filename\n\tUsage: ./cs3421_emul <filename>.\n");
         return 1;
     }
-    Parser p;                                       // Initial Parsing object
-    p.parseInput( const_cast<char *>(argv[1]) );    // Send arg1<filename> to parser
+    Parser* p = Parser::getParser();                                       // Initial Parsing object
+    p->parseInput( const_cast<char *>(argv[1]) );    // Send arg1<filename> to parser
     return 0;
 }

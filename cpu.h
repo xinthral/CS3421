@@ -7,7 +7,7 @@
 #include <iterator>             // std::next
 #include <map>                  // std::map
 #include "memory.h"             // Internal Memory Object
-#include <stdint.h>             // uint16_t
+// #include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf
 #include <string>               // std::string
 
@@ -19,9 +19,9 @@ private:
     Cpu();                      // Forces Public Instantiation
 public:
     static Cpu* getCpu();       // Singleton instantiation
-    void doWork(Clock*&, Memory*&);
+    // void doWork(Memory, int);
     void dump();
-    void fetch_memory(Memory*&, int);
+    void fetch_memory(Memory&, int);
     void printRegistry(std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)

@@ -21,7 +21,7 @@ void Clock::dump() {
     # internal clock in decimal. Example: "clock dump" might show:
     # Clock: 148
     */
-    printf("Clock: %u\n", cycle);
+    printf("Clock: %d\n", cycle);
 }
 
 void Clock::reset() {
@@ -29,17 +29,16 @@ void Clock::reset() {
     # The reset command sets the internal counter to zero.
     # Example: "clock reset".
     */
-    cycle = 0x0000;
+    cycle = 0;
 }
 
-int Clock::tick(int cycles) {
+int Clock::tick(int variant) {
     /*
     # The tick command accepts a positive decimal integer
     # indicating how many clock ticks should be issued to
     # attached devices. The internal counter is incremented
     # by the specified number of ticks.
     */
-    uint16_t variant = (uint16_t)cycles;
     cycle += variant;
     return cycle;
 }
