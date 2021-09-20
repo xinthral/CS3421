@@ -92,14 +92,14 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     int value;
     int ending = (starting + number_of_elements);
     // DEBUG: This line can be removed after testing
-    printf(" Memory::Set(%d, %d, %s)\n", starting, ending, elements.c_str());
+    // printf(" Memory::Set(%d, %d, %s)\n", starting, ending, elements.c_str());
     char chunk[6];
     for (int i = 0; i < capacity; i++) {
         if (i >= starting && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);
             value = std::stoi(chunk, 0, 16);
             // DEBUG: This line can be removed after testing
-            printf("Set Memory: %d\n", value);
+            // printf("Set Memory: %d\n", value);
             registry[i] = value;
         }
     }

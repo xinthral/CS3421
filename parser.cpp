@@ -36,7 +36,7 @@ void Parser::loadOptions(int inputSize, char* options[], std::map<std::string, i
 
 void Parser::parseClock(char* operation, std::string instructionSet) {
     // DEBUG: This line can be removed after testing
-    printf("Clock Instruction: %s\n", instructionSet.c_str());
+    // printf("Clock Instruction: %s\n", instructionSet.c_str());
     int op = clkOperations[operation];
 
     switch (op) {
@@ -53,9 +53,9 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
                 char clockCycles[3];
                 instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
                 int cycles = atoi(clockCycles);
-                int sentinal = clock->tick(0);
-                int current_cycle = sentinal;
-                while (clock->tick(1) <= sentinal) {
+                int current_cycle = clock->tick(0);
+                int sentinal = current_cycle + cycles;
+                while (current_cycle <= sentinal) {
                     cpu->fetch_memory(*memory, current_cycle);
                     current_cycle++;
                 }
@@ -68,7 +68,7 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
 
 void Parser::parseCpu(char* operation, std::string instructionSet) {
     // DEBUG: This line can be removed after testing
-    printf("Cpu Instruction: %s\n", instructionSet.c_str());
+    // printf("Cpu Instruction: %s\n", instructionSet.c_str());
     int op = cpuOperations[operation];
 
     switch (op) {
@@ -100,7 +100,7 @@ void Parser::parseCpu(char* operation, std::string instructionSet) {
 
 void Parser::parseMemory(char* operation, std::string instructionSet) {
     // DEBUG: This line can be removed after testing
-    printf("Memory Instruction: %s\n", instructionSet.c_str());
+    // printf("Memory Instruction: %s\n", instructionSet.c_str());
     int op = memOperations[operation];
 
     switch (op) {
@@ -136,7 +136,7 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
                 int starting = std::stoi(startPos, 0, 16);
                 int number_of_elements = std::stoi(elementCount, 0, 16);
 
-                printf("Memory Elements: %s\n", instructionSet.c_str());
+                // printf("Memory Elements: %s\n", instructionSet.c_str());
 
                 memory->set(0x00, 0x08, instructionSet);
             }

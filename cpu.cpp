@@ -54,9 +54,9 @@ void Cpu::fetch_memory(Memory& memory, int current_cycle) {
 
     set_reg("RA", response);
 
-    printf("Clock tick cycle for PC: %d\n", current_cycle);
+    // printf("Clock tick cycle for PC: %d\n", current_cycle);
     set_reg("PC", current_cycle);
-    printf("Program Counter done!\n");
+    // printf("Program Counter done!\n");
 }
 
 void Cpu::printRegistry(std::string location) {
