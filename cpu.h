@@ -7,7 +7,6 @@
 #include <iterator>             // std::next
 #include <map>                  // std::map
 #include "memory.h"             // Internal Memory Object
-// #include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf
 #include <string>               // std::string
 

@@ -15,19 +15,19 @@ class Parser {
 private:
     // Establish Singleton Objects
     static Parser* parser_instance;
-    Clock* clock;
-    Cpu* cpu;
-    Memory* memory;
-    
+    Clock*  _clock;
+    Cpu*    _cpu;
+    Memory* _memory;
+
     // Associative Lookup Arrays
     std::map<std::string, int> deviceList;
     std::map<std::string, int> clkOperations;
     std::map<std::string, int> cpuOperations;
     std::map<std::string, int> memOperations;
-    Parser();
 
 public:
-    static Parser* getParser();
+    // Public Constructor
+    Parser();
 
     // Instance Methods
     void loadOptions(int,char*[],std::map<std::string, int>&);
@@ -35,7 +35,6 @@ public:
     void parseCpu(char*,std::string);
     void parseMemory(char*,std::string);
     void parseInput(char*);
-    ~Parser();
 };
 
 #endif

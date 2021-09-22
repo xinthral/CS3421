@@ -46,11 +46,11 @@ void Cpu::fetch_memory(Memory& memory, int current_cycle) {
     /* Fetch new value from memory banks and place instruction
     #  into the CPU register slot 'RA'
     */
-    // Do the thing
-    shift_registers();
-
     int fetchbyte = registers["PC"];
     int response = memory.get_memory(fetchbyte);
+
+    // Do the thing
+    shift_registers();
 
     set_reg("RA", response);
 
