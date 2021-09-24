@@ -36,22 +36,27 @@ void Memory::dump(int begin, int number_of_elements) {
     # blank spaces should be printed until the address is reached.
     #   Example: "memory dump 0x04 0x20"
     */
-    int displayCursor=0, displayWidth=16, rowCount=0;
-    int beginning = (begin);// * 2;
-    int ending = (begin + number_of_elements);// * 2;
+    int displayCursor=16, displayWidth=16, rowCount=0;
+    int beginning = (begin);
+    int ending = (begin + number_of_elements);
     printBankHeaders();
-    printf("0x%02X", rowCount);
-    for (int step = 0; step < capacity; step++) {
+    int startRow = (begin + 1) / 16;
+    int endRow = ending / 16;
 
-        if (displayCursor == displayWidth) {
-            printf("\n0x%02X", rowCount);
-            displayCursor = 0;
-            rowCount++;
+    for (int step = 0; step < capacity; step++) {
+        // Condition to print row header if in range of values
+        if (rowCount >= startRow && rowCount <= endRow) {
+            if (displayCursor == displayWidth) {
+                printf("\n0x%02X", rowCount);
+                displayCursor = 0;
+                rowCount++;
+            }
+            if (step < beginning || step > ending) {
+                printf(" %2s", "");
+            }
         }
         if (step >= beginning && step <= ending) {
             printf(" %02X", registry[step]);
-        } else {
-            printf(" %2s", "");
         }
         displayCursor++;
     }
@@ -65,7 +70,7 @@ void Memory::printBankHeaders() {
     for (auto bit : bits){
         printf(" %2s", bit.c_str());
     }
-    printf("\n");
+    // printf("\n");
 }
 
 void Memory::reset() {
@@ -92,14 +97,10 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     int value;
     int ending = (starting + number_of_elements);
     char chunk[6];
-    // DEBUG: This line can be removed after testing
-    // printf(" Memory::Set(0x%2X, 0x%2X, %s)\n", starting, ending, elements.c_str());
     for (int i = 0; i < capacity; i++) {
         if (i >= starting && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);
             value = std::stoi(chunk, 0, 16);
-            // DEBUG: This line can be removed after testing
-            // printf("Set Memory: %d\n", value);
             registry[i] = value;
         }
     }

@@ -55,9 +55,9 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
                 int cycles = atoi(clockCycles);
                 int current_cycle = _clock->tick(0);
                 while (current_cycle < cycles) {
-                    _clock->tick(1);
-                    _cpu->fetch_memory(_memory, current_cycle);
                     current_cycle++;
+                    _cpu->fetch_memory(_memory, current_cycle);
+                    _clock->tick(1);
                 }
             }
             break;

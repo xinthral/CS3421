@@ -21,7 +21,7 @@ void Clock::dump() {
     # internal clock in decimal. Example: "clock dump" might show:
     # Clock: 148
     */
-    printf("Clock: %d\n", cycle);
+    printf("\nClock: %d\n", cycle);
 }
 
 void Clock::reset() {

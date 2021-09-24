@@ -21,7 +21,6 @@ Cpu::Cpu() {
     reset();
 }
 
-
 void Cpu::dump() {
     /*
     # The "dump" command shows the value of all of the CPU
