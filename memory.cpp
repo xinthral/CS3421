@@ -101,7 +101,7 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
         if (i >= starting && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);
             value = std::stoi(chunk, 0, 16);
-            registry[i] = value;
+            set_memory(i, value);
         }
     }
 }

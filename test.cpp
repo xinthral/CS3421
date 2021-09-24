@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
     Memory* _memory = Memory::getMemory();
     _memory->create(0x10);
     _memory->set(start, end, testStr);
-    _cpu->fetch_memory(*_memory, 3);
+    _cpu->fetch_memory(_memory, 3);
     _cpu->dump();
     _memory->dump(0x0, 0x08);
     return 0;

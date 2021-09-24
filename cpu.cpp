@@ -57,6 +57,9 @@ void Cpu::fetch_memory(Memory* _memory, int current_cycle) {
     // Set the program counter
     set_reg("PC", current_cycle);
 }
+int Cpu::get_register(std::string reg) {
+    return registers.at(reg);
+}
 
 void Cpu::printRegistry(std::string location) {
     // Prints individual registries rather than whole thing
@@ -77,6 +80,8 @@ void Cpu::reset() {
 void Cpu::set_reg(std::string location, int hbyte) {
     // Insert value into registry
     transform(location.begin(), location.end(), location.begin(), ::toupper);
+    // DEBUG: This line can be removed after testing
+    // printf("Setting [%s] = %d\n", location.c_str(), hbyte);
     registers.at(location) = hbyte;
 }
 

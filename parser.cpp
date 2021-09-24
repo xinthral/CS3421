@@ -52,12 +52,12 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
                 // tick
                 char clockCycles[3];
                 instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
-                int cycles = atoi(clockCycles);
-                int current_cycle = _clock->tick(0);
-                while (current_cycle < cycles) {
+                int cycles = std::stoi(clockCycles, 0, 16);
+                int sentinal = 0;
+                int current_cycle = _cpu->get_register("PC");
+                while (sentinal++ < cycles) {
                     current_cycle++;
                     _cpu->fetch_memory(_memory, current_cycle);
-                    _clock->tick(1);
                 }
             }
             break;
@@ -135,8 +135,6 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
 
                 int starting = std::stoi(startPos, 0, 16);
                 int number_of_elements = std::stoi(elementCount, 0, 16);
-
-                // printf("memory Elements: %s\n", instructionSet.c_str());
 
                 _memory->set(starting, number_of_elements, instructionSet);
             }
