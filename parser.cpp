@@ -9,9 +9,9 @@
 
 Parser::Parser() {
     // Singleton Instantiation
-    _clock   = Clock::getClock();
-    _cpu     = Cpu::getCpu();
-    _memory  = Memory::getMemory();
+    // _clock   = Clock::getClock();
+    // _cpu     = Cpu::getCpu();
+    // _memory  = Memory::getMemory();
 
     // Devices Options
     const int dev_num = 3, clk_num = 3, cpu_num = 3, mem_num = 4;
@@ -54,9 +54,9 @@ void Parser::parseClock(char* operation, std::string instructionSet) {
                 instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
                 int cycles = atoi(clockCycles);
                 int current_cycle = _clock->tick(0);
-                int sentinal = current_cycle + cycles;
-                while (current_cycle <= sentinal) {
-                    _cpu->fetch_memory(*_memory, current_cycle);
+                while (current_cycle < cycles) {
+                    _clock->tick(1);
+                    _cpu->fetch_memory(_memory, current_cycle);
                     current_cycle++;
                 }
             }
@@ -108,7 +108,7 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
             // create 0x100
             char memSizeStr[6];
             instructionSet = Utilities::chunkInstruction(instructionSet, memSizeStr);
-            int memSize = atoi(memSizeStr);
+            int memSize = std::stoi(memSizeStr, 0, 16);
             _memory->create(memSize);
             }
             break;
@@ -138,7 +138,7 @@ void Parser::parseMemory(char* operation, std::string instructionSet) {
 
                 // printf("memory Elements: %s\n", instructionSet.c_str());
 
-                _memory->set(0x00, 0x08, instructionSet);
+                _memory->set(starting, number_of_elements, instructionSet);
             }
             break;
         default:

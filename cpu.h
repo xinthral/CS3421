@@ -20,7 +20,7 @@ public:
     static Cpu* getCpu();       // Singleton instantiation
     // void doWork(Memory, int);
     void dump();
-    void fetch_memory(Memory&, int);
+    void fetch_memory(Memory*, int);
     void printRegistry(std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)

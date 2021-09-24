@@ -91,9 +91,9 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     */
     int value;
     int ending = (starting + number_of_elements);
-    // DEBUG: This line can be removed after testing
-    // printf(" Memory::Set(%d, %d, %s)\n", starting, ending, elements.c_str());
     char chunk[6];
+    // DEBUG: This line can be removed after testing
+    // printf(" Memory::Set(0x%2X, 0x%2X, %s)\n", starting, ending, elements.c_str());
     for (int i = 0; i < capacity; i++) {
         if (i >= starting && i < ending) {
             elements = Utilities::chunkInstruction(elements, chunk);

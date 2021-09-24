@@ -7,17 +7,14 @@
 #include "utilities.h"          // toLower, wordCount
 #include <fstream>              // std::ifstream
 #include <map>                  // std::map
-#include <stdint.h>             // uint16_t
 #include <stdio.h>              // printf, sscanf
 #include <utility>              // std::pair
 
 class Parser {
 private:
-    // Establish Singleton Objects
-    static Parser* parser_instance;
-    Clock*  _clock;
-    Cpu*    _cpu;
-    Memory* _memory;
+    Clock*  _clock  = Clock::getClock();
+    Cpu*    _cpu    = Cpu::getCpu();
+    Memory* _memory = Memory::getMemory();
 
     // Associative Lookup Arrays
     std::map<std::string, int> deviceList;

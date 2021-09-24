@@ -7,6 +7,7 @@
 **************************************/
 
 #include "test.h"
+#include <iostream>
 
 int main(int argc, char const *argv[]) {
     printf("Test Parser!!\n");

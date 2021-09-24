@@ -42,21 +42,21 @@ void Cpu::dump() {
     }
 }
 
-void Cpu::fetch_memory(Memory& memory, int current_cycle) {
+void Cpu::fetch_memory(Memory* _memory, int current_cycle) {
     /* Fetch new value from memory banks and place instruction
     #  into the CPU register slot 'RA'
     */
     int fetchbyte = registers["PC"];
-    int response = memory.get_memory(fetchbyte);
+    int response = _memory->get_memory(fetchbyte);
 
-    // Do the thing
+    // Shift registers in descending alphabetical order
     shift_registers();
 
+    // Set retrieved value to the RA register
     set_reg("RA", response);
 
-    // printf("Clock tick cycle for PC: %d\n", current_cycle);
+    // Set the program counter
     set_reg("PC", current_cycle);
-    // printf("Program Counter done!\n");
 }
 
 void Cpu::printRegistry(std::string location) {
@@ -83,7 +83,7 @@ void Cpu::set_reg(std::string location, int hbyte) {
 
 void Cpu::shift_registers() {
     /*
-    # Shifts the CPU registry elements in ascending
+    # Shifts the CPU registry elements in descending
     # Alphanumeric order.
     */
     auto it = registers.begin();

@@ -6,4 +6,3 @@ cpu reset
 clock tick 8
 cpu dump
 clock dump
-memory dump 0x0 0x08
