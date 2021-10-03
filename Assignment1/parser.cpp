@@ -9,9 +9,9 @@
 
 Parser::Parser() {
     // Singleton Instantiation
-    _clock   = Clock::getClock();
-    _cpu     = Cpu::getCpu();
-    _memory  = Memory::getMemory();
+    // _clock   = Clock::getClock();
+    // _cpu     = Cpu::getCpu();
+    // _memory  = Memory::getMemory();
 
     // Devices Options
     const int dev_num = 3, clk_num = 3, cpu_num = 3, mem_num = 4;

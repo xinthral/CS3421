@@ -4,7 +4,7 @@
 #include "clock.h"              // Local Clock object
 #include "cpu.h"                // Local CPU object
 #include "memory.h"             // Local Memory Object
-#include "utilities.h"          // Local Helper Functions 
+#include "utilities.h"          // toLower, wordCount
 #include <fstream>              // std::ifstream
 #include <map>                  // std::map
 #include <stdio.h>              // printf, sscanf
