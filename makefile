@@ -29,12 +29,13 @@ TESTOUTPUT = tester_emul
 CLK = clock
 CPU = cpu
 MEM = memory
+MIM = imemory
 PRS = parser
 TST = test
 UTL = utilities
 
-# Compile Full porgram
-all: $(CLK).o $(CPU).o $(MEM).o $(PRS).o $(UTL).o
+# # Compile Full porgram
+all: $(CLK).o $(CPU).o $(MEM).o $(MIM).o $(PRS).o $(UTL).o
 	$(CC) $(CFLAGS) $(CXFLAGS) -o $(EXECUTABLE) $^
 
 # Compile Full program plus tests
@@ -45,9 +46,10 @@ test: $(CLK).o $(CPU).o $(MEM).o $(TST).o $(UTL).o
 $(CLK).o: $(CLK).h
 $(CPU).o: $(CPU).h
 $(MEM).o: $(MEM).h
+$(MIM).o: $(MIM).h
 $(UTL).o: $(UTL).h
-$(PRS).o: $(CLK).h $(CPU).h $(MEM).h $(PRS).h $(UTL).h
-$(TST).o: $(CLK).h $(CPU).h $(MEM).h $(TST).h $(UTL).h
+$(PRS).o: $(CLK).h $(CPU).h $(MEM).h $(MIM).h $(PRS).h $(UTL).h
+$(TST).o: $(CLK).h $(CPU).h $(MEM).h $(MIM).h $(TST).h $(UTL).h
 
 # Template function to compile defined objects files
 # Dynamically assign *.o to be compiled from its .cpp counterpart

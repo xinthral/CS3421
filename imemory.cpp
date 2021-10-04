@@ -1,12 +1,12 @@
 /**************************************
 # Author: Jesse Hassell
-# Date: Aug, 2021
+# Date: Oct, 2021
 # Purpose: Make file to manage the different components of this
 # build and be able to compile them individually.
 #**************************************/
-#include "memory.h"
+#include "imemory.h"
 
-Memory::Memory() {
+IMemory::IMemory() {
     // create(0x0F);
     capacity = 0;
     int mem_num = 4;
@@ -14,7 +14,7 @@ Memory::Memory() {
     Utilities::loadOptions(mem_num, mem_operations, memOperations);
 }
 
-void Memory::create(int inputSize) {
+void IMemory::create(int inputSize) {
     /* The "create" command accepts a single integer parameter
     # which indicates the size of the memory in bytes.
     #   Example: "memory create 0x10000".
@@ -26,7 +26,7 @@ void Memory::create(int inputSize) {
     capacity = inputSize;
 }
 
-void Memory::dump(int begin, int number_of_elements, int column_span) {
+void IMemory::dump(int begin, int number_of_elements, int column_span) {
     /* The dump command shows the contents of memory starting at
     # address <address>, and continuing for <count> bytes. The
     # output should begin with a header showing "Addr", 1 space,
@@ -55,24 +55,34 @@ void Memory::dump(int begin, int number_of_elements, int column_span) {
                 rowCount++;
             }
             if (step < beginning || step > ending) {
-                printf(" %2s", "");
+                printf(" %4s", "");
             }
         }
         if (step >= beginning && step < ending) {
-            printf(" %02X", registry[step]);
+            printf(" %04X", registry[step]);
         }
         displayCursor++;
     }
     printf("\n");
 }
 
-void Memory::parseInstructions(std::string instructionSet) {
+void IMemory::loadWord(int position, int destination, int target) {
+    // Load Word Funciton
+
+}
+
+void IMemory::storeWord(int position, int destination, int target) {
+    // Store word function
+}
+
+void IMemory::parseInstructions(std::string instructionSet) {
     // DEBUG: This line can be removed after testing
     // printf("Memory Instruction: %s\n", instructionSet.c_str());
 
     char operation[8];
     instructionSet = Utilities::chunkInstruction(instructionSet, operation);
     int op = memOperations[operation];
+
     switch (op) {
         case 0: {
             // create 0x100
@@ -97,15 +107,12 @@ void Memory::parseInstructions(std::string instructionSet) {
             reset();
             break;
         case 3: {
-            // set 0x00 0x03 0x03 0x02 0x01
-            char startPos[3], elementCount[3];
+            // set file <filename>.txt
+            char startPos[3], junk[4];
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
-            instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
-
+            instructionSet = Utilities::chunkInstruction(instructionSet, junk);
             int starting = std::stoi(startPos, 0, 16);
-            int number_of_elements = std::stoi(elementCount, 0, 16);
-
-            set(starting, number_of_elements, instructionSet);
+            set(starting, instructionSet);
             }
             break;
         default:
@@ -113,16 +120,16 @@ void Memory::parseInstructions(std::string instructionSet) {
     }
 }
 
-void Memory::printBankHeaders() {
+void IMemory::printBankHeaders() {
     std::string bits[16] = {"00", "01", "02", "03", "04", "05",
     "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F"};
     printf("%4s", "Addr");
     for (auto bit : bits){
-        printf(" %2s", bit.c_str());
+        printf(" %4s", bit.c_str());
     }
 }
 
-void Memory::reset() {
+void IMemory::reset() {
     /*
     # The "reset" command causes all of the allocated
     # memory to be set to zero.
@@ -133,34 +140,68 @@ void Memory::reset() {
     }
 }
 
-void Memory::set(int starting, int number_of_elements, std::string elements) {
-    /* The set commands initializes memory to a user
-    # supplied set of values. The "hex address" specifies
-    # where to begin setting memory values, "hex count"
-    # is how many bytes will be assigned, and is followed
-    # by "hex count" number of hex bytes, separated by a
-    # single space. For this assignment, the command will
-    # never be used with more than 100 hex bytes.
-    #   Example: "memory set 0x10 0x05 0x08 0xDE 0xAD 0xBE 0xEF"
+void IMemory::set(int starting, std::string instructionSet) {
+    /*
+    # Instruction Memory
+    # The instruction memory device (imemory) provides instruction storage for the CPU. Unlike data memory
+    # which has a word size of 8 bits/1 byte, instruction memory has a word size of 20 bits. This 20 bits
+    # matches the size of a CPU instruction. Each fetch would retrieve a word (20 bits), and is indexed in word-
+    # size increments. For instance “instr_memory[0]” indexes the first CPU instruction, and identifies a 20 bit
+    # quantity. The next instruction would be at “instr_memory[1]”, and again identifies a 20 bit quantity.
+    # Conceptually, it is an array of 20 bit words. The actual implementation need not match that model, and
+    # the student should consider an array of 32 bit words, and simply ignore the extra 12 bits.
+    # Prior to use, it must be created with the “create” command, which specifies the size (in hex) of the
+    # number of 20 bit words to create. At that point, memory is in an undefined condition. The “reset”
+    # command is used to initialize all of memory to zeros. The contents of memory can be displayed via the
+    # “dump” command, and assigned with the “set” command.
+    #   Example: "imemory set 0x10 file filename.txt"
     */
-    int value;
-    int ending = (starting + number_of_elements);
-    char chunk[6];
-    for (int i = 0; i < capacity; i++) {
-        if (i >= starting && i < ending) {
-            elements = Utilities::chunkInstruction(elements, chunk);
-            value = std::stoi(chunk, 0, 16);
-            set_memory(i, value);
+    char fileName[20];
+    instructionSet = Utilities::chunkInstruction(instructionSet, fileName);
+
+    std::ifstream inputFile(fileName);
+    if (!inputFile) {
+        printf("Error: Failed to open input file < %s >!\n", fileName);
+        return;
+    }
+
+    std::string instructions;
+
+    while (!inputFile.eof()) {
+        while (getline(inputFile, instructions)) {
+
+            // Convert std::string to char* for ease of handling
+            char* instructionSet = const_cast<char*>(instructions.c_str());
+            // Set all characters to lowercase
+            // Utilities::toLower(instructionSet, instructions.size());
+            int instruction = std::stoi(instructionSet, 0, 16);
+            int whichType = (instruction >> 17) & 7;
+            int destination = ((instruction >> 14) | 240 ) & 7;
+            int target = ((instruction >> 8 ) | 240 ) & 7;
+
+            // printf("Type: %04X\nDestination: %04X\nTarget: %04X\n", whichType, destination, target);
+            if (whichType == 5) {
+                // lw
+                loadWord(whichType, destination, target);
+
+            } else if (whichType == 6) {
+                //
+                storeWord(whichType, destination, target);
+
+            } else {
+                printf("Instruction Memory: Unimplmemented instruction type: %d\n", whichType);
+            }
+
         }
     }
 }
 
-void Memory::set_memory(int position, int hexValue) {
+void IMemory::set_memory(int position, int hexValue) {
     // Set value of position in memory banks based on index value
     registry[position] = hexValue;
 }
 
-int Memory::get_memory(int position) {
+int IMemory::get_memory(int position) {
     // Return the value of index in bank
     try {
         int response = registry[position];

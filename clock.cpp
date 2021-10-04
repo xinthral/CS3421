@@ -13,6 +13,9 @@
 Clock::Clock() {
     /* Constructor Method for the Clock Class */
     reset();
+    const int clk_num = 3;
+    char* clk_operations[clk_num] = {"dump", "reset", "tick"};
+    Utilities::loadOptions(clk_num, clk_operations, clkOperations);
 }
 
 void Clock::dump() {
@@ -40,7 +43,47 @@ int Clock::tick(int variant) {
     # by the specified number of ticks.
     */
     cycle += variant;
+    // if (clock_enabled) {
+    //     _cpu->doWork();
+    //     _memory->doWork();
+    // }
     return cycle;
+}
+
+void Clock::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instructionSet) {
+    // DEBUG: This line can be removed after testing
+    // printf("Clock Instruction: %s\n", instructionSet.c_str());
+
+    char operation[8];
+    instructionSet = Utilities::chunkInstruction(instructionSet, operation);
+    int op = clkOperations[operation];
+
+    switch (op) {
+        case 0:
+            // dump
+            dump();
+            break;
+        case 1:
+            // reset
+            reset();
+            break;
+        case 2: {
+                // tick
+                char clockCycles[3];
+                instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
+                int cycles = std::stoi(clockCycles, 0, 16);
+                int sentinal = 0;
+                int current_cycle = _cpu->get_register("PC");
+                while (sentinal++ < cycles) {
+                    tick(1);
+                    current_cycle++;
+                    _cpu->fetch_memory(_memory, current_cycle);
+                }
+            }
+            break;
+        default:
+            printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
+    }
 }
 
 Clock* Clock::clk_instance(nullptr);        // Instance Instantiation

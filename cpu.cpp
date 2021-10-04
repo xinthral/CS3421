@@ -18,6 +18,9 @@
 #include "cpu.h"
 
 Cpu::Cpu() {
+    int cpu_num = 3;
+    char* cpu_operations[cpu_num] = {"dump", "reset", "set"};
+    Utilities::loadOptions(cpu_num, cpu_operations, cpuOperations);
     reset();
 }
 
@@ -48,6 +51,9 @@ void Cpu::fetch_memory(Memory* _memory, int current_cycle) {
     int fetchbyte = registers["PC"];
     int response = _memory->get_memory(fetchbyte);
 
+    // DEBUG: This line can be removed after testing
+    // printf("Fetched {%d} from {%d}\n", response, fetchbyte);
+
     // Shift registers in descending alphabetical order
     shift_registers();
 
@@ -57,8 +63,44 @@ void Cpu::fetch_memory(Memory* _memory, int current_cycle) {
     // Set the program counter
     set_reg("PC", current_cycle);
 }
+
 int Cpu::get_register(std::string reg) {
     return registers.at(reg);
+}
+
+void Cpu::parseInstructions(std::string instructionSet) {
+    // DEBUG: This line can be removed after testing
+    // printf("Cpu Instruction: %s\n", instructionSet.c_str());
+
+    char operation[8];
+    instructionSet = Utilities::chunkInstruction(instructionSet, operation);
+    int op = cpuOperations[operation];
+
+    switch (op) {
+        case 0:
+            // dump
+            dump();
+            break;
+        case 1:
+            // reset
+            reset();
+            break;
+        case 2: {
+                // set reg
+                char junk[3], element[6];
+
+                instructionSet = Utilities::chunkInstruction(instructionSet, junk);
+                instructionSet = Utilities::chunkInstruction(instructionSet, element);
+
+                int bitValue = std::stoi(instructionSet, 0, 16);
+                std::string location = element;
+
+                set_reg(location, bitValue);
+            }
+            break;
+        default:
+            printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
+    }
 }
 
 void Cpu::printRegistry(std::string location) {
@@ -97,19 +139,4 @@ void Cpu::shift_registers() {
     while(--ti != it) {
         set_reg(std::next(ti)->first.c_str(), ti->second);
     }
-}
-
-Cpu* Cpu::cpu_instance(nullptr);        // Instance Instantiation
-Cpu* Cpu::getCpu() {
-    // Singleton Method
-    if (cpu_instance == nullptr) {
-        cpu_instance = new Cpu();
-    }
-    return cpu_instance;
-}
-
-Cpu::~Cpu() {
-    // Deconstructor
-    delete cpu_instance;
-    cpu_instance = nullptr;
 }

@@ -4,6 +4,7 @@
 #include <algorithm>            // std::transform
 #include <cassert>              // assert
 #include "clock.h"              // Internal Clock Object
+#include "utilities.h"          // Local Helper Functions
 #include <iterator>             // std::next
 #include <map>                  // std::map
 #include "memory.h"             // Internal Memory Object
@@ -12,21 +13,21 @@
 
 class Cpu {
 private:
-    static Cpu* cpu_instance;
     std::string registrar[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
     std::map<std::string, int> registers;
-    Cpu();                      // Forces Public Instantiation
+    std::map<std::string, int> cpuOperations;
+
 public:
-    static Cpu* getCpu();       // Singleton instantiation
+    Cpu();                      // Forces Public Instantiation
     // void doWork(Memory, int);
     void dump();
     void fetch_memory(Memory*, int);
     int get_register(std::string);
+    void parseInstructions(std::string);
     void printRegistry(std::string);
     void reset();
     void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     void shift_registers();
-    ~Cpu();
 };
 
 #endif

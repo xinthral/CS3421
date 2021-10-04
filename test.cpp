@@ -15,8 +15,8 @@ int main(int argc, char const *argv[]) {
     int start = 0x00, end = 0x08;
     // Utilities utilz = getUtilities();
     Clock* _clock = Clock::getClock();
-    Cpu* _cpu = Cpu::getCpu();
-    Memory* _memory = Memory::getMemory();
+    Cpu* _cpu = new Cpu();
+    Memory* _memory = new Memory();
     _memory->create(0x10);
     _memory->set(start, end, testStr);
     _cpu->fetch_memory(_memory, 3);
