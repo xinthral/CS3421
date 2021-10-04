@@ -26,4 +26,7 @@ overloading some of the methods but that felt like it needed decoupling.
 * *********************** *
 * Just understanding the instructions is the hardest part out of this assignment,
 which shouldn't be the case.
-*  
+* While talking to Tony on Saturday I realized I had to rewrite all this, which
+I was able to get working for the first part, and while implementing the next
+assignemnt details I fell behind.
+* The storage and load words dont' work completely.
