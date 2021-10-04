@@ -73,7 +73,7 @@ void Parser::readInputFile(char* fileName) {
                     // Instruction Memory Execution
                     // DEBUG: This line can be removed after testing
                     // printf("iMemory Execution Sent.\n");
-                    _imemory->parseInstructions(instructions);
+                    _imemory->parseInstructions(_cpu, _memory, instructions);
                     break;
                 default:
                     // Catch-all condition incase command is invalid.

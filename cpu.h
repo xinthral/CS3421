@@ -13,12 +13,13 @@
 
 class Cpu {
 private:
-    std::string registrar[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
     std::map<std::string, int> registers;
     std::map<std::string, int> cpuOperations;
 
 public:
-    Cpu();                      // Forces Public Instantiation
+    std::string registrar[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
+
+    Cpu();
     // void doWork(Memory, int);
     void dump();
     void fetch_memory(Memory*, int);

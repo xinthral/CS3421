@@ -1,6 +1,8 @@
 #ifndef IMEMORY_H
 #define IMEMORY_H
 
+#include "cpu.h"                // Internal CPU object
+#include "memory.h"             // Internal Memory Object
 #include "utilities.h"          // Utility Functions
 #include <fstream>              // std::ifstream
 #include <stdint.h>             // uint16_t
@@ -8,6 +10,10 @@
 #include <stdio.h>              // printf
 #include <string>               // std::string, std::stoi
 #include <vector>               // std::vector
+
+// Forward Declarations
+class Cpu;
+class Memory;
 
 class IMemory {
 private:
@@ -22,13 +28,13 @@ public:
     void create(int);
     void dump(int,int,int);
     int get_memory(int);
-    void loadWord(int,int,int);
-    void storeWord(int,int,int);
+    void loadWord(Cpu*,Memory*,int);
+    void storeWord(Cpu*,Memory*,int);
 
-    void parseInstructions(std::string);
+    void parseInstructions(Cpu*,Memory*,std::string);
     void printBankHeaders();
     void reset();
-    void set(int,std::string);
+    void set(Cpu*,Memory*,int,std::string);
     void set_memory(int,int);
 };
 

@@ -66,16 +66,32 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
     printf("\n");
 }
 
-void IMemory::loadWord(int position, int destination, int target) {
+void IMemory::loadWord(Cpu* _cpu, Memory* _memory, int instruction) {
     // Load Word Funciton
+    int destinationRegister = ((instruction >> 14) | 240 ) & 7;
+    int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
 
+    // DEBUG: This line can be removed after testing
+    printf("Load Data from Memory [%d] -> Register [%3X]\n", targetMemory, destinationRegister);
+
+    int targetValue = _memory->get_memory(targetMemory);
+    _cpu->set_reg(_cpu->registrar[destinationRegister], targetValue);
 }
 
-void IMemory::storeWord(int position, int destination, int target) {
+void IMemory::storeWord(Cpu* _cpu, Memory* _memory, int instruction) {
     // Store word function
+    int targetRegister = ((instruction >> 11) | 240 ) & 7;
+    int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;
+
+    // DEBUG: This line can be removed after testing
+    printf("Store Data from Register [%d] -> Memory [%3X]\n", targetRegister, destinationMemory);
+    std::string reg = _cpu->registrar[targetRegister];
+
+    int targetValue = _cpu->get_register(reg);
+    _memory->set_memory(destinationMemory, targetValue);
 }
 
-void IMemory::parseInstructions(std::string instructionSet) {
+void IMemory::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instructionSet) {
     // DEBUG: This line can be removed after testing
     // printf("Memory Instruction: %s\n", instructionSet.c_str());
 
@@ -112,7 +128,7 @@ void IMemory::parseInstructions(std::string instructionSet) {
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
             instructionSet = Utilities::chunkInstruction(instructionSet, junk);
             int starting = std::stoi(startPos, 0, 16);
-            set(starting, instructionSet);
+            set(_cpu, _memory, starting, instructionSet);
             }
             break;
         default:
@@ -140,7 +156,7 @@ void IMemory::reset() {
     }
 }
 
-void IMemory::set(int starting, std::string instructionSet) {
+void IMemory::set(Cpu* _cpu, Memory* _memory, int starting, std::string instructionSet) {
     /*
     # Instruction Memory
     # The instruction memory device (imemory) provides instruction storage for the CPU. Unlike data memory
@@ -176,20 +192,18 @@ void IMemory::set(int starting, std::string instructionSet) {
             // Utilities::toLower(instructionSet, instructions.size());
             int instruction = std::stoi(instructionSet, 0, 16);
             int whichType = (instruction >> 17) & 7;
-            int destination = ((instruction >> 14) | 240 ) & 7;
-            int target = ((instruction >> 8 ) | 240 ) & 7;
+            int destinationRegister = ((instruction >> 14) | 240 ) & 7;
+            int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
 
             // printf("Type: %04X\nDestination: %04X\nTarget: %04X\n", whichType, destination, target);
             if (whichType == 5) {
                 // lw
-                loadWord(whichType, destination, target);
-
+                loadWord(_cpu, _memory, instruction);
             } else if (whichType == 6) {
-                //
-                storeWord(whichType, destination, target);
-
+                // sw
+                storeWord(_cpu, _memory, instruction);
             } else {
-                printf("Instruction Memory: Unimplmemented instruction type: %d\n", whichType);
+                printf("Instruction Memory: Unimplmemented instruction type: 0x%3X\n", whichType);
             }
 
         }
