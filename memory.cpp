@@ -146,17 +146,24 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     int value;
     int ending = (starting + number_of_elements);
     char chunk[6];
-    for (int i = 0; i < capacity; i++) {
-        if (i >= starting && i < ending) {
-            elements = Utilities::chunkInstruction(elements, chunk);
-            value = std::stoi(chunk, 0, 16);
-            set_memory(i, value);
-        }
+    for (int i = starting; i < ending; i++) {
+        elements = Utilities::chunkInstruction(elements, chunk);
+        value = std::stoi(chunk, 0, 16);
+        // DEBUG: This line can be removed after testing
+        printf("Memory::set: Setting [0x%2X] -> [%d]\n", value, i);
+        set_memory(i, value);
     }
+    // DEBUG: This line can be removed after testing
+    printf("Memory::set: Setting [0x%2X] -> [%d]\n", value, i);
+    set_memory(i, value);
 }
 
 void Memory::set_memory(int position, int hexValue) {
     // Set value of position in memory banks based on index value
+
+    // DEBUG: This line can be removed after testing
+    printf("Memory::set_memory: Setting Value [0x%2X] -> Location [%d]\n", hexValue, position);
+
     registry[position] = hexValue;
 }
 

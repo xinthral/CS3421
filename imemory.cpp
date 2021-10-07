@@ -50,7 +50,7 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
         // Condition to print row header if in range of values
         if (rowCount >= startRow && rowCount <= endRow) {
             if (displayCursor == displayWidth) {
-                printf("\n0x%02X", rowCount);
+                printf("\n0x%04X", rowCount);
                 displayCursor = 0;
                 rowCount++;
             }
@@ -72,7 +72,7 @@ void IMemory::loadWord(Cpu* _cpu, Memory* _memory, int instruction) {
     int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
 
     // DEBUG: This line can be removed after testing
-    printf("Load Data from Memory [%d] -> Register [%3X]\n", targetMemory, destinationRegister);
+    printf("IMemory::loadWord: Memory [%d] -> Register [%d]\n", targetMemory, destinationRegister);
 
     int targetValue = _memory->get_memory(targetMemory);
     _cpu->set_reg(_cpu->registrar[destinationRegister], targetValue);
@@ -84,7 +84,7 @@ void IMemory::storeWord(Cpu* _cpu, Memory* _memory, int instruction) {
     int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;
 
     // DEBUG: This line can be removed after testing
-    printf("Store Data from Register [%d] -> Memory [%3X]\n", targetRegister, destinationMemory);
+    printf("IMemory::storeWord: Register [%d] -> Memory [%X]\n", targetRegister, destinationMemory);
     std::string reg = _cpu->registrar[targetRegister];
 
     int targetValue = _cpu->get_register(reg);
@@ -139,7 +139,7 @@ void IMemory::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instruct
 void IMemory::printBankHeaders() {
     std::string bits[16] = {"00", "01", "02", "03", "04", "05",
     "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F"};
-    printf("%4s", "Addr");
+    printf("%6s", "Addr");
     for (auto bit : bits){
         printf(" %4s", bit.c_str());
     }
