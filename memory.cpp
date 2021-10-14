@@ -8,7 +8,13 @@
 
 Memory::Memory() {
     // create(0x0F);
-    capacity = 0;
+    STATE = 0;                  // FSM
+    capacity = 0;               // Data Memory Size
+    fetchCount = 0;             // Number of elements
+    isWorkPending = false;      // FSM Trigger
+    latencyFactor = 5;          // Device Processing Time
+    startPos = 0;               // Memory Cursor
+    waitDelay = 0;              // Current Cycle in Delay (step)
     int mem_num = 4;
     char* mem_operations[mem_num] = {"create", "dump", "reset", "set"};
     Utilities::loadOptions(mem_num, mem_operations, memOperations);
@@ -19,11 +25,24 @@ void Memory::create(int inputSize) {
     # which indicates the size of the memory in bytes.
     #   Example: "memory create 0x10000".
     */
-    // for (int i = 0; i < inputSize; i++) {
-    //     registry.push_back(0x00);
-    // }
     registry = new int[inputSize];
     capacity = inputSize;
+}
+
+void Memory::doCycleWork() {
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::doCycleWork: Implementation required.\n");
+    // finished wait, and moved to MOVE_DATA state?
+    if (STATE == 2) {
+        // DEBUG: This line can be removed after testing
+        printf("Memory::doCycleWork: Doing the thing...\n");
+        // copy data back to caller
+        memcpy(answerPtr, registry + startPos, fetchCount);
+        // Tell caller memory operation is complete
+        // *workResponse = true;
+        nextState();
+        // STATE = 0;
+    }
 }
 
 void Memory::dump(int begin, int number_of_elements, int column_span) {
@@ -39,31 +58,60 @@ void Memory::dump(int begin, int number_of_elements, int column_span) {
     # blank spaces should be printed until the address is reached.
     #   Example: "memory dump 0x04 0x20"
     */
-    int displayCursor=column_span, displayWidth=column_span, rowCount=0;
-    int beginning = (begin);
+    int headSize = 2;
+    int dataSize = 2;
+    int displayWidth=column_span, rowCount=0;
     int ending = (begin + number_of_elements);
-    printBankHeaders();
-    int startRow = (begin + 1) / column_span;
-    int endRow = ending / column_span;
+    printBankHeaders(column_span);
+    int startRow = int(begin / column_span) + 1;
+    int endRow = int(ending / column_span) + 1;
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::dump: Start [%d] -> End [%d]\n", startRow, endRow);
 
     for (int step = 0; step < capacity; step++) {
-        // Condition to print row header if in range of values
+        if (step % column_span == 0) {
+            rowCount++;
+        }
+
+        // Condition to print instruction memory if in requested range
         if (rowCount >= startRow && rowCount <= endRow) {
-            if (displayCursor == displayWidth) {
-                printf("\n0x%02X", rowCount);
-                displayCursor = 0;
-                rowCount++;
+            if (step % column_span == 0) {
+                printf("\n0x%0*X", headSize, step);
             }
-            if (step < beginning || step > ending) {
-                printf(" %2s", "");
+            if (step < begin || step >= ending) {
+                printf(" %*s", dataSize, "");
             }
         }
-        if (step >= beginning && step < ending) {
-            printf(" %02X", registry[step]);
+        if (step >= begin && step < ending) {
+            printf(" %0*X", dataSize, registry[step]);
         }
-        displayCursor++;
     }
     printf("\n");
+}
+
+int Memory::get_memory(int position) {
+    // Return the value of index in bank
+    try {
+        int response = registry[position];
+        return response;
+    } catch (const std::out_of_range& exc) {
+        throw exc.what();
+    }
+}
+
+bool Memory::isMoreCycleWorkNeeded() {
+    // return (STATE == 0 && isWorkPending);
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::isMoreCycleWorkNeeded not yet implemented\n");
+    return false;
+}
+
+void Memory::nextState() {
+    // Advances Finite State Machine to the next state
+    int period = sizeof(STATE) - 1;
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
+    STATE = (STATE + 1) % period;
 }
 
 void Memory::parseInstructions(std::string instructionSet) {
@@ -83,13 +131,13 @@ void Memory::parseInstructions(std::string instructionSet) {
             }
             break;
         case 1: {
-                // dump 0 8
-                char startPos[3], elementCount[3];
-                instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
-                instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
-                int memStart = std::stoi(startPos, 0, 16);
-                int memCount = std::stoi(elementCount, 0, 16);
-                dump(memStart, memCount, 16);
+            // dump 0 8
+            char startPos[3], elementCount[3];
+            instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
+            instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
+            int memStart = std::stoi(startPos, 0, 16);
+            int memCount = std::stoi(elementCount, 0, 16);
+            dump(memStart, memCount, 16);
             }
             break;
         case 2:
@@ -105,20 +153,23 @@ void Memory::parseInstructions(std::string instructionSet) {
             int starting = std::stoi(startPos, 0, 16);
             int number_of_elements = std::stoi(elementCount, 0, 16);
 
+            // DEBUG: This line can be removed after testing
+            // printf("Memory::parseInstructions: Starting [0x%2X] -> Number [0x%2X]\nInstructions: [%s]\n", starting, number_of_elements, instructionSet.c_str());
+
             set(starting, number_of_elements, instructionSet);
             }
             break;
         default:
-            printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
+            printf("Error: Memory::parseInstructions recieved a bad operation < %s >.\n", operation);
     }
 }
 
-void Memory::printBankHeaders() {
+void Memory::printBankHeaders(int count) {
     std::string bits[16] = {"00", "01", "02", "03", "04", "05",
     "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F"};
     printf("%4s", "Addr");
-    for (auto bit : bits){
-        printf(" %2s", bit.c_str());
+    for (int i = 0; i < count; i++) {
+        printf(" %2s", bits[i].c_str());
     }
 }
 
@@ -150,29 +201,55 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
         elements = Utilities::chunkInstruction(elements, chunk);
         value = std::stoi(chunk, 0, 16);
         // DEBUG: This line can be removed after testing
-        printf("Memory::set: Setting [0x%2X] -> [%d]\n", value, i);
+        // printf("Memory::set: Position [%d] <- [0x%2X]\n", i, value);
         set_memory(i, value);
     }
-    // DEBUG: This line can be removed after testing
-    printf("Memory::set: Setting [0x%2X] -> [%d]\n", value, i);
-    set_memory(i, value);
 }
 
 void Memory::set_memory(int position, int hexValue) {
     // Set value of position in memory banks based on index value
+    registry[position] = hexValue;
 
     // DEBUG: This line can be removed after testing
-    printf("Memory::set_memory: Setting Value [0x%2X] -> Location [%d]\n", hexValue, position);
-
-    registry[position] = hexValue;
+    // printf("Memory::set_memory: Position [%d] <- Value [0x%X]\n", position, hexValue);
 }
 
-int Memory::get_memory(int position) {
-    // Return the value of index in bank
-    try {
-        int response = registry[position];
-        return response;
-    } catch (const std::out_of_range& exc) {
-        throw exc.what();
+void Memory::startFetch(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkComplete) {
+    // This API is called by memory clients to initiate a fetch (read) from memory
+    if (waitDelay == 0) {
+        STATE = WAIT;
+        startPos = start;
+        fetchCount = number_of_elements;
+        answerPtr = dataPtr;
+        workResponse = isWorkComplete;
+    }
+}
+
+void Memory::startStore(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkComplete) {
+    // This API is called by memory clients to initiate store (write) to memory
+    STATE = WAIT;
+    startPos = start;
+    fetchCount = number_of_elements;
+    answerPtr = dataPtr;
+    workResponse = isWorkComplete;
+}
+
+void Memory::startTick() {
+    /* Called by clock to tell device a new tick has started. Used by devices to
+    # do minimal housekeeping, and transition state. Very little actual work
+    # should be done in this function, and is instead done in doCycleWork
+    # described below.
+    */
+    if (STATE == 0) {
+        nextState();
+    } else if (STATE == 1) {
+        if (waitDelay < latencyFactor) {
+            waitDelay += 1;
+            // DEBUG: This line can be removed after testing
+            printf("Waiting: %d\n", waitDelay);
+        } else {
+            waitDelay = 0;
+            nextState();
+        }
     }
 }

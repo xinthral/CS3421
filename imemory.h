@@ -12,14 +12,16 @@
 #include <vector>               // std::vector
 
 // Forward Declarations
-class Cpu;
-class Memory;
+// class Cpu;
+// class Memory;
 
 class IMemory {
 private:
+    int STATE;
     int* registry;                  // Memory Banks
     int capacity;                   // Size of memory bank
     std::map<std::string, int> memOperations;
+    enum STATES {IDLE=0, WAIT=1, MOVE=2};
 public:
     // Constructor
     IMemory();
@@ -28,13 +30,13 @@ public:
     void create(int);
     void dump(int,int,int);
     int get_memory(int);
-    void loadWord(Cpu*,Memory*,int);
-    void storeWord(Cpu*,Memory*,int);
-
-    void parseInstructions(Cpu*,Memory*,std::string);
-    void printBankHeaders();
+    // void loadWord(Cpu*,Memory*,int);
+    // void storeWord(Cpu*,Memory*,int);
+    void nextState();
+    void parseInstructions(std::string);
+    void printBankHeaders(int);
     void reset();
-    void set(Cpu*,Memory*,int,std::string);
+    void set(int,std::string);
     void set_memory(int,int);
 };
 

@@ -1,0 +1,8 @@
+clock tick 40
+# get PC counter
+# grab element from imemory @ counter location
+# decode instruction
+# execute instruction
+# wait for cycle_wait to complete
+
+memStartFetch() calls from data memory to instruction memory

@@ -39,33 +39,37 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
     # blank spaces should be printed until the address is reached.
     #   Example: "memory dump 0x04 0x20"
     */
-    int displayCursor=column_span, displayWidth=column_span, rowCount=0;
-    int beginning = (begin);
+    int headSize = 2;
+    int dataSize = 5;
+    int displayWidth=column_span, rowCount=0;
     int ending = (begin + number_of_elements);
-    printBankHeaders();
-    int startRow = (begin + 1) / column_span;
-    int endRow = ending / column_span;
+    printBankHeaders(column_span);
+    int startRow = int(begin / column_span) + 1;
+    int endRow = int(ending / column_span) + 1;
+    // DEBUG: This line can be removed after testing
+    // printf("IMemory::dump: Start [%d] -> End [%d]\n", startRow, endRow);
 
     for (int step = 0; step < capacity; step++) {
-        // Condition to print row header if in range of values
+        if (step % column_span == 0) {
+            rowCount++;
+        }
+
+        // Condition to print instruction memory if in requested range
         if (rowCount >= startRow && rowCount <= endRow) {
-            if (displayCursor == displayWidth) {
-                printf("\n0x%04X", rowCount);
-                displayCursor = 0;
-                rowCount++;
+            if (step % column_span == 0) {
+                printf("\n0x%*X", headSize, step);
             }
-            if (step < beginning || step > ending) {
-                printf(" %4s", "");
+            if (step < begin || step >= ending) {
+                printf(" %*s", dataSize, "");
             }
         }
-        if (step >= beginning && step < ending) {
-            printf(" %04X", registry[step]);
+        if (step >= begin && step < ending) {
+            printf(" %*X", dataSize, registry[step]);
         }
-        displayCursor++;
     }
     printf("\n");
 }
-
+/*
 void IMemory::loadWord(Cpu* _cpu, Memory* _memory, int instruction) {
     // Load Word Funciton
     int destinationRegister = ((instruction >> 14) | 240 ) & 7;
@@ -84,14 +88,23 @@ void IMemory::storeWord(Cpu* _cpu, Memory* _memory, int instruction) {
     int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;
 
     // DEBUG: This line can be removed after testing
-    printf("IMemory::storeWord: Register [%d] -> Memory [%X]\n", targetRegister, destinationMemory);
+    printf("IMemory::storeWord: Register [%d] -> Memory [%d]\n", targetRegister, destinationMemory);
     std::string reg = _cpu->registrar[targetRegister];
 
     int targetValue = _cpu->get_register(reg);
     _memory->set_memory(destinationMemory, targetValue);
 }
+*/
 
-void IMemory::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instructionSet) {
+void IMemory::nextState() {
+    // Advances Finite State Machine to the next state
+    int period = sizeof(STATE) - 1;
+    // DEBUG: This line can be removed after testing
+    // printf("IMemory::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
+    STATE = (STATE + 1) % period;
+}
+
+void IMemory::parseInstructions(std::string instructionSet) {
     // DEBUG: This line can be removed after testing
     // printf("Memory Instruction: %s\n", instructionSet.c_str());
 
@@ -109,13 +122,13 @@ void IMemory::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instruct
             }
             break;
         case 1: {
-                // dump 0 8
-                char startPos[3], elementCount[3];
-                instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
-                instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
-                int memStart = std::stoi(startPos, 0, 16);
-                int memCount = std::stoi(elementCount, 0, 16);
-                dump(memStart, memCount, 16);
+            // dump 1 9
+            char startPos[8], elementCount[8];
+            instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
+            instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
+            int memStart = std::stoi(startPos, 0, 16);
+            int memCount = std::stoi(elementCount, 0, 16);
+            dump(memStart, memCount, 8);
             }
             break;
         case 2:
@@ -128,7 +141,7 @@ void IMemory::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instruct
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
             instructionSet = Utilities::chunkInstruction(instructionSet, junk);
             int starting = std::stoi(startPos, 0, 16);
-            set(_cpu, _memory, starting, instructionSet);
+            set(starting, instructionSet);
             }
             break;
         default:
@@ -136,13 +149,14 @@ void IMemory::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instruct
     }
 }
 
-void IMemory::printBankHeaders() {
-    std::string bits[16] = {"00", "01", "02", "03", "04", "05",
-    "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F"};
-    printf("%6s", "Addr");
-    for (auto bit : bits){
-        printf(" %4s", bit.c_str());
+void IMemory::printBankHeaders(int count) {
+    std::string bits[16] = {"0", "1", "2", "3", "4", "5",
+    "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+    printf("%4s", "Addr");
+    for (int i = 0; i < count; i++) {
+        printf(" %5s", bits[i].c_str());
     }
+    // printf("\n");
 }
 
 void IMemory::reset() {
@@ -156,7 +170,7 @@ void IMemory::reset() {
     }
 }
 
-void IMemory::set(Cpu* _cpu, Memory* _memory, int starting, std::string instructionSet) {
+void IMemory::set(int starting, std::string instructionSet) {
     /*
     # Instruction Memory
     # The instruction memory device (imemory) provides instruction storage for the CPU. Unlike data memory
@@ -181,8 +195,8 @@ void IMemory::set(Cpu* _cpu, Memory* _memory, int starting, std::string instruct
         return;
     }
 
+    int idx = starting;
     std::string instructions;
-
     while (!inputFile.eof()) {
         while (getline(inputFile, instructions)) {
 
@@ -191,20 +205,22 @@ void IMemory::set(Cpu* _cpu, Memory* _memory, int starting, std::string instruct
             // Set all characters to lowercase
             // Utilities::toLower(instructionSet, instructions.size());
             int instruction = std::stoi(instructionSet, 0, 16);
-            int whichType = (instruction >> 17) & 7;
-            int destinationRegister = ((instruction >> 14) | 240 ) & 7;
-            int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
 
-            // printf("Type: %04X\nDestination: %04X\nTarget: %04X\n", whichType, destination, target);
-            if (whichType == 5) {
-                // lw
-                loadWord(_cpu, _memory, instruction);
-            } else if (whichType == 6) {
-                // sw
-                storeWord(_cpu, _memory, instruction);
-            } else {
-                printf("Instruction Memory: Unimplmemented instruction type: 0x%3X\n", whichType);
-            }
+            // DEBUG: This line can be removed after testing
+            // printf("IMemory::set Idx: [%d] <- Value: [%X]\n", idx, instruction);
+            set_memory(idx, instruction);
+
+            idx++;
+            // int whichType = (instruction >> 17) & 7;
+            // if (whichType == 5) {
+            //     // lw
+            //     loadWord(_cpu, _memory, instruction);
+            // } else if (whichType == 6) {
+            //     // sw
+            //     storeWord(_cpu, _memory, instruction);
+            // } else {
+            //     printf("Instruction Memory: Unimplmemented instruction type: 0x%3X\n", whichType);
+            // }
 
         }
     }
@@ -213,6 +229,9 @@ void IMemory::set(Cpu* _cpu, Memory* _memory, int starting, std::string instruct
 void IMemory::set_memory(int position, int hexValue) {
     // Set value of position in memory banks based on index value
     registry[position] = hexValue;
+
+    // DEBUG: This line can be removed after testing
+    // printf("IMemory::set_memory Idx: [%d] <- Value: [%X]\n", position, registry[position]);
 }
 
 int IMemory::get_memory(int position) {

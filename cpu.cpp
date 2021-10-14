@@ -18,10 +18,17 @@
 #include "cpu.h"
 
 Cpu::Cpu() {
+    STATE = 0;
+    isWorkPending = false;
     int cpu_num = 3;
     char* cpu_operations[cpu_num] = {"dump", "reset", "set"};
     Utilities::loadOptions(cpu_num, cpu_operations, cpuOperations);
     reset();
+}
+
+void Cpu::doCycleWork() {
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::doCycleWork: Implementation required.\n");
 }
 
 void Cpu::dump() {
@@ -44,28 +51,44 @@ void Cpu::dump() {
     }
 }
 
-void Cpu::fetch_memory(Memory* _memory, int current_cycle) {
+void Cpu::fetch_memory(IMemory* _imemory) {
     /* Fetch new value from memory banks and place instruction
     #  into the CPU register slot 'RA'
     */
     int fetchbyte = registers["PC"];
-    int response = _memory->get_memory(fetchbyte);
-
+    int response = _imemory->get_memory(fetchbyte);
+    //
     // DEBUG: This line can be removed after testing
-    // printf("Fetched {%d} from {%d}\n", response, fetchbyte);
+    // printf("Cpu::fetch_memory: Fetched {%d} <- {%d}\n", response, fetchbyte);
 
     // Shift registers in descending alphabetical order
-    shift_registers();
+    // shift_registers();
 
     // Set retrieved value to the RA register
-    set_reg("RA", response);
+    // set_reg("RA", response);
 
     // Set the program counter
-    set_reg("PC", current_cycle);
+    incrementPC();
+    // set_reg("PC", fetchbyte+1);
+    // DEBUG: This line can be removed after testing
+    // printf("Refactor Cpu::fetch_memory\n");
 }
 
 int Cpu::get_register(std::string reg) {
     return registers.at(reg);
+}
+
+void Cpu::incrementPC() {
+    // Increment the Program Counter
+    int fetchbyte = registers["PC"];
+    set_reg("PC", fetchbyte+1);
+}
+
+bool Cpu::isMoreCycleWorkNeeded() {
+    // return ((STATE == 0) && isWorkPending);
+    // DEBUG: This line can be removed after testing
+    // printf("Cpu::isMoreCycleWorkNeeded not yet implemented\n");
+    return false;
 }
 
 void Cpu::parseInstructions(std::string instructionSet) {
@@ -139,4 +162,16 @@ void Cpu::shift_registers() {
     while(--ti != it) {
         set_reg(std::next(ti)->first.c_str(), ti->second);
     }
+}
+
+void Cpu::startTick() {
+    /* Called by clock to tell device a new tick has started. Used by devices to
+    # do minimal housekeeping, and transition state. Very little actual work
+    # should be done in this function, and is instead done in doCycleWork
+    # described below.
+    */
+    STATE = (STATE += 1) % sizeof(STATE);
+
+    // DEBUG: This line can be removed after testing
+    // printf("Cpu::startTick: State change [%d] -> [%d]\n", STATE - 1, STATE);
 }

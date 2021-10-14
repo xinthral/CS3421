@@ -9,26 +9,36 @@
 #include <map>                  // std::map
 #include "memory.h"             // Internal Memory Object
 #include <stdio.h>              // printf
-#include <string>               // std::string
+#include <string.h>             // std::string, strcmp
+
+// Forward Declarations
+class IMemory;
 
 class Cpu {
 private:
-    std::map<std::string, int> registers;
-    std::map<std::string, int> cpuOperations;
+    int STATE;
+    bool isWorkPending;
+    std::map<std::string,int> registers;
+    std::map<std::string,int> cpuOperations;
+
+    std::string registrar[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
+    enum STATES { IDLE=0, FETCH=1, DECODE=2, MEM_REQ=3, WAIT=4 };
 
 public:
-    std::string registrar[9] = {"PC", "RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
 
-    Cpu();
-    // void doWork(Memory, int);
+    Cpu();                              // Constructor
+    void doCycleWork();
     void dump();
-    void fetch_memory(Memory*, int);
+    void fetch_memory(IMemory*);
     int get_register(std::string);
+    void incrementPC();
+    bool isMoreCycleWorkNeeded();
     void parseInstructions(std::string);
     void printRegistry(std::string);
     void reset();
-    void set_reg(std::string, int);     // ([RA-RH,PC], HEX) -> (RB, 0xAA)
+    void set_reg(std::string,int);      // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     void shift_registers();
+    void startTick();
 };
 
 #endif

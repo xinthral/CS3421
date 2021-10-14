@@ -11,7 +11,7 @@
 class Parser {
 private:
     // Clock Singleton
-    Clock*  _clock  = Clock::getClock();
+    Clock*  _clock;                         // Clock Device;
     Cpu*    _cpu;                           // Cpu Device;
     IMemory* _imemory;                      // Instruction Memory Device
     Memory* _memory;                        // Memory Device

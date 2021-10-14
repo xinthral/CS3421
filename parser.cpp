@@ -9,8 +9,9 @@
 Parser::Parser() {
     // Instantiate Devices
     _cpu = new Cpu();
-    _imemory = new IMemory();
     _memory = new Memory();
+    _imemory = new IMemory();
+    _clock = _clock->getClock(_cpu, _memory, _imemory);
 
     // Devices Options
     const int dev_num = 4;
@@ -55,7 +56,7 @@ void Parser::readInputFile(char* fileName) {
                     // Clock Execution
                     // DEBUG: This line can be removed after testing
                     // printf("Clock Execution Sent.\n");
-                    _clock->parseInstructions(_cpu, _memory, instructions);
+                    _clock->parseInstructions(instructions);
                     break;
                 case 1:
                     // CPU Execution
@@ -73,7 +74,7 @@ void Parser::readInputFile(char* fileName) {
                     // Instruction Memory Execution
                     // DEBUG: This line can be removed after testing
                     // printf("iMemory Execution Sent.\n");
-                    _imemory->parseInstructions(_cpu, _memory, instructions);
+                    _imemory->parseInstructions(instructions);
                     break;
                 default:
                     // Catch-all condition incase command is invalid.

@@ -10,12 +10,46 @@
 **************************************/
 #include "clock.h"
 
-Clock::Clock() {
+Clock::Clock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     /* Constructor Method for the Clock Class */
+
+    Clock::_cpu = cpu;
+    Clock::_memory = memory;
+    Clock::_imemory = imemory;
+
     reset();
+    clock_enabled = true;
     const int clk_num = 3;
     char* clk_operations[clk_num] = {"dump", "reset", "tick"};
     Utilities::loadOptions(clk_num, clk_operations, clkOperations);
+}
+
+void Clock::doWork() {
+    // Variable to control workflow
+    bool workToDo = true;
+
+    // Tell all devices we are starting a new tick, allowing
+    // them to change state, set counters, etc
+    _cpu->startTick();
+    _memory->startTick();
+
+    // Continue to loop while ANY device has more work to do
+    // on this cycle. Devices often have more work to do to
+    // finish an instruction, but it may need to wait for a
+    // new tick, and nothing remains for this cycle.
+    while (workToDo) {
+
+        // _cpu->doCycleWork();
+        _memory->doCycleWork();
+
+        // Poll all devices. Will be true if ANY device
+        // has more to do on THIS cycle (not instruction).
+        // workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
+        workToDo = _memory->isMoreCycleWorkNeeded();
+    }
+
+    // DEBUG: This line can be removed after testing
+    // printf("Clock::doWork has completed!\n");
 }
 
 void Clock::dump() {
@@ -42,15 +76,12 @@ int Clock::tick(int variant) {
     # attached devices. The internal counter is incremented
     # by the specified number of ticks.
     */
+    if (clock_enabled) { doWork(); }
     cycle += variant;
-    // if (clock_enabled) {
-    //     _cpu->doWork();
-    //     _memory->doWork();
-    // }
     return cycle;
 }
 
-void Clock::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instructionSet) {
+void Clock::parseInstructions(std::string instructionSet) {
     // DEBUG: This line can be removed after testing
     // printf("Clock Instruction: %s\n", instructionSet.c_str());
 
@@ -71,13 +102,14 @@ void Clock::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instructio
                 // tick
                 char clockCycles[3];
                 instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
-                int cycles = std::stoi(clockCycles, 0, 16);
-                int sentinal = 0;
-                int current_cycle = _cpu->get_register("PC");
-                while (sentinal++ < cycles) {
-                    tick(1);
-                    current_cycle++;
-                    _cpu->fetch_memory(_memory, current_cycle);
+                int cycles = std::stoi(clockCycles, 0, 10);
+                int current_cycle = 0;
+                // DEBUG: This line can be removed after testing
+                // printf("Clock::Instruction: %s -> [%d]\n", clockCycles, current_cycle);
+
+                while (current_cycle < cycles) {
+                    current_cycle = tick(1);
+                    doWork();
                 }
             }
             break;
@@ -88,10 +120,10 @@ void Clock::parseInstructions(Cpu* _cpu, Memory* _memory, std::string instructio
 
 Clock* Clock::clk_instance(nullptr);        // Instance Instantiation
 
-Clock* Clock::getClock() {
+Clock* Clock::getClock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     // Singleton Method
     if (clk_instance == nullptr) {
-        clk_instance = new Clock();
+        clk_instance = new Clock(cpu, memory, imemory);
     }
     return clk_instance;
 }

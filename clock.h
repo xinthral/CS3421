@@ -15,22 +15,28 @@ class Memory;
 
 class Clock {
 private:
-    static Clock* clk_instance; // Singleton Object
-    int cycle;                  // Current cycle of clock
-    std::map<std::string, int> clkOperations;
-    Clock();                    // Forces Private Instantiation
+    static Clock* clk_instance;     // Singleton Object
+
+    Cpu* _cpu;
+    Memory* _memory;
+    IMemory* _imemory;
+
+    int cycle;                      // Current cycle of clock
+    bool clock_enabled;             // Track if clock is meant to be running
+    std::map<std::string,int> clkOperations;
+    Clock(Cpu*,Memory*,IMemory*);   // Forces Private Instantiation
 public:
     // Instance Scope Attributes
-    bool clock_enabled;         // Track if clock is meant to be running
 
     // Singleton Method
-    static Clock* getClock();
+    static Clock* getClock(Cpu*,Memory*,IMemory*);
 
     // Class Methods
+    void doWork();
     void dump();
     void reset();
     int tick(int);
-    void parseInstructions(Cpu*, Memory*, std::string);
+    void parseInstructions(std::string);
 
     // Deconstructor
     ~Clock();

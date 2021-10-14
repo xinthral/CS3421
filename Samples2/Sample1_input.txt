@@ -9,5 +9,4 @@ cpu reset
 memory dump 0x0 0x9
 clock tick 40
 cpu dump
-clock tick 40
 memory dump 0x0 0x9
