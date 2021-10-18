@@ -57,7 +57,7 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
         // Condition to print instruction memory if in requested range
         if (rowCount >= startRow && rowCount <= endRow) {
             if (step % column_span == 0) {
-                printf("\n0x%*X", headSize, step);
+                printf("\n0x%0*X", headSize, step);
             }
             if (step < begin || step >= ending) {
                 printf(" %*s", dataSize, "");
@@ -69,36 +69,20 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
     }
     printf("\n");
 }
-/*
-void IMemory::loadWord(Cpu* _cpu, Memory* _memory, int instruction) {
-    // Load Word Funciton
-    int destinationRegister = ((instruction >> 14) | 240 ) & 7;
-    int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
 
-    // DEBUG: This line can be removed after testing
-    printf("IMemory::loadWord: Memory [%d] -> Register [%d]\n", targetMemory, destinationRegister);
-
-    int targetValue = _memory->get_memory(targetMemory);
-    _cpu->set_reg(_cpu->registrar[destinationRegister], targetValue);
+int IMemory::get_memory(int position) {
+    // Return the value of index in bank
+    try {
+        int response = registry[position];
+        return response;
+    } catch (const std::out_of_range& exc) {
+        throw exc.what();
+    }
 }
-
-void IMemory::storeWord(Cpu* _cpu, Memory* _memory, int instruction) {
-    // Store word function
-    int targetRegister = ((instruction >> 11) | 240 ) & 7;
-    int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;
-
-    // DEBUG: This line can be removed after testing
-    printf("IMemory::storeWord: Register [%d] -> Memory [%d]\n", targetRegister, destinationMemory);
-    std::string reg = _cpu->registrar[targetRegister];
-
-    int targetValue = _cpu->get_register(reg);
-    _memory->set_memory(destinationMemory, targetValue);
-}
-*/
 
 void IMemory::nextState() {
     // Advances Finite State Machine to the next state
-    int period = sizeof(STATE) - 1;
+    int period = sizeof(STATES) - 1;
     // DEBUG: This line can be removed after testing
     // printf("IMemory::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
     STATE = (STATE + 1) % period;
@@ -209,19 +193,7 @@ void IMemory::set(int starting, std::string instructionSet) {
             // DEBUG: This line can be removed after testing
             // printf("IMemory::set Idx: [%d] <- Value: [%X]\n", idx, instruction);
             set_memory(idx, instruction);
-
             idx++;
-            // int whichType = (instruction >> 17) & 7;
-            // if (whichType == 5) {
-            //     // lw
-            //     loadWord(_cpu, _memory, instruction);
-            // } else if (whichType == 6) {
-            //     // sw
-            //     storeWord(_cpu, _memory, instruction);
-            // } else {
-            //     printf("Instruction Memory: Unimplmemented instruction type: 0x%3X\n", whichType);
-            // }
-
         }
     }
 }
@@ -232,14 +204,4 @@ void IMemory::set_memory(int position, int hexValue) {
 
     // DEBUG: This line can be removed after testing
     // printf("IMemory::set_memory Idx: [%d] <- Value: [%X]\n", position, registry[position]);
-}
-
-int IMemory::get_memory(int position) {
-    // Return the value of index in bank
-    try {
-        int response = registry[position];
-        return response;
-    } catch (const std::out_of_range& exc) {
-        throw exc.what();
-    }
 }

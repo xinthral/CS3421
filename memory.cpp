@@ -33,13 +33,13 @@ void Memory::doCycleWork() {
     // DEBUG: This line can be removed after testing
     // printf("Memory::doCycleWork: Implementation required.\n");
     // finished wait, and moved to MOVE_DATA state?
-    if (STATE == 2) {
+    if (Memory::STATE == 2) {
         // DEBUG: This line can be removed after testing
-        printf("Memory::doCycleWork: Doing the thing...\n");
+        // printf("Memory::doCycleWork: Doing the thing...\n");
         // copy data back to caller
         memcpy(answerPtr, registry + startPos, fetchCount);
         // Tell caller memory operation is complete
-        // *workResponse = true;
+        *workResponse = true;
         nextState();
         // STATE = 0;
     }
@@ -100,18 +100,17 @@ int Memory::get_memory(int position) {
 }
 
 bool Memory::isMoreCycleWorkNeeded() {
-    // return (STATE == 0 && isWorkPending);
     // DEBUG: This line can be removed after testing
-    // printf("Memory::isMoreCycleWorkNeeded not yet implemented\n");
-    return false;
+    printf("Memory::isMoreCycleWorkNeeded currently '%d'.\n", isWorkPending);
+    return isWorkPending;
 }
 
 void Memory::nextState() {
     // Advances Finite State Machine to the next state
-    int period = sizeof(STATE) - 1;
+    int period = sizeof(Memory::STATES) - 1;
     // DEBUG: This line can be removed after testing
-    // printf("Memory::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
-    STATE = (STATE + 1) % period;
+    printf("Memory::nextState: [%d] -> [%d]\n", Memory::STATE, ((Memory::STATE+1) % period));
+    Memory::STATE = (Memory::STATE + 1) % period;
 }
 
 void Memory::parseInstructions(std::string instructionSet) {
@@ -216,22 +215,36 @@ void Memory::set_memory(int position, int hexValue) {
 
 void Memory::startFetch(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkComplete) {
     // This API is called by memory clients to initiate a fetch (read) from memory
-    if (waitDelay == 0) {
-        STATE = WAIT;
+    if (Memory::STATE == 0) {
+        nextState();
         startPos = start;
         fetchCount = number_of_elements;
         answerPtr = dataPtr;
         workResponse = isWorkComplete;
+        // DEBUG: This line can be removed after testing
+        printf("Memory::startFetch: Starting [%d]\n", startPos);
+        *workResponse = true;
+    }
+    if (Memory::STATE == 2) {
+        *workResponse = false;
     }
 }
 
+
 void Memory::startStore(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkComplete) {
     // This API is called by memory clients to initiate store (write) to memory
-    STATE = WAIT;
-    startPos = start;
-    fetchCount = number_of_elements;
-    answerPtr = dataPtr;
-    workResponse = isWorkComplete;
+    if (Memory::STATE == 0) {
+        Memory::STATE = WAIT;
+        startPos = start;
+        fetchCount = number_of_elements;
+        answerPtr = dataPtr;
+        workResponse = isWorkComplete;
+        // DEBUG: This line can be removed after testing
+        printf("Memory::startStore: Starting [%d]\n", startPos);
+    }
+    if (Memory::STATE == 2) {
+        *isWorkComplete = false;
+    }
 }
 
 void Memory::startTick() {
@@ -240,13 +253,16 @@ void Memory::startTick() {
     # should be done in this function, and is instead done in doCycleWork
     # described below.
     */
-    if (STATE == 0) {
+    // if (isWorkComplete)
+    if (Memory::STATE == 0) {
         nextState();
-    } else if (STATE == 1) {
+    }
+    // }
+    if (Memory::STATE == 1) {
         if (waitDelay < latencyFactor) {
             waitDelay += 1;
             // DEBUG: This line can be removed after testing
-            printf("Waiting: %d\n", waitDelay);
+            // printf("Waiting: %d\n", waitDelay);
         } else {
             waitDelay = 0;
             nextState();

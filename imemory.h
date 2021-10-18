@@ -30,8 +30,6 @@ public:
     void create(int);
     void dump(int,int,int);
     int get_memory(int);
-    // void loadWord(Cpu*,Memory*,int);
-    // void storeWord(Cpu*,Memory*,int);
     void nextState();
     void parseInstructions(std::string);
     void printBankHeaders(int);

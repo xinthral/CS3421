@@ -8,9 +8,9 @@
 #include "parser.h"
 Parser::Parser() {
     // Instantiate Devices
-    _cpu = new Cpu();
     _memory = new Memory();
     _imemory = new IMemory();
+    _cpu = new Cpu(_memory, _imemory);
     _clock = _clock->getClock(_cpu, _memory, _imemory);
 
     // Devices Options

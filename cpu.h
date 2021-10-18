@@ -12,11 +12,16 @@
 #include <string.h>             // std::string, strcmp
 
 // Forward Declarations
+class Memory;
 class IMemory;
 
 class Cpu {
 private:
+    Memory& _memory;
+    IMemory& _imemory;
+
     int STATE;
+    int current_instruction;
     bool isWorkPending;
     std::map<std::string,int> registers;
     std::map<std::string,int> cpuOperations;
@@ -26,19 +31,23 @@ private:
 
 public:
 
-    Cpu();                              // Constructor
+    Cpu(Memory*, IMemory*);             // Constructor
+    void decodeInstruction();
     void doCycleWork();
     void dump();
-    void fetch_memory(IMemory*);
+    void fetch_memory();
     int get_register(std::string);
     void incrementPC();
     bool isMoreCycleWorkNeeded();
+    void loadWord(int);
+    void nextState();
     void parseInstructions(std::string);
     void printRegistry(std::string);
     void reset();
     void set_reg(std::string,int);      // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     void shift_registers();
     void startTick();
+    void storeWord(int);
 };
 
 #endif

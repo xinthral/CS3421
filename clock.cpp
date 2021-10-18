@@ -39,13 +39,12 @@ void Clock::doWork() {
     // new tick, and nothing remains for this cycle.
     while (workToDo) {
 
-        // _cpu->doCycleWork();
+        _cpu->doCycleWork();
         _memory->doCycleWork();
 
         // Poll all devices. Will be true if ANY device
         // has more to do on THIS cycle (not instruction).
-        // workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
-        workToDo = _memory->isMoreCycleWorkNeeded();
+        workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
     }
 
     // DEBUG: This line can be removed after testing
@@ -76,7 +75,11 @@ int Clock::tick(int variant) {
     # attached devices. The internal counter is incremented
     # by the specified number of ticks.
     */
-    if (clock_enabled) { doWork(); }
+    if (clock_enabled) {
+        // DEBUG: This line can be removed after testing
+        printf("Clock::tick: [%d]\n", cycle);
+        doWork();
+    }
     cycle += variant;
     return cycle;
 }
@@ -109,7 +112,7 @@ void Clock::parseInstructions(std::string instructionSet) {
 
                 while (current_cycle < cycles) {
                     current_cycle = tick(1);
-                    doWork();
+                    // doWork();
                 }
             }
             break;
