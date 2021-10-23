@@ -44,17 +44,29 @@ void Cpu::doCycleWork() {
     if (STATE == 1) {
         // initiate fetch cycle
         fetch_memory();
+
         // Advance state to DECODE
         nextState();
+
         // initiate dedcode cycle
         decodeInstruction();
+
         // Advance state to MEM_REQ
         nextState();
+
         // Memory Request
         executeInstruction();
+
         // Advance state to WAIT
         nextState();
+
     } else if (STATE == 4 && !(isWorking)) {
+        // Shift registers in descending alphabetical order
+        shift_registers();
+
+        // Set instruction to Registry
+        set_reg(registrar[fetchRegister+1], fetchValue);
+
         // End Wait State
         incrementPC();
         nextState();
@@ -119,7 +131,7 @@ void Cpu::fetch_memory() {
                 // Set Work Flag
                 isWorking = true;
                 // // Shift registers in descending alphabetical order
-                shift_registers();
+                // shift_registers();
                 // DEBUG: This line can be removed after testing
                 printf("Cpu::fetch_imemory: Fetched {%X} <- {%d}\n", current_instruction, fetchbyte);
             }
@@ -134,15 +146,14 @@ int Cpu::get_register(std::string reg) {
 
 void Cpu::loadWord(int instruction) {
     // Load Word Funciton
-    int destinationRegister = ((instruction >> 14) | 240 ) & 7;
     int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
+    fetchRegister = ((instruction >> 14) | 240 ) & 7;
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::loadWord: Moved from [%d] -> R[%d]\n", targetMemory, destinationRegister);
+    printf("Cpu::loadWord: Requesting data from M[%d] -> R[%d]\n", targetMemory, fetchRegister);
 
     // Begin fetch
-    unsigned int targetValue;
-    _memory.startFetch(targetMemory, 1, &targetValue, &isWorking);
+    _memory.startFetch(targetMemory, 1, &fetchValue, &isWorking);
 }
 
 void Cpu::incrementPC() {

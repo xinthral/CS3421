@@ -7,6 +7,7 @@ imemory reset
 imemory set 0x0 file Sample1_Instructions.txt
 cpu reset
 imemory dump 0x0 0x16
+memory dump 0x0 0x8
 clock tick 40
 cpu dump
 memory dump 0x0 0x8

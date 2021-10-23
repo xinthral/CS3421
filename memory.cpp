@@ -35,7 +35,7 @@ void Memory::doCycleWork() {
     // finished wait, and moved to MOVE_DATA state?
     if (Memory::STATE == 2) {
         // DEBUG: This line can be removed after testing
-        // printf("Memory::doCycleWork: Doing the thing...\n");
+        printf("Memory::doCycleWork: Returning [%d]\n", answerPtr[0]);
         // copy data back to caller
         memcpy(answerPtr, registry + startPos, fetchCount);
         // Tell caller memory operation is complete

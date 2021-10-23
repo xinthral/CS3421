@@ -23,7 +23,9 @@ private:
     int STATE;
     int current_executable;                     // CPU instruction
     int current_instruction;                    // Entire Operation Instruction
-    bool isWorking;
+    bool isWorking;                             // Boolean flag while working
+    unsigned int fetchValue;                    // Value fetch from request
+    int fetchRegister;                          // Location for fetch value 
 
     std::map<std::string,int> registers;
     std::map<std::string,int> cpuOperations;
