@@ -11,10 +11,10 @@ Memory::Memory() {
     STATE = 0;                  // FSM
     capacity = 0;               // Data Memory Size
     fetchCount = 0;             // Number of elements
-    isWorkPending = false;      // FSM Trigger
+    isWorking = false;          // FSM Trigger
     latencyFactor = 5;          // Device Processing Time
     startPos = 0;               // Memory Cursor
-    waitDelay = 0;              // Current Cycle in Delay (step)
+    waitDelay = 1;              // Current Cycle in Delay (step)
     int mem_num = 4;
     char* mem_operations[mem_num] = {"create", "dump", "reset", "set"};
     Utilities::loadOptions(mem_num, mem_operations, memOperations);
@@ -39,7 +39,7 @@ void Memory::doCycleWork() {
         // copy data back to caller
         memcpy(answerPtr, registry + startPos, fetchCount);
         // Tell caller memory operation is complete
-        *workResponse = true;
+        *workResponse = false;
         nextState();
         // STATE = 0;
     }
@@ -101,15 +101,14 @@ int Memory::get_memory(int position) {
 
 bool Memory::isMoreCycleWorkNeeded() {
     // DEBUG: This line can be removed after testing
-    printf("Memory::isMoreCycleWorkNeeded currently '%d'.\n", isWorkPending);
-    return isWorkPending;
+    return isWorking;
 }
 
 void Memory::nextState() {
     // Advances Finite State Machine to the next state
     int period = sizeof(Memory::STATES) - 1;
     // DEBUG: This line can be removed after testing
-    printf("Memory::nextState: [%d] -> [%d]\n", Memory::STATE, ((Memory::STATE+1) % period));
+    // printf("Memory::nextState: [%d] -> [%d]\n", Memory::STATE, ((Memory::STATE+1) % period));
     Memory::STATE = (Memory::STATE + 1) % period;
 }
 
@@ -213,38 +212,28 @@ void Memory::set_memory(int position, int hexValue) {
     // printf("Memory::set_memory: Position [%d] <- Value [0x%X]\n", position, hexValue);
 }
 
-void Memory::startFetch(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkComplete) {
+void Memory::startFetch(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate a fetch (read) from memory
-    if (Memory::STATE == 0) {
-        nextState();
-        startPos = start;
-        fetchCount = number_of_elements;
-        answerPtr = dataPtr;
-        workResponse = isWorkComplete;
-        // DEBUG: This line can be removed after testing
-        printf("Memory::startFetch: Starting [%d]\n", startPos);
-        *workResponse = true;
-    }
-    if (Memory::STATE == 2) {
-        *workResponse = false;
-    }
+    nextState();
+    isWorking = true;
+    startPos = start;
+    fetchCount = number_of_elements;
+    answerPtr = dataPtr;
+    workResponse = isWorkPending;
+    // DEBUG: This line can be removed after testing
+    printf("Memory::startFetch: Starting @ [%d]\n", startPos);
 }
 
-
-void Memory::startStore(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkComplete) {
+void Memory::startStore(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate store (write) to memory
-    if (Memory::STATE == 0) {
-        Memory::STATE = WAIT;
-        startPos = start;
-        fetchCount = number_of_elements;
-        answerPtr = dataPtr;
-        workResponse = isWorkComplete;
-        // DEBUG: This line can be removed after testing
-        printf("Memory::startStore: Starting [%d]\n", startPos);
-    }
-    if (Memory::STATE == 2) {
-        *isWorkComplete = false;
-    }
+    nextState();
+    isWorking = true;
+    startPos = start;
+    fetchCount = number_of_elements;
+    answerPtr = dataPtr;
+    workResponse = isWorkPending;
+    // DEBUG: This line can be removed after testing
+    printf("Memory::startStore: Starting @ [%d]\n", startPos);
 }
 
 void Memory::startTick() {
@@ -253,18 +242,14 @@ void Memory::startTick() {
     # should be done in this function, and is instead done in doCycleWork
     # described below.
     */
-    // if (isWorkComplete)
-    if (Memory::STATE == 0) {
-        nextState();
-    }
-    // }
-    if (Memory::STATE == 1) {
-        if (waitDelay < latencyFactor) {
+    if (STATE == 1 && isWorking) {
+        if (waitDelay < (latencyFactor - 1)) {
             waitDelay += 1;
             // DEBUG: This line can be removed after testing
-            // printf("Waiting: %d\n", waitDelay);
+            // printf("Memory::startTick: Waiting: %d\n", waitDelay);
         } else {
-            waitDelay = 0;
+            isWorking = false;
+            waitDelay = 1;
             nextState();
         }
     }

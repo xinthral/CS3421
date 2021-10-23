@@ -30,8 +30,8 @@ void Clock::doWork() {
 
     // Tell all devices we are starting a new tick, allowing
     // them to change state, set counters, etc
-    _cpu->startTick();
     _memory->startTick();
+    _cpu->startTick();
 
     // Continue to loop while ANY device has more work to do
     // on this cycle. Devices often have more work to do to
@@ -39,12 +39,15 @@ void Clock::doWork() {
     // new tick, and nothing remains for this cycle.
     while (workToDo) {
 
-        _cpu->doCycleWork();
+        // give each device a chance to do some work such as
+        // issue requests, process results, change state, etc
         _memory->doCycleWork();
+        _cpu->doCycleWork();
 
         // Poll all devices. Will be true if ANY device
         // has more to do on THIS cycle (not instruction).
-        workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
+        // workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
+        workToDo = false;
     }
 
     // DEBUG: This line can be removed after testing
@@ -77,7 +80,7 @@ int Clock::tick(int variant) {
     */
     if (clock_enabled) {
         // DEBUG: This line can be removed after testing
-        printf("Clock::tick: [%d]\n", cycle);
+        // printf("Clock::tick: [%d]\n", cycle);
         doWork();
     }
     cycle += variant;

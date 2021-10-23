@@ -39,7 +39,7 @@ all: $(CLK).o $(CPU).o $(MEM).o $(MIM).o $(PRS).o $(UTL).o
 	$(CC) $(CFLAGS) $(CXFLAGS) -o $(EXECUTABLE) $^
 
 # Compile Full program plus tests
-test: $(CLK).o $(CPU).o $(MEM).o $(TST).o $(UTL).o
+test: $(CLK).o $(CPU).o $(MEM).o $(MIM).o $(TST).o $(UTL).o
 	$(CC) $(CFLAGS) $(CXXFLAGS) -o $(TESTOUTPUT) $^
 
 # Define Object Files

@@ -20,7 +20,7 @@ private:
     int startPos;                       // startFetch starting position
     int waitDelay;                      // startTick delay counter
     int STATE;                          // State for FSM
-    bool isWorkPending;
+    bool isWorking;
     std::map<std::string, int> memOperations;
     enum STATES {IDLE=0, WAIT=1, MOVE_DATA=2};
 

@@ -9,14 +9,20 @@
 #include "test.h"
 #include <iostream>
 
+Test::Test() {
+    // Instantiate Devices
+    _memory = new Memory();
+    _imemory = new IMemory();
+    _cpu = new Cpu(_memory, _imemory);
+    _clock = _clock->getClock(_cpu, _memory, _imemory);
+}
+
+void Test::printTest() {
+    printf("Test Print.\n");
+}
+
 int main(int argc, char const *argv[]) {
     printf("Test Parser!!\n");
-    // Memory* _memory = new Memory();
-    // IMemory* _imemory = new IMemory();
-    // Cpu* _cpu = new Cpu(_memory, _imemory);
-    // Clock* _clock = _clock->getClock(_cpu, _memory, _imemory);
-
-    enum STATES { IDLE=0, FETCH=1, DECODE=2, MEM_REQ=3, WAIT=4 };
-    printf("Size of enum: %ld\n", sizeof(STATES));
+    Test t;
     return 0;
 }

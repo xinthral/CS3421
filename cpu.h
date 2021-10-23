@@ -21,8 +21,10 @@ private:
     IMemory& _imemory;
 
     int STATE;
-    int current_instruction;
-    bool isWorkPending;
+    int current_executable;                     // CPU instruction
+    int current_instruction;                    // Entire Operation Instruction
+    bool isWorking;
+
     std::map<std::string,int> registers;
     std::map<std::string,int> cpuOperations;
 
@@ -32,10 +34,11 @@ private:
 public:
 
     Cpu(Memory*, IMemory*);             // Constructor
-    void decodeInstruction();
-    void doCycleWork();
-    void dump();
-    void fetch_memory();
+    void decodeInstruction();           // Decode IMemory Instruction
+    void doCycleWork();                 // Main Work Loop
+    void dump();                        // Display Register Information
+    void executeInstruction();          // Execute on current_executable
+    void fetch_memory();                // Fetch Instruction from IMemory
     int get_register(std::string);
     void incrementPC();
     bool isMoreCycleWorkNeeded();

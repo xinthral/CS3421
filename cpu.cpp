@@ -20,8 +20,8 @@
 Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory) {
     _memory = *memory;
     _imemory = *imemory;
-    isWorkPending = false;
     STATE = 0;
+    isWorking = false;
     current_instruction = -1;
     int cpu_num = 3;
     char* cpu_operations[cpu_num] = {"dump", "reset", "set"};
@@ -31,41 +31,46 @@ Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory
 
 void Cpu::decodeInstruction() {
     // Take in and decode Instruction from Instruction Memory
-    int whichType = (current_instruction >> 17) & 7;
-    // Switch to case statement
-    if (whichType == 5) {
-        // lw
-        loadWord(current_instruction);
-    } else if (whichType == 6) {
-        // sw
-        storeWord(current_instruction);
-    } else {
-        printf("Cpu::decodeInstruction: Unimplmemented instruction type: 0x%3X\n", whichType);
-    }
-    nextState();
+    current_executable = ((current_instruction >> 17) & 7);
+
+    // DEBUG: This line can be removed after testing
+    // printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
 }
 
 void Cpu::doCycleWork() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::doCycleWork: Pre-emptive state [%d].\n", STATE);
 
-    if (STATE == 0) {
-        nextState();
-        isWorkPending = true;
-    } else if (STATE == 1) {
+    if (STATE == 1) {
         // initiate fetch cycle
-        // Increment State to Dedcode
         fetch_memory();
+        // Advance state to DECODE
+        nextState();
+        // initiate dedcode cycle
+        decodeInstruction();
+        // Advance state to MEM_REQ
+        nextState();
+        // Memory Request
+        executeInstruction();
+        // Advance state to WAIT
+        nextState();
+    } else if (STATE == 4 && !(isWorking)) {
+        // End Wait State
         incrementPC();
         nextState();
-        decodeInstruction();
-        nextState();
-    } else if (STATE == 3) {
-        printf("Cpu::doCycleWork: In Wait state.\n");
-        // Set the program counter and increment the state
-        nextState();
-        isWorkPending = false;
     }
+
+    // else if (STATE == 2) {
+    //     // initiate dedcode cycle
+    // } else if (STATE == 3) {
+    //     // Memory Request
+    //     executeInstruction();
+    // } else if (STATE == 4) {
+    //     printf("Cpu::doCycleWork: In Wait state.\n");
+    //     if (isWorking) {
+    //         isWorking = false;
+    //     }
+    // }
 }
 
 void Cpu::dump() {
@@ -88,29 +93,38 @@ void Cpu::dump() {
     }
 }
 
+void Cpu::executeInstruction() {
+    // Switch to case statement
+    if (current_executable == 5) {
+        // lw
+        loadWord(current_instruction);
+    } else if (current_executable == 6) {
+        // sw
+        storeWord(current_instruction);
+    } else {
+        // DEBUG: This line can be removed after testing
+        printf("Cpu::executeInstruction: Unimplmemented instruction type: 0x%3X\n", current_executable);
+    }
+}
+
 void Cpu::fetch_memory() {
-    /* Fetch new value from memory banks and place instruction
+    /* Fetch new value from imemory banks and place instruction
     #  into the CPU register slot 'RA'
     */
     int fetchbyte = registers["PC"];
     try {
         if (current_instruction != 0) {
             current_instruction = _imemory.get_memory(fetchbyte);
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::fetch_imemory: Fetched {%X} <- {%d}\n", current_instruction, fetchbyte);
-        } else { isWorkPending = false; }
-    } catch (const std::exception& e) { printf("%s\n", e.what()); }
-
-
-    // Shift registers in descending alphabetical order
-    // shift_registers();
-
-    // DECODE INSTRUCTION
-    // MAKE MEMORY REQUEST LW/ST
-    // WAIT STATE UNTIL RESPONSE
-
-    // Set retrieved value to the RA register
-    // set_reg("RA", current_instruction);
+            if (current_instruction > 0) {
+                // Set Work Flag
+                isWorking = true;
+                // // Shift registers in descending alphabetical order
+                shift_registers();
+                // DEBUG: This line can be removed after testing
+                printf("Cpu::fetch_imemory: Fetched {%X} <- {%d}\n", current_instruction, fetchbyte);
+            }
+        } else { isWorking = false; }
+    } catch (const std::exception& e) { printf("Cpu::fetch_memory: Error fetching\n\t%s\n", e.what()); }
 }
 
 int Cpu::get_register(std::string reg) {
@@ -120,20 +134,15 @@ int Cpu::get_register(std::string reg) {
 
 void Cpu::loadWord(int instruction) {
     // Load Word Funciton
-    isWorkPending = true;
-
     int destinationRegister = ((instruction >> 14) | 240 ) & 7;
     int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::loadWord: Decoded Instruction [%X]\n\tMemory [%d] -> Register [%d]\n", instruction, targetMemory, destinationRegister);
+    printf("Cpu::loadWord: Moved from [%d] -> R[%d]\n", targetMemory, destinationRegister);
 
     // Begin fetch
     unsigned int targetValue;
-    _memory.startFetch(targetMemory, 1, &targetValue, &isWorkPending);
-
-
-    // set_reg(registrar[destinationRegister], targetValue);
+    _memory.startFetch(targetMemory, 1, &targetValue, &isWorking);
 }
 
 void Cpu::incrementPC() {
@@ -143,20 +152,24 @@ void Cpu::incrementPC() {
     // DEBUG: This line can be removed after testing
     printf("Cpu::incrementPC: Counter incremented [%d] -> [%d]\n", fetchbyte, fetchbyte+1);
 
+    // Set PC counter
     set_reg("PC", fetchbyte+1);
+    if (fetchbyte > 16) {
+        std::abort();
+    }
 }
 
 bool Cpu::isMoreCycleWorkNeeded() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::isMoreCycleWorkNeeded not yet implemented\n");
-    return isWorkPending;
+    return isWorking;
 }
 
 void Cpu::nextState() {
     // Advances Finite State Machine to the next state
     int period = sizeof(Cpu::STATES) + 1;// - 1;
     // DEBUG: This line can be removed after testing
-    printf("Cpu::nextState: [%d] -> [%d]\n", Cpu::STATE, ((Cpu::STATE+1) % period));
+    // printf("Cpu::nextState: [%d] -> [%d]\n", Cpu::STATE, ((Cpu::STATE+1) % period));
     Cpu::STATE = (Cpu::STATE + 1) % period;
 }
 
@@ -240,14 +253,23 @@ void Cpu::startTick() {
     # described below.
     */
 
-    // if (STATE == 0) {
-    //     nextState();
-    // }
+    if (STATE == 0) {
+        nextState();
+    } else if (STATE == 4){
+        // Set the program counter and increment the state
+        if (isWorking) {
+            // DEBUG: This line can be removed after testing
+            // printf("Cpu::startTick: In Wait state.\n");
+        }
+    } else {
+        // DEBUG: This line can be removed after testing
+        printf("Cpu::startTick: Invalid start state: %d.\n", STATE);
+    }
 }
 
 void Cpu::storeWord(int instruction) {
     // Store word function
-    isWorkPending = true;
+    isWorking = true;
     int targetRegister = ((instruction >> 11) | 240 ) & 7;
     int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;
 
@@ -256,5 +278,5 @@ void Cpu::storeWord(int instruction) {
     std::string reg = registrar[targetRegister];
 
     unsigned targetValue = get_register(reg);
-    _memory.startStore(destinationMemory, 1, &targetValue, &isWorkPending);
+    _memory.startStore(destinationMemory, 1, &targetValue, &isWorking);
 }
