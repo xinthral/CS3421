@@ -62,7 +62,7 @@ void Cpu::doCycleWork() {
 
     } else if (STATE == 4 && !(isWorking)) {
         // Shift registers in descending alphabetical order
-        shift_registers();
+        // shift_registers();
 
         // Set instruction to Registry
         set_reg(registrar[fetchRegister+1], fetchValue);
@@ -130,8 +130,6 @@ void Cpu::fetch_memory() {
             if (current_instruction > 0) {
                 // Set Work Flag
                 isWorking = true;
-                // // Shift registers in descending alphabetical order
-                // shift_registers();
                 // DEBUG: This line can be removed after testing
                 printf("Cpu::fetch_imemory: Fetched {%X} <- {%d}\n", current_instruction, fetchbyte);
             }
@@ -146,14 +144,20 @@ int Cpu::get_register(std::string reg) {
 
 void Cpu::loadWord(int instruction) {
     // Load Word Funciton
-    int targetMemory = ((instruction >> 8 ) | 240 ) & 7;
-    fetchRegister = ((instruction >> 14) | 240 ) & 7;
+    fetchRegister = (((instruction >> 14) | 240 ) & 7);         // x
+    int targetMemory = (((instruction >> 8 ) | 240 ) & 7);      // y
+
+    // Get Register
+    std::string reg = registrar[fetchRegister];
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::loadWord: Requesting data from M[%d] -> R[%d]\n", targetMemory, fetchRegister);
+    printf("Cpu::loadWord: Loading Word into R[%s] from M[%d].\n", reg.c_str(), targetMemory);
+
+    // Create return location reference
+    unsigned* response = registers.at(registrar[fetchRegister]);
 
     // Begin fetch
-    _memory.startFetch(targetMemory, 1, &fetchValue, &isWorking);
+    _memory.startFetch(targetMemory, 1, response, &isWorking);
 }
 
 void Cpu::incrementPC() {
@@ -280,14 +284,18 @@ void Cpu::startTick() {
 
 void Cpu::storeWord(int instruction) {
     // Store word function
-    isWorking = true;
-    int targetRegister = ((instruction >> 11) | 240 ) & 7;
-    int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;
+    fetchRegister = (((instruction >> 11) | 240 ) & 7);             // x
+    int destinationMemory = (((instruction >> 8 ) | 240 ) & 7);     // y
+
+    // Get Register
+    std::string reg = registrar[fetchRegister];
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::storeWord: Decode Instruction [%X]\n\tRegister [%d] -> Memory [%d]\n", instruction, targetRegister, destinationMemory);
-    std::string reg = registrar[targetRegister];
+    printf("Cpu::storeWord: Storing Word from R[%s] into M[%d].\n", reg.c_str(), destinationMemory);
 
-    unsigned targetValue = get_register(reg);
-    _memory.startStore(destinationMemory, 1, &targetValue, &isWorking);
+    // Create return location reference
+    unsigned* response = registers.at(registrar[fetchRegister]);
+
+    // Begin store
+    _memory.startStore(destinationMemory, 1, response, &isWorking);
 }
