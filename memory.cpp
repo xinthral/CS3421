@@ -30,18 +30,26 @@ void Memory::create(int inputSize) {
 }
 
 void Memory::doCycleWork() {
-    // DEBUG: This line can be removed after testing
-    // printf("Memory::doCycleWork: Implementation required.\n");
-    // finished wait, and moved to MOVE_DATA state?
+    // Completed WAIT state, and advanced into the MOVE_DATA state
     if (Memory::STATE == 2) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::doCycleWork: Returning [%d]\n", answerPtr[0]);
         // copy data back to caller
-        memcpy(answerPtr, registry + startPos, fetchCount);
+        // memcpy(answerPtr, registry + startPos, fetchCount);
+        if (instructionType == 5){
+            *answerPtr = get_memory(startPos);
+            // DEBUG: This line can be removed after testing
+            printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, *answerPtr);
+        } else if (instructionType == 6){
+            // DEBUG: This line can be removed after testing
+            printf("Memory::doCycleWork: Storing R[%d] @ M[%d].\n", startPos, *answerPtr);
+            set_memory(startPos, *answerPtr);
+        }
         // Tell caller memory operation is complete
+        answerPtr = nullptr;
+        fetchCount = 0;
+        instructionType = 0;
+        startPos = 0;
         *workResponse = false;
         nextState();
-        // STATE = 0;
     }
 }
 
@@ -101,6 +109,7 @@ int Memory::get_memory(int position) {
 
 bool Memory::isMoreCycleWorkNeeded() {
     // DEBUG: This line can be removed after testing
+    // return false;
     return isWorking;
 }
 
@@ -212,9 +221,10 @@ void Memory::set_memory(int position, int hexValue) {
     // printf("Memory::set_memory: Position [%d] <- Value [0x%X]\n", position, hexValue);
 }
 
-void Memory::startFetch(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkPending) {
+void Memory::startFetch(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate a fetch (read) from memory
     nextState();
+    instructionType = 5;
     isWorking = true;
     startPos = start;
     fetchCount = number_of_elements;
@@ -224,9 +234,10 @@ void Memory::startFetch(int start, int number_of_elements, unsigned int* dataPtr
     printf("Memory::startFetch: Starting @ [%d]\n", startPos);
 }
 
-void Memory::startStore(int start, int number_of_elements, unsigned int* dataPtr, bool* isWorkPending) {
+void Memory::startStore(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate store (write) to memory
     nextState();
+    instructionType = 6;
     isWorking = true;
     startPos = start;
     fetchCount = number_of_elements;
