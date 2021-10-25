@@ -35,7 +35,7 @@ void Cpu::decodeInstruction() {
     current_executable = ((current_instruction >> 17) & 7);
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
+    // printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
 }
 
 void Cpu::doCycleWork() {
@@ -80,7 +80,7 @@ void Cpu::dump() {
 void Cpu::executeInstruction() {
     // Switch to case statement
     // DEBUG: This line can be removed after testing
-    printf("Cpu::executeInstruciont: %d\n", current_executable);
+    // printf("Cpu::executeInstruciont: %d\n", current_executable);
 
     if (current_executable == 5) {
         // lw
@@ -106,7 +106,7 @@ void Cpu::fetch_memory() {
                 isWorking = true;       // Set Work Flag
 
                 // DEBUG: This line can be removed after testing
-                printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
+                // printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
             }
         } else { isWorking = false; }
     } catch (const std::exception& e) { printf("Cpu::fetch_memory: Error fetching\n\t%s\n", e.what()); }

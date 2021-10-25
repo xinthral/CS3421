@@ -32,15 +32,22 @@ void Memory::create(int inputSize) {
 void Memory::doCycleWork() {
     // Completed WAIT state, and advanced into the MOVE_DATA state
     if (Memory::STATE == 2) {
-        // copy data back to caller
         // memcpy(answerPtr, registry + startPos, fetchCount);
-        *answerPtr = get_memory(startPos);
-        // DEBUG: This line can be removed after testing
-        printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
+        if (current_operation == 5) {
+            // copy data back to caller
+            *answerPtr = get_memory(startPos);
+            // DEBUG: This line can be removed after testing
+            printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
+        } else if (current_operation == 6) {
+            set_memory(startPos, *answerPtr);
+            // DEBUG: This line can be removed after testing
+            printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
+        }
         // Tell caller memory operation is complete
-        startPos = 0;
-        fetchCount = 0;
         answerPtr = nullptr;
+        current_operation = 0;
+        fetchCount = 0;
+        startPos = 0;
         *workResponse = false;
         nextState();
     }
@@ -217,6 +224,7 @@ void Memory::set_memory(int position, int hexValue) {
 void Memory::startFetch(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate a fetch (read) from memory
     nextState();
+    current_operation = 5;
     isWorking = true;
     startPos = start;
     fetchCount = number_of_elements;
@@ -229,6 +237,7 @@ void Memory::startFetch(int start, int number_of_elements, int* dataPtr, bool* i
 void Memory::startStore(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate store (write) to memory
     nextState();
+    current_operation = 6;
     isWorking = true;
     startPos = start;
     fetchCount = number_of_elements;
