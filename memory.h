@@ -11,17 +11,16 @@
 
 class Memory {
 private:
-    int* answerPtr;                     // startFetch answer reponse pointer
+    int* answerPtr;            // startFetch answer reponse pointer
+    bool* workResponse;                 // startFetch isWorking response pointer
     int capacity;                       // Size of memory bank
-    int instructionType;                // Type of instruction to execute on
     int fetchCount;                     // startFetch number of elements
     int latencyFactor;                  // startTick data memory device delay
     int* registry;                      // Memory Banks
     int startPos;                       // startFetch starting position
-    int STATE;                          // State for FSM
     int waitDelay;                      // startTick delay counter
-    bool isWorking;                     // Is device busy
-    bool* workResponse;                 // startFetch isWorking response pointer
+    int STATE;                          // State for FSM
+    bool isWorking;
     std::map<std::string, int> memOperations;
     enum STATES {IDLE=0, WAIT=1, MOVE_DATA=2};
 

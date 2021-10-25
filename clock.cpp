@@ -46,7 +46,8 @@ void Clock::doWork() {
 
         // Poll all devices. Will be true if ANY device
         // has more to do on THIS cycle (not instruction).
-        workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
+        // workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
+        workToDo = false;
     }
 
     // DEBUG: This line can be removed after testing
@@ -114,6 +115,7 @@ void Clock::parseInstructions(std::string instructionSet) {
 
                 while (current_cycle < cycles) {
                     current_cycle = tick(1);
+                    // doWork();
                 }
             }
             break;

@@ -44,13 +44,10 @@ void Cpu::doCycleWork() {
 
     if (STATE == 1) {
         fetch_memory();         // initiate fetch cycle
-        printf("Fetch Done!\n");
         nextState();            // Advance state to DECODE
         decodeInstruction();    // initiate dedcode cycle
-        printf("Decode Done!\n");
         nextState();            // Advance state to MEM_REQ
         executeInstruction();   // Memory Request
-        printf("Execution Done!\n");
         nextState();            // Advance state to WAIT
 
     } else if (STATE == 4 && !(isWorking)) {
@@ -82,6 +79,9 @@ void Cpu::dump() {
 
 void Cpu::executeInstruction() {
     // Switch to case statement
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::executeInstruciont: %d\n", current_executable);
+
     if (current_executable == 5) {
         // lw
         loadWord(current_instruction);
@@ -90,7 +90,7 @@ void Cpu::executeInstruction() {
         storeWord(current_instruction);
     } else {
         // DEBUG: This line can be removed after testing
-        printf("Cpu::executeInstruction: Unimplmemented instruction type: 0x%3X\n", current_executable);
+        printf("Cpu::executeInstruction: Unimplmemented instruction type: %d\n", current_executable);
     }
 }
 
@@ -164,7 +164,7 @@ void Cpu::nextState() {
     STATE = (STATE + 1) % period;
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
+    // printf("Cpu::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
 }
 
 void Cpu::parseInstructions(std::string instructionSet) {
@@ -232,7 +232,7 @@ void Cpu::startTick() {
         // Set the program counter and increment the state
         if (isWorking) {
             // DEBUG: This line can be removed after testing
-            printf("Cpu::startTick: In Wait state.\n");
+            // printf("Cpu::startTick: In Wait state.\n");
         }
     } else {
         // DEBUG: This line can be removed after testing
@@ -248,9 +248,6 @@ void Cpu::storeWord(int instruction) {
     // DEBUG: This line can be removed after testing
     printf("Cpu::storeWord: Storing Word from %s into M[%d].\n", registrar[fetchRegister].c_str(), destinationMemory);
 
-    // Get Value from requested registry
-    int regValue = get_register(destinationMemory);
-
     // Begin store
-    _memory.startStore(regValue, 1, &(_registers[fetchRegister]), &isWorking);
+    _memory.startStore(get_register(destinationMemory), 1, &(_registers[fetchRegister]), &isWorking);
 }
