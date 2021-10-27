@@ -8,6 +8,15 @@
 
 Memory::Memory() {
     // create(0x0F);
+    int mem_operation_count = 4;
+    int mem_states_count = 3;
+
+    char* mem_operations[mem_operation_count] = {"create", "dump", "reset", "set"};
+    char* mem_states[mem_states_count] = {"IDLE", "WAIT", "EXEC"};
+
+    Utilities::loadOptions(mem_operation_count, mem_operations, memOperations);
+    Utilities::loadOptions(mem_states_count, mem_states, STATES);
+
     STATE = 0;                  // FSM
     capacity = 0;               // Data Memory Size
     fetchCount = 0;             // Number of elements
@@ -16,9 +25,6 @@ Memory::Memory() {
     latencyFactor = 5;          // Device Processing Time
     startPos = 0;               // Memory Cursor
     waitDelay = 0;              // Current Cycle in Delay (step)
-    int mem_num = 4;
-    char* mem_operations[mem_num] = {"create", "dump", "reset", "set"};
-    Utilities::loadOptions(mem_num, mem_operations, memOperations);
 }
 
 void Memory::create(int inputSize) {
@@ -33,20 +39,20 @@ void Memory::create(int inputSize) {
 void Memory::doCycleWork() {
     // Completed WAIT state, and advanced into the MOVE_DATA state
 
-    if (STATE == 2) {
+    if (2 == STATE && 0 == waitDelay) {
         // memcpy(answerPtr, registry + startPos, fetchCount);
         // printf("Memory::doCycleWork: Current Operation: %d\n", current_operation);
-        if (current_operation == 5) {
+        if (5 == current_operation) {
             // copy data back to caller
             *answerPtr = get_memory(startPos);
             // DEBUG: This line can be removed after testing
-            // printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
+            printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
         }
-        if (current_operation == 6) {
+        if (6 == current_operation) {
             // copy data back to caller
             set_memory(startPos, get_memory(*answerPtr));
             // DEBUG: This line can be removed after testing
-            // printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
+            printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
         }
         // Tell caller memory operation is complete
         answerPtr = nullptr;
@@ -56,7 +62,7 @@ void Memory::doCycleWork() {
         startPos = 0;
         *workResponse = false;
         nextState();
-    } else { nextState(); }
+    }
 }
 
 void Memory::dump(int begin, int number_of_elements, int column_span) {
@@ -114,25 +120,27 @@ int Memory::get_memory(int position) {
 }
 
 bool Memory::isMoreCycleWorkNeeded() {
+    // Check if there more work pending in this clock cycle
     // DEBUG: This line can be removed after testing
-    // return false;
+    printf("Memory::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
     return isCycleWorkPending;
 }
 
 void Memory::nextState() {
     // Advances Finite State Machine to the next state
-    int period = sizeof(Memory::STATES) + 1;
+    int period = STATES.size();
+    int previousState = STATE;
+
+    STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    // printf("Memory::nextState: [%d] -> [%d]\n", STATE, ((STATE + 1) % period));
+    printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
 
-    STATE = (STATE + 1) % period;
 }
 
 void Memory::parseInstructions(std::string instructionSet) {
     // DEBUG: This line can be removed after testing
     // printf("Memory Instruction: %s\n", instructionSet.c_str());
-
     char operation[8];
     instructionSet = Utilities::chunkInstruction(instructionSet, operation);
     int op = memOperations[operation];
@@ -263,8 +271,11 @@ void Memory::startTick() {
     # should be done in this function, and is instead done in doCycleWork
     # described below.
     */
+    // DEBUG: This line can be removed after testing
+    printf("\nMemory::startTick: Current State %d.\n", STATE);
+
     if (STATE == 1) {
-        if (waitDelay < (latencyFactor - 1)) {
+        if (waitDelay < (latencyFactor - 2)) {
             waitDelay += 1;
             // DEBUG: This line can be removed after testing
             printf("Memory::startTick: Waiting: %d\n", waitDelay);

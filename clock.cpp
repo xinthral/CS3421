@@ -117,7 +117,6 @@ void Clock::parseInstructions(std::string instructionSet) {
 
                 while (current_cycle < cycles) {
                     current_cycle = tick(1);
-                    // doWork();
                 }
             }
             break;

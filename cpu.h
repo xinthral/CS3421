@@ -32,9 +32,9 @@ private:
     int _registers[8] = { 0 };                  // Register Bank
     int _pc;                                    // Program Counter
     std::map<std::string,int> cpuOperations;
+    std::map<std::string,int> STATES; 
 
     std::string registrar[8] = {"RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
-    enum STATES { IDLE=0, FETCH=1, DECODE=2, MEM_REQ=3, WAIT=4 };
 
 public:
 

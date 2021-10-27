@@ -20,14 +20,21 @@
 Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory) {
     _memory = *memory;
     _imemory = *imemory;
+
+    int cpu_option_num = 3;
+    int cpu_states_count = 5;
+
+    char* cpu_states[cpu_states_count] = {"IDLE", "FETCH", "DECODE", "MEM_REQ", "WAIT"};
+    char* cpu_operations[cpu_option_num] = {"dump", "reset", "set"};
+
+    Utilities::loadOptions(cpu_states_count, cpu_states, STATES);
+    Utilities::loadOptions(cpu_option_num, cpu_operations, cpuOperations);
+
     _pc = 0;
     STATE = 0;
     isMemoryWorking = false;
     isCycleWorkPending = false;
     current_instruction = -1;
-    int cpu_num = 3;
-    char* cpu_operations[cpu_num] = {"dump", "reset", "set"};
-    Utilities::loadOptions(cpu_num, cpu_operations, cpuOperations);
     reset();
 }
 
@@ -42,13 +49,11 @@ void Cpu::decodeInstruction() {
 void Cpu::doCycleWork() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::doCycleWork: Pre-emptive state [%d].\n", STATE);
-    if (STATE == 1) {
+    if (STATE == 1 && (!isMemoryWorking)) {
         fetch_memory();         // initiate fetch cycle
         nextState();
         decodeInstruction();    // initiate dedcode cycle
-        printf("test1\n");
         nextState();
-        printf("test2\n");
         executeInstruction();   // Memory Request
         nextState();
         // isCycleWorkPending = false;
@@ -88,9 +93,13 @@ void Cpu::executeInstruction() {
     if (current_executable == 5) {
         // lw
         loadWord(current_instruction);
+        // DEBUG: This line can be removed after testing
+        printf("Cpu::executeInstrucion:loadWord %X\n", current_instruction);
     } else if (current_executable == 6) {
         // sw
         storeWord(current_instruction);
+        // DEBUG: This line can be removed after testing
+        printf("Cpu::executeInstrucion:storeWord %X\n", current_instruction);
     } else {
         // DEBUG: This line can be removed after testing
         printf("Cpu::executeInstruction: Unimplmemented instruction type: %d\n", current_executable);
@@ -107,7 +116,7 @@ void Cpu::fetch_memory() {
             current_instruction = _imemory.get_memory(fetch_memory);
             if (current_instruction > 0) {
                 isMemoryWorking = true;       // Set Work Flag
-                isCycleWorkPending = true;
+                // isCycleWorkPending = true;
 
                 // DEBUG: This line can be removed after testing
                 printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
@@ -154,23 +163,26 @@ void Cpu::incrementPC() {
     _pc += 1;
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::incrementPC: Counter incremented [%d] -> [%d].\n", (_pc - 1), _pc);
+    printf("\nCpu::incrementPC: Counter incremented [%d] -> [%d].\n\n", (_pc - 1), _pc);
 }
 
 bool Cpu::isMoreCycleWorkNeeded() {
     // Check if there more work pending in this clock cycle
-    // return isCycleWorkPending;
-    return false;
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
+
+    return isCycleWorkPending;
 }
 
 void Cpu::nextState() {
     // Advances Finite State Machine to the next state
-    int period = sizeof(Cpu::STATES) + 1;
+    int period = STATES.size();
+    int previousState = STATE;
+
+    STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::nextState: [%d] -> [%d]\n", STATE, ((STATE + 1) % period));
-
-    STATE = (STATE + 1) % period;
+    printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
 }
 
 void Cpu::parseInstructions(std::string instructionSet) {
@@ -231,6 +243,8 @@ void Cpu::startTick() {
     # should be done in this function, and is instead done in doCycleWork
     # described below.
     */
+    // DEBUG: This line can be removed after testing
+    printf("\nCpu::startTick: Current State %d.\n", STATE);
 
     if (STATE == 0) {
         nextState();

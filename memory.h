@@ -24,7 +24,7 @@ private:
     bool isCycleWorkPending;
     bool* workResponse;                 // startFetch isWorking response pointer
     std::map<std::string, int> memOperations;
-    enum STATES {IDLE=0, WAIT=1, MOVE_DATA=2};
+    std::map<std::string, int> STATES;
 
 public:
     Memory();                           // Forces Public Instantiation
