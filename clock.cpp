@@ -46,8 +46,10 @@ void Clock::doWork() {
 
         // Poll all devices. Will be true if ANY device
         // has more to do on THIS cycle (not instruction).
-        // workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
-        workToDo = false;
+        workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
+
+        // DEBUG: This line can be removed after testing
+        // printf("CPU: %s\nMEM: %s\n", _cpu->isMoreCycleWorkNeeded() ? "true" : "false", _memory->isMoreCycleWorkNeeded() ? "true" : "false");
     }
 
     // DEBUG: This line can be removed after testing

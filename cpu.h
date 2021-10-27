@@ -20,12 +20,13 @@ private:
     Memory& _memory;
     IMemory& _imemory;
 
-    int STATE;
     int current_executable;                     // CPU instruction
     int current_instruction;                    // Entire Operation Instruction
-    bool isWorking;                             // Boolean flag while working
     unsigned int fetchValue;                    // Value fetch from request
     int fetchRegister;                          // Location for fetch value
+    bool isMemoryWorking;                       // Boolean flag while working
+    bool isCycleWorkPending;
+    int STATE;
 
     // std::map<std::string,int> registers;
     int _registers[8] = { 0 };                  // Register Bank
