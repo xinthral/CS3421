@@ -108,14 +108,14 @@ void Clock::parseInstructions(std::string instructionSet) {
             break;
         case 2: {
                 // tick
-                char clockCycles[3];
+                char clockCycles[4];
                 instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
                 int cycles = std::stoi(clockCycles, 0, 10);
                 int current_cycle = 0;
-                // DEBUG: This line can be removed after testing
-                // printf("Clock::Instruction: %s -> [%d]\n", clockCycles, current_cycle);
 
                 while (current_cycle < cycles) {
+                    // DEBUG: This line can be removed after testing
+                    // printf("Clock::parseInstructions:tick: %s -> [%d]\n", clockCycles, current_cycle);
                     current_cycle = tick(1);
                 }
             }

@@ -43,16 +43,16 @@ void Memory::doCycleWork() {
         // memcpy(answerPtr, registry + startPos, fetchCount);
         // printf("Memory::doCycleWork: Current Operation: %d\n", current_operation);
         if (5 == current_operation) {
+            // DEBUG: This line can be removed after testing
+            // printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
             // copy data back to caller
             *answerPtr = get_memory(startPos);
-            // DEBUG: This line can be removed after testing
-            printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
         }
         if (6 == current_operation) {
-            // copy data back to caller
-            set_memory(startPos, get_memory(*answerPtr));
             // DEBUG: This line can be removed after testing
-            printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
+            // printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
+            // copy data back to caller
+            set_memory(get_memory(*answerPtr - 1), startPos);
         }
         // Tell caller memory operation is complete
         answerPtr = nullptr;
@@ -122,7 +122,7 @@ int Memory::get_memory(int position) {
 bool Memory::isMoreCycleWorkNeeded() {
     // Check if there more work pending in this clock cycle
     // DEBUG: This line can be removed after testing
-    printf("Memory::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
+    // printf("Memory::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
     return isCycleWorkPending;
 }
 
@@ -134,7 +134,7 @@ void Memory::nextState() {
     STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
+    // printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
 
 }
 
@@ -230,17 +230,16 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
 }
 
 void Memory::set_memory(int position, int hexValue) {
-    // Set value of position in memory banks based on index value
-    registry[position] = hexValue;
-
     // DEBUG: This line can be removed after testing
     // printf("Memory::set_memory: Position [%d] <- Value [0x%X]\n", position, hexValue);
+
+    // Set value of position in memory banks based on index value
+    registry[position] = hexValue;
 }
 
 void Memory::startFetch(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate a fetch (read) from memory
     nextState();
-    // STATE = 1;
     current_operation = 5;
     isWorking = true;
     startPos = start;
@@ -248,13 +247,12 @@ void Memory::startFetch(int start, int number_of_elements, int* dataPtr, bool* i
     answerPtr = dataPtr;
     workResponse = isWorkPending;
     // DEBUG: This line can be removed after testing
-    printf("Memory::startFetch: Starting @ [%d]\n", startPos);
+    // printf("Memory::startFetch: Fetching from M[%d]\n", startPos);
 }
 
 void Memory::startStore(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
     // This API is called by memory clients to initiate store (write) to memory
     nextState();
-    // STATE = 1;
     current_operation = 6;
     isWorking = true;
     startPos = start;
@@ -262,7 +260,7 @@ void Memory::startStore(int start, int number_of_elements, int* dataPtr, bool* i
     answerPtr = dataPtr;
     workResponse = isWorkPending;
     // DEBUG: This line can be removed after testing
-    printf("Memory::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
+    // printf("Memory::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
 }
 
 void Memory::startTick() {
@@ -272,13 +270,13 @@ void Memory::startTick() {
     # described below.
     */
     // DEBUG: This line can be removed after testing
-    printf("\nMemory::startTick: Current State %d.\n", STATE);
+    // printf("Memory::startTick: Current State %d : %s.\n", STATE, isWorking ? "true" : "false");
 
     if (STATE == 1) {
         if (waitDelay < (latencyFactor - 2)) {
             waitDelay += 1;
             // DEBUG: This line can be removed after testing
-            printf("Memory::startTick: Waiting: %d\n", waitDelay);
+            // printf("Memory::startTick: Waiting: %d\n", waitDelay);
         } else {
             isWorking = false;
             waitDelay = 0;

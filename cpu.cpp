@@ -43,12 +43,12 @@ void Cpu::decodeInstruction() {
     current_executable = ((current_instruction >> 17) & 7);
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
+    // printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
 }
 
 void Cpu::doCycleWork() {
     // DEBUG: This line can be removed after testing
-    // printf("Cpu::doCycleWork: Pre-emptive state [%d].\n", STATE);
+    // printf("Cpu::doCycleWork: Are we waiting? [%s].\n", isMemoryWorking ? "true" : "false");
     if (STATE == 1 && (!isMemoryWorking)) {
         fetch_memory();         // initiate fetch cycle
         nextState();
@@ -56,10 +56,12 @@ void Cpu::doCycleWork() {
         nextState();
         executeInstruction();   // Memory Request
         nextState();
-        // isCycleWorkPending = false;
+        isCycleWorkPending = false;
     } else if (4 == STATE) {
         if (false == isMemoryWorking) {
             // End Wait State
+            current_instruction = -1;
+            isCycleWorkPending = false;
             nextState();
             incrementPC();
         }
@@ -89,20 +91,65 @@ void Cpu::dump() {
 void Cpu::executeInstruction() {
     // Switch to case statement
     // DEBUG: This line can be removed after testing
-    // printf("Cpu::executeInstruciont: %d\n", current_executable);
-    if (current_executable == 5) {
-        // lw
-        loadWord(current_instruction);
-        // DEBUG: This line can be removed after testing
-        printf("Cpu::executeInstrucion:loadWord %X\n", current_instruction);
-    } else if (current_executable == 6) {
-        // sw
-        storeWord(current_instruction);
-        // DEBUG: This line can be removed after testing
-        printf("Cpu::executeInstrucion:storeWord %X\n", current_instruction);
-    } else {
-        // DEBUG: This line can be removed after testing
-        printf("Cpu::executeInstruction: Unimplmemented instruction type: %d\n", current_executable);
+    // printf("Cpu::executeInstruction: Case %d\n", current_executable);
+    switch (current_executable) {
+        case 0: {
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstrucion:add %X\n", current_instruction);
+            }
+            break;
+        case 1: {
+            // addi
+            // add
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstrucion:addi %X\n", current_instruction);
+            }
+            break;
+        case 2: {
+            // mul
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstrucion:mul %X\n", current_instruction);
+
+            }
+            break;
+        case 3: {
+            // inv
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstrucion:inv %X\n", current_instruction);
+
+            }
+            break;
+        case 4: {
+            // branch
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstrucion:branching %X\n", current_instruction);
+
+            }
+            break;
+        case 5: {
+            // lw
+            // DEBUG: This line can be removed after testing
+            // printf("Cpu::executeInstrucion:loadWord %X\n", current_instruction);
+            loadWord(current_instruction);
+            }
+            break;
+        case 6: {
+            // sw
+            // DEBUG: This line can be removed after testing
+            // printf("Cpu::executeInstrucion:storeWord %X\n", current_instruction);
+            storeWord(current_instruction);
+            }
+            break;
+        case 7: {
+            // halt
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstrucion:halt %X\n", current_instruction);
+            }
+            break;
+        default:
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstruction: Unimplmemented instruction type: %d\n", current_executable);
+            break;
     }
 }
 
@@ -116,10 +163,10 @@ void Cpu::fetch_memory() {
             current_instruction = _imemory.get_memory(fetch_memory);
             if (current_instruction > 0) {
                 isMemoryWorking = true;       // Set Work Flag
-                // isCycleWorkPending = true;
+                isCycleWorkPending = true;
 
                 // DEBUG: This line can be removed after testing
-                printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
+                // printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
             }
         } else { isMemoryWorking = false; }
     } catch (const std::exception& e) { printf("Cpu::fetch_memory: Error fetching\n\t%s\n", e.what()); }
@@ -148,10 +195,8 @@ void Cpu::loadWord(int instruction) {
     fetchRegister = (((instruction >> 14) | 240 ) & 7);         // x
     int targetMemory = (((instruction >> 8 ) | 240 ) & 7);      // y
 
-    // Get Register
-    std::string reg = registrar[fetchRegister];
-
     // DEBUG: This line can be removed after testing
+    // std::string reg = registrar[fetchRegister];
     // printf("Cpu::loadWord: Loading Word into %s <- M[%d].\n", reg.c_str(), targetMemory);
 
     // Begin fetch
@@ -163,13 +208,13 @@ void Cpu::incrementPC() {
     _pc += 1;
 
     // DEBUG: This line can be removed after testing
-    printf("\nCpu::incrementPC: Counter incremented [%d] -> [%d].\n\n", (_pc - 1), _pc);
+    // printf("\nCpu::incrementPC: Counter incremented [%X] -> [%X].\n\n", (_pc - 1), _pc);
 }
 
 bool Cpu::isMoreCycleWorkNeeded() {
     // Check if there more work pending in this clock cycle
     // DEBUG: This line can be removed after testing
-    printf("Cpu::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
+    // printf("Cpu::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
 
     return isCycleWorkPending;
 }
@@ -182,7 +227,7 @@ void Cpu::nextState() {
     STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
+    // printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
 }
 
 void Cpu::parseInstructions(std::string instructionSet) {
@@ -230,11 +275,14 @@ void Cpu::reset() {
 
 void Cpu::set_reg(std::string location, int hbyte) {
     // Set register to specified integer;
-    int register_location = find_register(location);    // Get index value
-    _registers[register_location] = hbyte;              // Set the register
-
+    if ("PC" != location) {
+        int register_location = find_register(location);    // Get index value
+        _registers[register_location] = hbyte;              // Set the register
+    } else {
+        _pc = hbyte;
+    }
     // DEBUG: This line can be removed after testing
-    printf("Cpu::set_reg: Setting %s to %X.\n", location.c_str(), hbyte);
+    // printf("Cpu::set_reg: Setting %s to %X.\n", location.c_str(), hbyte);
 }
 
 void Cpu::startTick() {
@@ -244,7 +292,7 @@ void Cpu::startTick() {
     # described below.
     */
     // DEBUG: This line can be removed after testing
-    printf("\nCpu::startTick: Current State %d.\n", STATE);
+    // printf("Cpu::startTick: Current State %d : %s.\n", STATE, isMemoryWorking ? "true" : "false");
 
     if (STATE == 0) {
         nextState();
@@ -262,9 +310,12 @@ void Cpu::storeWord(int instruction) {
     fetchRegister = ((instruction >> 11) | 240 ) & 7;             // x
     int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;     // y
 
+    int targetIdx = get_register(fetchRegister);
+    int targetVal = get_register(destinationMemory);
+
     // DEBUG: This line can be removed after testing
-    printf("Cpu::storeWord: Storing Word from %s into M[%d].\n", registrar[fetchRegister].c_str(), destinationMemory);
+    printf("Cpu::storeWord: Storing Word from %s into M[%d].\nIdx: %d\tVal: %d\n", registrar[fetchRegister].c_str(), destinationMemory, targetIdx, targetVal);
 
     // Begin store
-    _memory.startStore(get_register(fetchRegister), 1, &(_registers[destinationMemory]), &isMemoryWorking);
+    _memory.startStore(targetIdx, 1, &(_registers[destinationMemory]), &isMemoryWorking);
 }
