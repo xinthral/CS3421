@@ -227,7 +227,7 @@ void Cpu::nextState() {
     STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    // printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
+    printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
 }
 
 void Cpu::parseInstructions(std::string instructionSet) {
@@ -250,7 +250,7 @@ void Cpu::parseInstructions(std::string instructionSet) {
             break;
         case 2: {
                 // set reg
-                char junk[3], element[6];
+                char junk[4], element[8];
 
                 instructionSet = Utilities::chunkInstruction(instructionSet, junk);
                 instructionSet = Utilities::chunkInstruction(instructionSet, element);

@@ -134,7 +134,7 @@ void Memory::nextState() {
     STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    // printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
+    printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
 
 }
 
@@ -270,13 +270,13 @@ void Memory::startTick() {
     # described below.
     */
     // DEBUG: This line can be removed after testing
-    // printf("Memory::startTick: Current State %d : %s.\n", STATE, isWorking ? "true" : "false");
+    printf("Memory::startTick: Current State %d : %s.\n", STATE, isWorking ? "true" : "false");
 
     if (STATE == 1) {
         if (waitDelay < (latencyFactor - 2)) {
             waitDelay += 1;
             // DEBUG: This line can be removed after testing
-            // printf("Memory::startTick: Waiting: %d\n", waitDelay);
+            printf("Memory::startTick: Waiting: %d\n", waitDelay);
         } else {
             isWorking = false;
             waitDelay = 0;

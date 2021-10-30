@@ -82,7 +82,7 @@ int Clock::tick(int variant) {
     */
     if (clock_enabled) {
         // DEBUG: This line can be removed after testing
-        // printf("Clock::tick: [%d]\n", cycle);
+        printf("Clock::tick: [%d]\n", cycle);
         doWork();
     }
     cycle += variant;
