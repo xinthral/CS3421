@@ -21,8 +21,8 @@ Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory
     _memory = *memory;
     _imemory = *imemory;
 
-    int cpu_option_num = 3;
-    int cpu_states_count = 5;
+    const int cpu_option_num = 3;
+    const int cpu_states_count = 5;
 
     char* cpu_states[cpu_states_count] = {"IDLE", "FETCH", "DECODE", "MEM_REQ", "WAIT"};
     char* cpu_operations[cpu_option_num] = {"dump", "reset", "set"};

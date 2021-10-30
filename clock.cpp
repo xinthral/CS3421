@@ -13,15 +13,15 @@
 Clock::Clock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     /* Constructor Method for the Clock Class */
 
-    Clock::_cpu = cpu;
-    Clock::_memory = memory;
-    Clock::_imemory = imemory;
+    _cpu = cpu;
+    _memory = memory;
+    _imemory = imemory;
 
     reset();
     clock_enabled = true;
-    const int clk_num = 3;
-    char* clk_operations[clk_num] = {"dump", "reset", "tick"};
-    Utilities::loadOptions(clk_num, clk_operations, clkOperations);
+    const int clk_option_num = 3;
+    char* clk_operations[clk_option_num] = {"dump", "reset", "tick"};
+    Utilities::loadOptions(clk_option_num, clk_operations, clkOperations);
 }
 
 void Clock::doWork() {

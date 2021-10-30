@@ -9,9 +9,9 @@
 IMemory::IMemory() {
     // create(0x0F);
     capacity = 0;
-    int mem_num = 4;
-    char* mem_operations[mem_num] = {"create", "dump", "reset", "set"};
-    Utilities::loadOptions(mem_num, mem_operations, memOperations);
+    const int mem_option_num = 4;
+    char* mem_operations[mem_option_num] = {"create", "dump", "reset", "set"};
+    Utilities::loadOptions(mem_option_num, mem_operations, memOperations);
 }
 
 void IMemory::create(int inputSize) {

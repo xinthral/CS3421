@@ -20,19 +20,19 @@ private:
     Memory& _memory;
     IMemory& _imemory;
 
-    int current_executable;                     // CPU instruction
-    int current_instruction;                    // Entire Operation Instruction
+    int current_executable{};                   // CPU instruction
+    int current_instruction{};                  // Entire Operation Instruction
+    int fetchRegister{};                        // Location for fetch value
     unsigned int fetchValue;                    // Value fetch from request
-    int fetchRegister;                          // Location for fetch value
     bool isMemoryWorking;                       // Boolean flag while working
     bool isCycleWorkPending;
-    int STATE;
+    int STATE{};
 
     // std::map<std::string,int> registers;
     int _registers[8] = { 0 };                  // Register Bank
-    int _pc;                                    // Program Counter
+    int _pc{};                                  // Program Counter
     std::map<std::string,int> cpuOperations;
-    std::map<std::string,int> STATES; 
+    std::map<std::string,int> STATES;
 
     std::string registrar[8] = {"RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
 

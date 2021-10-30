@@ -12,14 +12,14 @@
 class Memory {
 private:
     int* answerPtr;                     // startFetch answer reponse pointer
-    int capacity;                       // Size of memory bank
-    int current_operation;              // Most recent memory operation
-    int fetchCount;                     // startFetch number of elements
-    int latencyFactor;                  // startTick data memory device delay
+    int capacity{};                     // Size of memory bank
+    int current_operation{};            // Most recent memory operation
+    int fetchCount{};                   // startFetch number of elements
+    int latencyFactor{};                // startTick data memory device delay
     int* registry;                      // Memory Banks
-    int startPos;                       // startFetch starting position
-    int STATE;                          // State for FSM
-    int waitDelay;                      // startTick delay counter
+    int startPos{};                     // startFetch starting position
+    int STATE{};                        // State for FSM
+    int waitDelay{};                    // startTick delay counter
     bool isWorking;
     bool isCycleWorkPending;
     bool* workResponse;                 // startFetch isWorking response pointer

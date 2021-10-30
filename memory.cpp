@@ -8,8 +8,8 @@
 
 Memory::Memory() {
     // create(0x0F);
-    int mem_operation_count = 4;
-    int mem_states_count = 3;
+    const int mem_operation_count = 4;
+    const int mem_states_count = 3;
 
     char* mem_operations[mem_operation_count] = {"create", "dump", "reset", "set"};
     char* mem_states[mem_states_count] = {"IDLE", "WAIT", "EXEC"};

@@ -26,8 +26,6 @@ private:
     std::map<std::string,int> clkOperations;
     Clock(Cpu*,Memory*,IMemory*);   // Forces Private Instantiation
 public:
-    // Instance Scope Attributes
-
     // Singleton Method
     static Clock* getClock(Cpu*,Memory*,IMemory*);
 

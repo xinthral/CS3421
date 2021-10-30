@@ -17,9 +17,9 @@
 
 class IMemory {
 private:
-    int STATE;
+    int STATE{};
+    int capacity{};                 // Size of memory bank
     int* registry;                  // Memory Banks
-    int capacity;                   // Size of memory bank
     std::map<std::string, int> memOperations;
     enum STATES {IDLE=0, WAIT=1, MOVE=2};
 public:
