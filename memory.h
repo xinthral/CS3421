@@ -2,30 +2,48 @@
 #define MEMORY_H
 
 #include "utilities.h"          // Utility Functions
+#include <fstream>              // std::ifstream
 #include <stdint.h>             // uint16_t
+#include <stdexcept>            // std::out_of_range
 #include <stdio.h>              // printf
-#include <string>               // std::string
+#include <string.h>             // std::string, std::stoi
 #include <vector>               // std::vector
 
 class Memory {
 private:
-    static Memory* mem_instance;    // Singleton Object
-    std::vector<int> registry;      // Memory Banks
-    Memory();                       // Forces Public Instantiation
+    int* answerPtr;                     // startFetch answer reponse pointer
+    int capacity{};                     // Size of memory bank
+    int current_operation{};            // Most recent memory operation
+    int fetchCount{};                   // startFetch number of elements
+    int latencyFactor{};                // startTick data memory device delay
+    int* registry;                      // Memory Banks
+    int startPos{};                     // startFetch starting position
+    int STATE{};                        // State for FSM
+    int waitDelay{};                    // startTick delay counter
+    bool isWorking;
+    bool isCycleWorkPending;
+    bool* workResponse;                 // startFetch isWorking response pointer
+    std::map<std::string, int> memOperations;
+    std::map<std::string, int> STATES;
+
 public:
-    // Singleton method
-    static Memory* getMemory();
+    Memory();                           // Forces Public Instantiation
 
     // Class Methods
-    void create(uint16_t);
-    void dump(int,int);
-    void printBankHeaders();
+    void create(int);
+    void doCycleWork();
+    void dump(int,int,int);
+    int get_memory(int);
+    bool isMoreCycleWorkNeeded();
+    void nextState();
+    void parseInstructions(std::string);
+    void printBankHeaders(int);
     void reset();
     void set(int,int,std::string);
     void set_memory(int,int);
-
-    // Deconstructor
-    ~Memory();
+    void startFetch(int,int,int*, bool*);
+    void startStore(int,int,int*, bool*);
+    void startTick();
 };
 
 #endif

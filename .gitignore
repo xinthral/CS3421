@@ -1,3 +1,6 @@
+# Ignore PDFs in directory
+*.pdf
+
 # Prerequisites
 *.d
 

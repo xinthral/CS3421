@@ -3,35 +3,26 @@
 
 #include "clock.h"              // Local Clock object
 #include "cpu.h"                // Local CPU object
+#include "imemory.h"            // Local iMemory Object
 #include "memory.h"             // Local Memory Object
-#include "utilities.h"          // toLower, wordCount
+#include "utilities.h"          // Local Helper Functions
 #include <fstream>              // std::ifstream
-#include <map>                  // std::map
-#include <stdint.h>             // uint16_t
-#include <stdio.h>              // printf, sscanf
-#include <utility>              // std::pair
 
 class Parser {
 private:
-    // Associative Lookup Arrays
+    // Clock Singleton
+    Clock*  _clock;                         // Clock Device;
+    Cpu*    _cpu;                           // Cpu Device;
+    IMemory* _imemory;                      // Instruction Memory Device
+    Memory* _memory;                        // Memory Device
+
+    // Associative Lookup Array
     std::map<std::string, int> deviceList;
-    std::map<std::string, int> clkOperations;
-    std::map<std::string, int> cpuOperations;
-    std::map<std::string, int> memOperations;
 
 public:
-    // Establish Singleton Objects
-    Clock* clock;
-    Cpu* cpu;
-    Memory* memory;
-
-    // Instance Methods
     Parser();
-    void loadOptions(int,char*[],std::map<std::string, int>&);
-    void parseClock(char*,std::string);
-    void parseCpu(char*,std::string);
-    void parseMemory(char*,std::string);
-    void parseInput(char*);
+    // Parser Functions
+    void readInputFile(char* fileName);
 };
 
 #endif

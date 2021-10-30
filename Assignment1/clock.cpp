@@ -21,11 +21,7 @@ void Clock::dump() {
     # internal clock in decimal. Example: "clock dump" might show:
     # Clock: 148
     */
-    printf("Clock: %u\n", cycle);
-}
-
-void clockParser(char* operation,std::string instructionSet) {
-    // Handle Instruction Parsing for Clock Class
+    printf("\nClock: %d\n", cycle);
 }
 
 void Clock::reset() {
@@ -33,10 +29,10 @@ void Clock::reset() {
     # The reset command sets the internal counter to zero.
     # Example: "clock reset".
     */
-    cycle = 0x0000;
+    cycle = 0;
 }
 
-void Clock::tick(uint16_t variant) {
+int Clock::tick(int variant) {
     /*
     # The tick command accepts a positive decimal integer
     # indicating how many clock ticks should be issued to
@@ -44,10 +40,21 @@ void Clock::tick(uint16_t variant) {
     # by the specified number of ticks.
     */
     cycle += variant;
+    return cycle;
 }
 
-extern Clock &getClock() {
-    // Returns a statically derived singleton instance of this object
-    static Clock clock;
-    return clock;
-};
+Clock* Clock::clk_instance(nullptr);        // Instance Instantiation
+
+Clock* Clock::getClock() {
+    // Singleton Method
+    if (clk_instance == nullptr) {
+        clk_instance = new Clock();
+    }
+    return clk_instance;
+}
+
+Clock::~Clock() {
+    // Deconstructor
+    delete clk_instance;
+    clk_instance = nullptr;
+}

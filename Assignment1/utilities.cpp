@@ -26,7 +26,7 @@ namespace Utilities {
             str[i] -= 32 * (str[i] >= 'a' && str[i] <= 'z');
         }
     }
-
+    
     int wordCount(char* input) {
         /*
         # Count the number of words in a string
@@ -44,12 +44,5 @@ namespace Utilities {
             ++input;
         }
         return number_of_words;
-    }
-
-    void loadOptions(int inputSize, char* options[], std::map<std::string, int> &kvpairs) {
-        // Load options into object mappings for quick lookups
-        for (int i = 0; i < inputSize; i++) {
-            kvpairs.insert(std::pair<std::string, int>(options[i], i));
-        }
     }
 }

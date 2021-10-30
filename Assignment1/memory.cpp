@@ -7,16 +7,20 @@
 #include "memory.h"
 
 Memory::Memory() {
-    utilz = getUtilities();
+    // create(0x0F);
+    capacity = 0;
 }
 
-void Memory::create(uint16_t inputSize) {
+void Memory::create(int inputSize) {
     /* The "create" command accepts a single integer parameter
     # which indicates the size of the memory in bytes.
     #   Example: "memory create 0x10000".
     */
-    banks = new int[inputSize];
-    bankSize = inputSize;
+    // for (int i = 0; i < inputSize; i++) {
+    //     registry.push_back(0x00);
+    // }
+    registry = new int[inputSize];
+    capacity = inputSize;
 }
 
 void Memory::dump(int begin, int number_of_elements) {
@@ -32,25 +36,28 @@ void Memory::dump(int begin, int number_of_elements) {
     # blank spaces should be printed until the address is reached.
     #   Example: "memory dump 0x04 0x20"
     */
-    int displayCursor=0, displayWidth=16, rowCount=0;
-    int beginning = (begin) * 2;
-    int ending = (begin + number_of_elements) * 2;
-    printf("Ending: %d\n", ending);
+    int displayCursor=16, displayWidth=16, rowCount=0;
+    int beginning = (begin);
+    int ending = (begin + number_of_elements);
     printBankHeaders();
-    printf("0x%02X", rowCount);
-    for (int step = 0; step < bankSize; step++) {
+    int startRow = (begin + 1) / 16;
+    int endRow = ending / 16;
 
-        if (displayCursor == displayWidth) {
-            printf("\n0x%02X", rowCount);
-            displayCursor = 0;
-            rowCount++;
+    for (int step = 0; step < capacity; step++) {
+        // Condition to print row header if in range of values
+        if (rowCount >= startRow && rowCount <= endRow) {
+            if (displayCursor == displayWidth) {
+                printf("\n0x%02X", rowCount);
+                displayCursor = 0;
+                rowCount++;
+            }
+            if (step < beginning || step > ending) {
+                printf(" %2s", "");
+            }
         }
-        if (step >= beginning && step < ending) {
-            printf(" %02X", *(banks + step));
-        } else {
-            printf(" %2s", "");
+        if (step >= beginning && step <= ending) {
+            printf(" %02X", registry[step]);
         }
-        step++;
         displayCursor++;
     }
     printf("\n");
@@ -63,7 +70,7 @@ void Memory::printBankHeaders() {
     for (auto bit : bits){
         printf(" %2s", bit.c_str());
     }
-    printf("\n");
+    // printf("\n");
 }
 
 void Memory::reset() {
@@ -72,10 +79,9 @@ void Memory::reset() {
     # memory to be set to zero.
     #   Example: "memory reset"
     */
-    for (int step = 0; step < bankSize; step++) {
-        banks[step] = 0x00;
+    for (int i = 0; i < capacity; i++) {
+        registry[i] = 0;
     }
-    bankSize = 0;
 }
 
 void Memory::set(int starting, int number_of_elements, std::string elements) {
@@ -88,26 +94,44 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     # never be used with more than 100 hex bytes.
     #   Example: "memory set 0x10 0x05 0x08 0xDE 0xAD 0xBE 0xEF"
     */
-    int devint = 0;
+    int value;
     int ending = (starting + number_of_elements);
-    for (int i = starting; i < (starting + number_of_elements); i++) {
-        set_memory(i, devint);
-        devint++;
+    char chunk[6];
+    for (int i = 0; i < capacity; i++) {
+        if (i >= starting && i < ending) {
+            elements = Utilities::chunkInstruction(elements, chunk);
+            value = std::stoi(chunk, 0, 16);
+            set_memory(i, value);
+        }
     }
 }
 
 void Memory::set_memory(int position, int hexValue) {
-    banks[position] = hexValue;
-    printf("Adding Memory: %d.\n", banks[position]);
+    // Set value of position in memory banks based on index value
+    registry[position] = hexValue;
 }
 
-// Memory::~Memory() {
-//     // Deconstructor 
-//     delete[] banks;
-// }
+int Memory::get_memory(int position) {
+    // Return the value of index in bank
+    try {
+        int response = registry[position];
+        return response;
+    } catch (const std::out_of_range& exc) {
+        throw exc.what();
+    }
+}
 
-extern Memory &getMemory() {
-   // Returns a statically derived singleton instance of this object
-   static Memory memory;
-   return memory;
+Memory* Memory::mem_instance(nullptr);      // Instance Instantiation
+Memory* Memory::getMemory() {
+    // Singleton Method
+    if (mem_instance == nullptr) {
+        mem_instance = new Memory();
+    }
+    return mem_instance;
+}
+
+Memory::~Memory() {
+    // Deconstructor
+    delete mem_instance;
+    mem_instance = nullptr;
 }
