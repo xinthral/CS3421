@@ -12,7 +12,6 @@
 
 Clock::Clock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     /* Constructor Method for the Clock Class */
-
     _cpu = cpu;
     _memory = memory;
     _imemory = imemory;
@@ -82,7 +81,7 @@ int Clock::tick(int variant) {
     */
     if (clock_enabled) {
         // DEBUG: This line can be removed after testing
-        printf("Clock::tick: [%d]\n", cycle);
+        // printf("Clock::tick: [%d]\n", cycle);
         doWork();
     }
     cycle += variant;
@@ -112,11 +111,13 @@ void Clock::parseInstructions(std::string instructionSet) {
                 instructionSet = Utilities::chunkInstruction(instructionSet, clockCycles);
                 int cycles = std::stoi(clockCycles, 0, 10);
                 int current_cycle = 0;
+                int junk = 0;
 
                 while (current_cycle < cycles) {
                     // DEBUG: This line can be removed after testing
                     // printf("Clock::parseInstructions:tick: %s -> [%d]\n", clockCycles, current_cycle);
-                    current_cycle = tick(1);
+                    junk = tick(1);
+                    current_cycle++;
                 }
             }
             break;

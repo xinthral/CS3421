@@ -86,6 +86,7 @@ void Cpu::dump() {
     for (int step = 0; step < 8; step++) {
         printf("%s: 0x%02X\n", registrar[step].c_str(), _registers[step]);
     }
+    printf("\n");
 }
 
 void Cpu::executeInstruction() {
@@ -227,7 +228,7 @@ void Cpu::nextState() {
     STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
+    // printf("Cpu::nextState: [%d] -> [%d]\n", previousState, STATE);
 }
 
 void Cpu::parseInstructions(std::string instructionSet) {
@@ -314,7 +315,7 @@ void Cpu::storeWord(int instruction) {
     int targetVal = get_register(destinationMemory);
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::storeWord: Storing Word from %s into M[%d].\nIdx: %d\tVal: %d\n", registrar[fetchRegister].c_str(), destinationMemory, targetIdx, targetVal);
+    // printf("Cpu::storeWord: Storing Word from %s into M[%d].\nIdx: %d\tVal: %d\n", registrar[fetchRegister].c_str(), destinationMemory, targetIdx, targetVal);
 
     // Begin store
     _memory.startStore(targetIdx, 1, &(_registers[destinationMemory]), &isMemoryWorking);
