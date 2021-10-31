@@ -38,6 +38,10 @@ Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory
     reset();
 }
 
+void Cpu::addRegisters(int instruction) {
+    // Add the value in two registers and store in aforementioned register.
+}
+
 void Cpu::decodeInstruction() {
     // Take in and decode Instruction from Instruction Memory
     current_executable = ((current_instruction >> 17) & 7);
@@ -49,15 +53,14 @@ void Cpu::decodeInstruction() {
 void Cpu::doCycleWork() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::doCycleWork: Are we waiting? [%s].\n", isMemoryWorking ? "true" : "false");
-    if (STATE == 1 && (!isMemoryWorking)) {
+    if ((FETCH == STATE) && (!isMemoryWorking) && (!isCycleWorkPending)) {
         fetch_memory();         // initiate fetch cycle
         nextState();
         decodeInstruction();    // initiate dedcode cycle
         nextState();
         executeInstruction();   // Memory Request
         nextState();
-        isCycleWorkPending = false;
-    } else if (4 == STATE) {
+    } else if (WAIT == STATE) {
         if (false == isMemoryWorking) {
             // End Wait State
             current_instruction = -1;
@@ -94,57 +97,54 @@ void Cpu::executeInstruction() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::executeInstruction: Case %d\n", current_executable);
     switch (current_executable) {
-        case 0: {
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstrucion:add %X\n", current_instruction);
-            }
-            break;
-        case 1: {
-            // addi
+        case ADD: {
             // add
             // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstrucion:addi %X\n", current_instruction);
+            printf("Cpu::executeInstruction:add %X\n", current_instruction);
             }
             break;
-        case 2: {
+        case ADDI: {
+            // addi
+            // DEBUG: This line can be removed after testing
+            printf("Cpu::executeInstruction:addi %X\n", current_instruction);
+            }
+            break;
+        case MUL: {
             // mul
             // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstrucion:mul %X\n", current_instruction);
-
+            printf("Cpu::executeInstruction:mul %X\n", current_instruction);
             }
             break;
-        case 3: {
+        case INV: {
             // inv
             // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstrucion:inv %X\n", current_instruction);
-
+            printf("Cpu::executeInstruction:inv %X\n", current_instruction);
             }
             break;
-        case 4: {
+        case BRANCH: {
             // branch
             // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstrucion:branching %X\n", current_instruction);
-
+            printf("Cpu::executeInstruction:branching %X\n", current_instruction);
             }
             break;
-        case 5: {
+        case LW: {
             // lw
             // DEBUG: This line can be removed after testing
-            // printf("Cpu::executeInstrucion:loadWord %X\n", current_instruction);
+            // printf("Cpu::executeInstruction:loadWord %X\n", current_instruction);
             loadWord(current_instruction);
             }
             break;
-        case 6: {
+        case SW: {
             // sw
             // DEBUG: This line can be removed after testing
-            // printf("Cpu::executeInstrucion:storeWord %X\n", current_instruction);
+            // printf("Cpu::executeInstruction:storeWord %X\n", current_instruction);
             storeWord(current_instruction);
             }
             break;
-        case 7: {
+        case HALT: {
             // halt
             // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstrucion:halt %X\n", current_instruction);
+            printf("Cpu::executeInstruction:halt %X\n", current_instruction);
             }
             break;
         default:
@@ -193,8 +193,8 @@ int Cpu::get_register(int register_number) {
 
 void Cpu::loadWord(int instruction) {
     // Load Word Funciton
-    fetchRegister = (((instruction >> 14) | 240 ) & 7);         // x
-    int targetMemory = (((instruction >> 8 ) | 240 ) & 7);      // y
+    fetchRegister = ((instruction >> 14) | 240 ) & 7;         // x
+    int targetMemory = ((instruction >> 8 ) | 240 ) & 7;      // y
 
     // DEBUG: This line can be removed after testing
     // std::string reg = registrar[fetchRegister];

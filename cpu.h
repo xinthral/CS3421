@@ -35,10 +35,13 @@ private:
     std::map<std::string,int> STATES;
 
     std::string registrar[8] = {"RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
+    enum STATES { IDLE=0, FETCH=1, DECODE=2, REQUEST=3, WAIT=4 };
+    enum EXC { ADD=0, ADDI=1, MUL=2, INV=3, BRANCH=4, LW=5, SW=6, HALT=7 };
 
 public:
 
     Cpu(Memory*, IMemory*);             // Constructor
+    void addRegisters(int,int,int);                // Instruction : add
     void decodeInstruction();           // Decode IMemory Instruction
     void doCycleWork();                 // Main Work Loop
     void dump();                        // Display Register Information
@@ -48,13 +51,13 @@ public:
     int get_register(int);
     void incrementPC();
     bool isMoreCycleWorkNeeded();
-    void loadWord(int);
+    void loadWord(int);                 // Instruction : lw
     void nextState();
     void parseInstructions(std::string);
     void reset();
     void set_reg(std::string,int);      // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     void startTick();
-    void storeWord(int);
+    void storeWord(int);                // Instruction : sw
 };
 
 #endif
