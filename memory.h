@@ -25,6 +25,7 @@ private:
     bool* workResponse;                 // startFetch isWorking response pointer
     std::map<std::string, int> memOperations;
     std::map<std::string, int> STATES;
+    enum STATEMODE { IDLE, WAIT, EXEC };
 
 public:
     Memory();                           // Forces Public Instantiation

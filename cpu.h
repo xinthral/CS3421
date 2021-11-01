@@ -3,6 +3,7 @@
 
 #include <algorithm>            // std::transform
 #include <cassert>              // assert
+#include <cmath>                // log2
 #include "clock.h"              // Internal Clock Object
 #include "utilities.h"          // Local Helper Functions
 #include <iterator>             // std::next
@@ -38,7 +39,7 @@ private:
     std::map<std::string,int> STATES;
 
     std::string registrar[8] = {"RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
-    enum STATES { IDLE, FETCH, DECODE, REQUEST, WAIT };
+    enum STATEMODE { IDLE, FETCH, DECODE, REQUEST, WAIT };
     enum EXC { ADD, ADDI, MUL, INV, BRANCH, LW, SW, HALT };
     enum BITIES { NNN, DDD, SSS, TTT, III, UHF, LHF };
 

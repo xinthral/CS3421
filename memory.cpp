@@ -8,14 +8,13 @@
 
 Memory::Memory() {
     // create(0x0F);
-    const int mem_operation_count = 4;
     const int mem_states_count = 3;
-
-    char* mem_operations[mem_operation_count] = {"create", "dump", "reset", "set"};
     char* mem_states[mem_states_count] = {"IDLE", "WAIT", "EXEC"};
-
-    Utilities::loadOptions(mem_operation_count, mem_operations, memOperations);
     Utilities::loadOptions(mem_states_count, mem_states, STATES);
+
+    const int mem_operation_count = 4;
+    char* mem_operations[mem_operation_count] = {"create", "dump", "reset", "set"};
+    Utilities::loadOptions(mem_operation_count, mem_operations, memOperations);
 
     STATE = 0;                  // FSM
     capacity = 0;               // Data Memory Size
@@ -39,7 +38,7 @@ void Memory::create(int inputSize) {
 void Memory::doCycleWork() {
     // Completed WAIT state, and advanced into the MOVE_DATA state
 
-    if (2 == STATE && 0 == waitDelay) {
+    if ((EXEC == STATE) && (0 == waitDelay)) {
         // memcpy(answerPtr, registry + startPos, fetchCount);
         // printf("Memory::doCycleWork: Current Operation: %d\n", current_operation);
         if (5 == current_operation) {
@@ -50,17 +49,17 @@ void Memory::doCycleWork() {
         }
         if (6 == current_operation) {
             // DEBUG: This line can be removed after testing
-            // printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
+            // printf("Memory::doCycleWork: Storing %X -> M[%d].\n", startPos, *answerPtr);
             // copy data back to caller
-            set_memory(get_memory(*answerPtr - 1), startPos);
+            set_memory(*answerPtr, startPos);
         }
         // Tell caller memory operation is complete
         answerPtr = nullptr;
         current_operation = 0;
         fetchCount = 0;
-        isWorking = false;
         startPos = 0;
         *workResponse = false;
+        isWorking = false;
         nextState();
     }
 }
@@ -273,13 +272,13 @@ void Memory::startTick() {
     // DEBUG: This line can be removed after testing
     // printf("Memory::startTick: Current State %d : %s.\n", STATE, isWorking ? "true" : "false");
 
-    if (STATE == 1) {
-        if (waitDelay < (latencyFactor - 2)) {
+    if (WAIT == STATE) {
+        if (waitDelay < (latencyFactor - 1)) {
             waitDelay += 1;
             // DEBUG: This line can be removed after testing
             // printf("Memory::startTick: Waiting: %d\n", waitDelay);
         } else {
-            isWorking = false;
+            // isWorking = false;
             waitDelay = 0;
             nextState();
         }

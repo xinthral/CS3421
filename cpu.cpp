@@ -50,20 +50,19 @@ void Cpu::decodeInstruction() {
     current_LHF = (current_III & 15);
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
+    // printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
     // printf("\nDDD: %X\nSSS: %X\nTTT: %X\nIII: %X\n\n", current_DDD, current_SSS, current_TTT, current_III);
 }
 
 void Cpu::doCycleWork() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::doCycleWork: Are we waiting? [%s].\n", isMemoryWorking ? "true" : "false");
-    if ((FETCH == STATE) && (!isMemoryWorking) && (!isCycleWorkPending)) {
+    if ((!isMemoryWorking) && (FETCH == STATE) && (!isCycleWorkPending)) {
         fetch_memory();         // initiate fetch cycle
         nextState();
     } else if ((DECODE == STATE) && (isCycleWorkPending)) {
         decodeInstruction();    // initiate dedcode cycle
         nextState();
-    } else if ((REQUEST == STATE) && (isCycleWorkPending)) {
         executeInstruction();   // Memory Request
         nextState();
     } else if (WAIT == STATE) {
@@ -114,11 +113,8 @@ void Cpu::executeInstruction() {
         case INV:
             instruction_inv();
             break;
-        case BRANCH: {
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstruction:branching %X\n", current_instruction);
+        case BRANCH: 
             instruction_branch();
-            }
             break;
         case LW:
             instruction_lw();
@@ -126,11 +122,8 @@ void Cpu::executeInstruction() {
         case SW:
             instruction_sw();
             break;
-        case HALT: {
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstruction:halt %X\n", current_instruction);
+        case HALT:
             instruction_halt();
-            }
             break;
         default:
             // DEBUG: This line can be removed after testing
@@ -152,7 +145,7 @@ void Cpu::fetch_memory() {
                 isCycleWorkPending = true;      // Set Work Flag
 
                 // DEBUG: This line can be removed after testing
-                printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
+                // printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
             }
         } else { isMemoryWorking = false; }
     } catch (const std::exception& e) { printf("Cpu::fetch_memory: Error fetching\n\t%s\n", e.what()); }
@@ -204,7 +197,7 @@ void Cpu::instruction_add() {
     int summ = inp1 + inp2;
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_add %X : %s <- %d \n", current_instruction, registrar[current_DDD].c_str(), summ);
+    // printf("Cpu::instruction_add %X : %s <- %d \n", current_instruction, registrar[current_DDD].c_str(), summ);
     // printf("%d + %d = %d\n", inp1, inp2, summ);
 
     // Store result
@@ -220,7 +213,7 @@ void Cpu::instruction_addi() {
     int summ = inp1 + inp2;
 
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_addi %X : %s <- %d\n", current_instruction, registrar[current_DDD].c_str(), summ);
+    // printf("Cpu::instruction_addi %X : %s <- %d\n", current_instruction, registrar[current_DDD].c_str(), summ);
     // printf("%d + %d = %d\n", inp1, inp2, summ);
 
     // Store result
@@ -230,6 +223,7 @@ void Cpu::instruction_addi() {
 
 void Cpu::instruction_branch() {
     /* Manages the decoding and parsing of the instruction */
+    set_reg("RB", 6);
     isCycleWorkPending = false;
 
 }
@@ -241,7 +235,7 @@ void Cpu::instruction_beq() {
     # branch instructions.
     */
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_beq %X\n", current_instruction);
+    // printf("Cpu::instruction_beq %X\n", current_instruction);
     isCycleWorkPending = false;
 
 }
@@ -254,7 +248,7 @@ void Cpu::instruction_blt() {
     # distinguish from other branch instructions.
     */
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_blt %X\n", current_instruction);
+    // printf("Cpu::instruction_blt %X\n", current_instruction);
     isCycleWorkPending = false;
 
 }
@@ -266,7 +260,7 @@ void Cpu::instruction_bneq() {
     # branch instructions.
     */
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_bneq %X\n", current_instruction);
+    // printf("Cpu::instruction_bneq %X\n", current_instruction);
     isCycleWorkPending = false;
 
 }
@@ -277,7 +271,7 @@ void Cpu::instruction_halt() {
     # supporting all parser commands such as "cpu dump".
     */
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_halt %X\n", current_instruction);
+    // printf("Cpu::instruction_halt %X\n", current_instruction);
 
     incrementPC();
     _clock_enabled = false;
@@ -288,8 +282,15 @@ void Cpu::instruction_inv() {
     /* Inverts all the bits in the source register word, storing the result in
     # the destination register.
     */
+    int output = get_register(current_SSS);
+    int sentinal = 8; //log2(output) + 1;
+    for (int i = 0; i < sentinal; i++) {
+        output = (output ^ (1 << i));
+    }
     // DEBUG: This line can be removed after testing
-    printf("Cpu::instruction_inv %X\n", current_instruction);
+    // printf("Cpu::instruction_inv %X: %d -> %d\n", current_instruction, get_register(current_SSS), output);
+
+    set_reg(registrar[current_DDD], output);
     isCycleWorkPending = false;
 
 }
@@ -300,10 +301,11 @@ void Cpu::instruction_lw() {
     */
 
     // DEBUG: This line can be removed after testing
-    // printf("Cpu::instruction_lw: Loading Word into %s <- M[%d].\n", registrar[current_DDD].c_str(), current_TTT);
+    // printf("Cpu::instruction_lw: Loading Word into %s <- M[%d].\n", registrar[current_DDD].c_str(), get_register(current_TTT));
 
     // Begin fetch
     _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
+    isMemoryWorking = true;
     isCycleWorkPending = false;
 }
 
@@ -324,8 +326,8 @@ void Cpu::instruction_mul() {
     unsigned int summ = inp1 * inp2;
 
     // DEBUG: This line can be removed after testing
-    printf("%d * %d = %d\n", inp1, inp2, summ);
-    printf("Cpu::instruction_mul %X : %s <- %d\n", current_instruction, registrar[current_DDD].c_str(), summ);
+    // printf("%d * %d = %d\n", inp1, inp2, summ);
+    // printf("Cpu::instruction_mul %X : %s <- %d\n", current_instruction, registrar[current_DDD].c_str(), summ);
 
     // Store result
     set_reg(registrar[current_DDD], summ);
@@ -338,10 +340,11 @@ void Cpu::instruction_sw() {
     */
 
     // DEBUG: This line can be removed after testing
-    // printf("Cpu::instruction_sw: Storing Word from %s -> M[%d].\n", registrar[current_SSS].c_str(), current_TTT);
+    // printf("Cpu::instruction_sw: Storing Word from %s -> M[%d].\n", registrar[current_SSS].c_str(), get_register(current_TTT));
 
     // Begin store
     _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
+    isMemoryWorking = true;
     isCycleWorkPending = false;
 }
 
