@@ -17,7 +17,6 @@ Clock::Clock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     _imemory = imemory;
 
     reset();
-    clock_enabled = true;
     const int clk_option_num = 3;
     char* clk_operations[clk_option_num] = {"dump", "reset", "tick"};
     Utilities::loadOptions(clk_option_num, clk_operations, clkOperations);
@@ -48,7 +47,10 @@ void Clock::doWork() {
         workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
 
         // DEBUG: This line can be removed after testing
-        // printf("CPU: %s\nMEM: %s\n", _cpu->isMoreCycleWorkNeeded() ? "true" : "false", _memory->isMoreCycleWorkNeeded() ? "true" : "false");
+        // printf("Clock::doWork: CPU: %s\tMEM: %s\n",
+        //     _cpu->isMoreCycleWorkNeeded() ? "true" : "false",
+        //     _memory->isMoreCycleWorkNeeded() ? "true" : "false"
+        // );
     }
 
     // DEBUG: This line can be removed after testing
@@ -79,6 +81,7 @@ int Clock::tick(int variant) {
     # attached devices. The internal counter is incremented
     # by the specified number of ticks.
     */
+    clock_enabled = _cpu->isClockEnabled();
     if (clock_enabled) {
         // DEBUG: This line can be removed after testing
         // printf("Clock::tick: [%d]\n", cycle);

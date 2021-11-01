@@ -30,6 +30,7 @@ Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory
     Utilities::loadOptions(cpu_states_count, cpu_states, STATES);
     Utilities::loadOptions(cpu_option_num, cpu_operations, cpuOperations);
 
+    _clock_enabled = true;
     _pc = 0;
     STATE = 0;
     isMemoryWorking = false;
@@ -38,16 +39,19 @@ Cpu::Cpu(Memory* memory, IMemory* imemory) : _memory(*memory), _imemory(*imemory
     reset();
 }
 
-void Cpu::addRegisters(int instruction) {
-    // Add the value in two registers and store in aforementioned register.
-}
-
 void Cpu::decodeInstruction() {
     // Take in and decode Instruction from Instruction Memory
-    current_executable = ((current_instruction >> 17) & 7);
+    current_executable = (current_instruction >> 17) & 7;
+    current_DDD = (current_instruction >> 14 ) & 7;
+    current_SSS = (current_instruction >> 11 ) & 7;
+    current_TTT = (current_instruction >> 8 ) & 7;
+    current_III = (current_instruction & 255);
+    current_UHF = (current_III >> 4) & 15;
+    current_LHF = (current_III & 15);
 
     // DEBUG: This line can be removed after testing
-    // printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
+    printf("Cpu::decodeInstruction: Decode {%X} <- {%X}\n", current_executable, current_instruction);
+    // printf("\nDDD: %X\nSSS: %X\nTTT: %X\nIII: %X\n\n", current_DDD, current_SSS, current_TTT, current_III);
 }
 
 void Cpu::doCycleWork() {
@@ -56,15 +60,16 @@ void Cpu::doCycleWork() {
     if ((FETCH == STATE) && (!isMemoryWorking) && (!isCycleWorkPending)) {
         fetch_memory();         // initiate fetch cycle
         nextState();
+    } else if ((DECODE == STATE) && (isCycleWorkPending)) {
         decodeInstruction();    // initiate dedcode cycle
         nextState();
+    } else if ((REQUEST == STATE) && (isCycleWorkPending)) {
         executeInstruction();   // Memory Request
         nextState();
     } else if (WAIT == STATE) {
-        if (false == isMemoryWorking) {
+        if ((!isMemoryWorking) && (!isCycleWorkPending)) {
             // End Wait State
             current_instruction = -1;
-            isCycleWorkPending = false;
             nextState();
             incrementPC();
         }
@@ -97,54 +102,34 @@ void Cpu::executeInstruction() {
     // DEBUG: This line can be removed after testing
     // printf("Cpu::executeInstruction: Case %d\n", current_executable);
     switch (current_executable) {
-        case ADD: {
-            // add
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstruction:add %X\n", current_instruction);
-            }
+        case ADD:
+            instruction_add();
             break;
-        case ADDI: {
-            // addi
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstruction:addi %X\n", current_instruction);
-            }
+        case ADDI:
+            instruction_addi();
             break;
-        case MUL: {
-            // mul
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstruction:mul %X\n", current_instruction);
-            }
+        case MUL:
+            instruction_mul();
             break;
-        case INV: {
-            // inv
-            // DEBUG: This line can be removed after testing
-            printf("Cpu::executeInstruction:inv %X\n", current_instruction);
-            }
+        case INV:
+            instruction_inv();
             break;
         case BRANCH: {
-            // branch
             // DEBUG: This line can be removed after testing
             printf("Cpu::executeInstruction:branching %X\n", current_instruction);
+            instruction_branch();
             }
             break;
-        case LW: {
-            // lw
-            // DEBUG: This line can be removed after testing
-            // printf("Cpu::executeInstruction:loadWord %X\n", current_instruction);
-            loadWord(current_instruction);
-            }
+        case LW:
+            instruction_lw();
             break;
-        case SW: {
-            // sw
-            // DEBUG: This line can be removed after testing
-            // printf("Cpu::executeInstruction:storeWord %X\n", current_instruction);
-            storeWord(current_instruction);
-            }
+        case SW:
+            instruction_sw();
             break;
         case HALT: {
-            // halt
             // DEBUG: This line can be removed after testing
             printf("Cpu::executeInstruction:halt %X\n", current_instruction);
+            instruction_halt();
             }
             break;
         default:
@@ -163,18 +148,18 @@ void Cpu::fetch_memory() {
         if (current_instruction != 0) {
             current_instruction = _imemory.get_memory(fetch_memory);
             if (current_instruction > 0) {
-                isMemoryWorking = true;       // Set Work Flag
-                isCycleWorkPending = true;
+                // isMemoryWorking = true;         // Set Work Flag
+                isCycleWorkPending = true;      // Set Work Flag
 
                 // DEBUG: This line can be removed after testing
-                // printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
+                printf("Cpu::fetch_memory: Fetched Instruction: {%X} <- {%d}\n", current_instruction, fetch_memory);
             }
         } else { isMemoryWorking = false; }
     } catch (const std::exception& e) { printf("Cpu::fetch_memory: Error fetching\n\t%s\n", e.what()); }
 }
 
 int Cpu::find_register(std::string location){
-    // Insert value into registry
+    /* Insert value into registry */
     transform(location.begin(), location.end(), location.begin(), ::toupper);
 
     // Locate position of register
@@ -187,44 +172,215 @@ int Cpu::find_register(std::string location){
 }
 
 int Cpu::get_register(int register_number) {
-    // Takes in a register name and returns the current value stored
+    /* Takes in a register name and returns the current value stored */
     return _registers[register_number];
 }
 
-void Cpu::loadWord(int instruction) {
-    // Load Word Funciton
-    fetchRegister = ((instruction >> 14) | 240 ) & 7;         // x
-    int targetMemory = ((instruction >> 8 ) | 240 ) & 7;      // y
-
-    // DEBUG: This line can be removed after testing
-    // std::string reg = registrar[fetchRegister];
-    // printf("Cpu::loadWord: Loading Word into %s <- M[%d].\n", reg.c_str(), targetMemory);
-
-    // Begin fetch
-    _memory.startFetch(get_register(targetMemory), 1, &(_registers[fetchRegister]), &isMemoryWorking);
-}
-
 void Cpu::incrementPC() {
-    // Increment the Program Counter
+    /* Increment the Program Counter */
     _pc += 1;
 
     // DEBUG: This line can be removed after testing
     // printf("\nCpu::incrementPC: Counter incremented [%X] -> [%X].\n\n", (_pc - 1), _pc);
 }
 
-bool Cpu::isMoreCycleWorkNeeded() {
-    // Check if there more work pending in this clock cycle
-    // DEBUG: This line can be removed after testing
-    // printf("Cpu::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
+bool Cpu::isClockEnabled() {
+    /* Returns true if clock is enabled */
+    return _clock_enabled;
+}
 
+bool Cpu::isMoreCycleWorkNeeded() {
+    /* Check if there more work pending in this clock cycle */
     return isCycleWorkPending;
+}
+
+void Cpu::instruction_add() {
+    /* Adds the source & target register words, storing the result in the destination register. All values
+    # should be treated as 8 bit two’s compliment numbers.
+    */
+
+    int inp1 = get_register(current_SSS);
+    int inp2 = get_register(current_TTT);
+    int summ = inp1 + inp2;
+
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_add %X : %s <- %d \n", current_instruction, registrar[current_DDD].c_str(), summ);
+    // printf("%d + %d = %d\n", inp1, inp2, summ);
+
+    // Store result
+    set_reg(registrar[current_DDD], summ);
+    isCycleWorkPending = false;
+}
+
+void Cpu::instruction_addi() {
+    /* Add the value in two registers and store in aforementioned register. */
+
+    int inp1 = get_register(current_SSS);
+    int inp2 = current_III;
+    int summ = inp1 + inp2;
+
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_addi %X : %s <- %d\n", current_instruction, registrar[current_DDD].c_str(), summ);
+    // printf("%d + %d = %d\n", inp1, inp2, summ);
+
+    // Store result
+    set_reg(registrar[current_DDD], summ);
+    isCycleWorkPending = false;
+}
+
+void Cpu::instruction_branch() {
+    /* Manages the decoding and parsing of the instruction */
+    isCycleWorkPending = false;
+
+}
+
+void Cpu::instruction_beq() {
+    /* If the words in the source & target registers are equal, assign the PC
+    # to the immediate-specified imemory address, otherwise increment the PC.
+    # Note the use of the destination register field to distinguish from other
+    # branch instructions.
+    */
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_beq %X\n", current_instruction);
+    isCycleWorkPending = false;
+
+}
+
+void Cpu::instruction_blt() {
+    /* If the word in the source register is less than the word in the target
+    # registers, assign the PC to the immediate-specified imemory address,
+    # otherwise increment the PC. The numbers should be treated as two’s
+    # complement numbers. Note the use of the destination register field to
+    # distinguish from other branch instructions.
+    */
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_blt %X\n", current_instruction);
+    isCycleWorkPending = false;
+
+}
+
+void Cpu::instruction_bneq() {
+    /* If the words in the source & target registers are not equal, assign the
+    # PC to the immediate-specified imemory address, otherwise increment the PC.
+    # Note the use of the destination register field to distinguish from other
+    # branch instructions.
+    */
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_bneq %X\n", current_instruction);
+    isCycleWorkPending = false;
+
+}
+
+void Cpu::instruction_halt() {
+    /* Halts execution of the processor after incrementing PC. After halting,
+    # the CPU will ignore all future clock ticks, but will cooperate in
+    # supporting all parser commands such as "cpu dump".
+    */
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_halt %X\n", current_instruction);
+
+    incrementPC();
+    _clock_enabled = false;
+    isCycleWorkPending = false;
+}
+
+void Cpu::instruction_inv() {
+    /* Inverts all the bits in the source register word, storing the result in
+    # the destination register.
+    */
+    // DEBUG: This line can be removed after testing
+    printf("Cpu::instruction_inv %X\n", current_instruction);
+    isCycleWorkPending = false;
+
+}
+
+void Cpu::instruction_lw() {
+    /* Loads a word into the destination register, from data memory at the
+    # address specified in the target register
+    */
+
+    // DEBUG: This line can be removed after testing
+    // printf("Cpu::instruction_lw: Loading Word into %s <- M[%d].\n", registrar[current_DDD].c_str(), current_TTT);
+
+    // Begin fetch
+    _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
+    isCycleWorkPending = false;
+}
+
+void Cpu::instruction_mul() {
+    /* Takes the upper 4 bits and lower 4 bits of the source register,
+    # multiplies those values together, and stores the result in the destination
+    # register. Interprets its inputs as UNSIGNED. I.e., 1001 is interpreted as
+    # decimal 9, not decimal -7. The fact that the multiplier is NOT a two's
+    # complement multiplier can yield mathematically incorrect results.
+    # For example, 1111 * 1111, or 15x15, would yield a result of 11100001,
+    # which the CPU will interpret as -31. This is fine; it is the intended
+    # behavior.
+    */
+
+    unsigned int sourceRegisterValue = get_register(current_SSS);
+    unsigned int inp1 = instructionBitSelector(UHF, sourceRegisterValue);
+    unsigned int inp2 = instructionBitSelector(LHF, sourceRegisterValue);
+    unsigned int summ = inp1 * inp2;
+
+    // DEBUG: This line can be removed after testing
+    printf("%d * %d = %d\n", inp1, inp2, summ);
+    printf("Cpu::instruction_mul %X : %s <- %d\n", current_instruction, registrar[current_DDD].c_str(), summ);
+
+    // Store result
+    set_reg(registrar[current_DDD], summ);
+    isCycleWorkPending = false;
+}
+
+void Cpu::instruction_sw() {
+    /* Stores the source register word into data memory at the address
+    # specified in the target register
+    */
+
+    // DEBUG: This line can be removed after testing
+    // printf("Cpu::instruction_sw: Storing Word from %s -> M[%d].\n", registrar[current_SSS].c_str(), current_TTT);
+
+    // Begin store
+    _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
+    isCycleWorkPending = false;
+}
+
+int Cpu::instructionBitSelector(int option, int instruction) {
+
+    int response = -1;
+    switch (option) {
+        case NNN:
+            response = (instruction >> 17) & 7;
+            break;
+        case DDD:
+            response = (instruction >> 14) & 7;
+            break;
+        case SSS:
+            response = (instruction >> 11) & 7;
+            break;
+        case TTT:
+            response = (instruction >> 8) & 7;
+            break;
+        case III:
+            response = instruction & 255;
+            break;
+        case UHF:
+            response = (instruction >> 4) & 15;
+            break;
+        case LHF:
+            response = instruction & 15;
+            break;
+        default:
+            break;
+    }
+
+    return response;
 }
 
 void Cpu::nextState() {
     // Advances Finite State Machine to the next state
     int period = STATES.size();
     int previousState = STATE;
-
     STATE = (STATE + 1) % period;               // Cycle States
 
     // DEBUG: This line can be removed after testing
@@ -302,21 +458,6 @@ void Cpu::startTick() {
     } else {
         // DEBUG: This line can be removed after testing
         printf("Cpu::startTick: Invalid start state: %d.\n", STATE);
-        // STATE = 1;
+        STATE = 0;
     }
-}
-
-void Cpu::storeWord(int instruction) {
-    // Store word function
-    fetchRegister = ((instruction >> 11) | 240 ) & 7;             // x
-    int destinationMemory = ((instruction >> 8 ) | 240 ) & 7;     // y
-
-    int targetIdx = get_register(fetchRegister);
-    int targetVal = get_register(destinationMemory);
-
-    // DEBUG: This line can be removed after testing
-    // printf("Cpu::storeWord: Storing Word from %s into M[%d].\nIdx: %d\tVal: %d\n", registrar[fetchRegister].c_str(), destinationMemory, targetIdx, targetVal);
-
-    // Begin store
-    _memory.startStore(targetIdx, 1, &(_registers[destinationMemory]), &isMemoryWorking);
 }

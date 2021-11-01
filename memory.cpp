@@ -94,7 +94,7 @@ void Memory::dump(int begin, int number_of_elements, int column_span) {
         }
 
         // Condition to print instruction memory if in requested range
-        if (rowCount >= startRow && rowCount <= endRow) {
+        if (rowCount >= startRow && rowCount < endRow) {
             if (step % column_span == 0) {
                 printf("\n0x%0*X", headSize, step);
             }

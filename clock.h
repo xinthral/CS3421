@@ -22,7 +22,7 @@ private:
     IMemory* _imemory;
 
     int cycle;                      // Current cycle of clock
-    bool clock_enabled;             // Track if clock is meant to be running
+    bool clock_enabled;             // CPU tracks if clock is meant to be running
     std::map<std::string,int> clkOperations;
     Clock(Cpu*,Memory*,IMemory*);   // Forces Private Instantiation
 public:

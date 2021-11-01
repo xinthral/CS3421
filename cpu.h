@@ -20,28 +20,31 @@ private:
     Memory& _memory;
     IMemory& _imemory;
 
-    int current_executable{};                   // CPU instruction
-    int current_instruction{};                  // Entire Operation Instruction
-    int fetchRegister{};                        // Location for fetch value
-    unsigned int fetchValue;                    // Value fetch from request
+    int current_executable{};                   // Current CPU instruction
+    int current_instruction{};                  // Current Operation Instruction
+    int current_DDD{};                          // Current DDD
+    int current_SSS{};                          // Current SSS
+    int current_TTT{};                          // Current TTT
+    int current_III{};                          // Current III
+    int current_UHF{};                          // Current Upper Half of III
+    int current_LHF{};                          // Current Lower Half of III
+    bool _clock_enabled;                        // Control if clock is enabled
     bool isMemoryWorking;                       // Boolean flag while working
     bool isCycleWorkPending;
-    int STATE{};
-
-    // std::map<std::string,int> registers;
     int _registers[8] = { 0 };                  // Register Bank
+    int STATE{};                                // Current State
     int _pc{};                                  // Program Counter
     std::map<std::string,int> cpuOperations;
     std::map<std::string,int> STATES;
 
     std::string registrar[8] = {"RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
-    enum STATES { IDLE=0, FETCH=1, DECODE=2, REQUEST=3, WAIT=4 };
-    enum EXC { ADD=0, ADDI=1, MUL=2, INV=3, BRANCH=4, LW=5, SW=6, HALT=7 };
+    enum STATES { IDLE, FETCH, DECODE, REQUEST, WAIT };
+    enum EXC { ADD, ADDI, MUL, INV, BRANCH, LW, SW, HALT };
+    enum BITIES { NNN, DDD, SSS, TTT, III, UHF, LHF };
 
 public:
 
     Cpu(Memory*, IMemory*);             // Constructor
-    void addRegisters(int,int,int);                // Instruction : add
     void decodeInstruction();           // Decode IMemory Instruction
     void doCycleWork();                 // Main Work Loop
     void dump();                        // Display Register Information
@@ -50,14 +53,25 @@ public:
     int find_register(std::string);     // Convert register name to index
     int get_register(int);
     void incrementPC();
+    bool isClockEnabled();
     bool isMoreCycleWorkNeeded();
-    void loadWord(int);                 // Instruction : lw
+    void instruction_add();             // Instruction : add
+    void instruction_addi();            // Instruction : addi
+    void instruction_branch();          // Instruction : branch
+    void instruction_beq();             // Instruction : beq
+    void instruction_blt();             // Instruction : blt
+    void instruction_bneq();            // Instruction : bneq
+    void instruction_inv();             // Instruction : inv
+    void instruction_halt();            // Instruction : halt
+    void instruction_lw();              // Instruction : lw
+    void instruction_mul();             // Instruction : mul
+    void instruction_sw();              // Instruction : sw
+    int instructionBitSelector(int,int);// Return bitwise sections of IMemory
     void nextState();
     void parseInstructions(std::string);
     void reset();
     void set_reg(std::string,int);      // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     void startTick();
-    void storeWord(int);                // Instruction : sw
 };
 
 #endif
