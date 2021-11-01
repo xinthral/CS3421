@@ -121,7 +121,7 @@ void IMemory::parseInstructions(std::string instructionSet) {
             break;
         case 3: {
             // set file <filename>.txt
-            char startPos[4], junk[4];
+            char startPos[8], junk[8];
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
             instructionSet = Utilities::chunkInstruction(instructionSet, junk);
             int starting = std::stoi(startPos, 0, 16);
