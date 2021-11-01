@@ -47,14 +47,11 @@ void Clock::doWork() {
         workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
 
         // DEBUG: This line can be removed after testing
-        // printf("Clock::doWork: CPU: %s\tMEM: %s\n",
-        //     _cpu->isMoreCycleWorkNeeded() ? "true" : "false",
-        //     _memory->isMoreCycleWorkNeeded() ? "true" : "false"
-        // );
+        printf("Clock::doWork: CPU: %s\tMEM: %s\n",
+            _cpu->isMoreCycleWorkNeeded() ? "true" : "false",
+            _memory->isMoreCycleWorkNeeded() ? "true" : "false"
+        );
     }
-
-    // DEBUG: This line can be removed after testing
-    // printf("Clock::doWork has completed!\n");
 }
 
 void Clock::dump() {
@@ -84,7 +81,7 @@ int Clock::tick(int variant) {
     clock_enabled = _cpu->isClockEnabled();
     if (clock_enabled) {
         // DEBUG: This line can be removed after testing
-        // printf("Clock::tick: [%d]\n", cycle);
+        printf("Clock::tick: [%d]\n", cycle);
         doWork();
     }
     cycle += variant;
@@ -93,7 +90,7 @@ int Clock::tick(int variant) {
 
 void Clock::parseInstructions(std::string instructionSet) {
     // DEBUG: This line can be removed after testing
-    // printf("Clock Instruction: %s\n", instructionSet.c_str());
+    printf("Clock Instruction: %s\n", instructionSet.c_str());
 
     char operation[8];
     instructionSet = Utilities::chunkInstruction(instructionSet, operation);
@@ -118,7 +115,7 @@ void Clock::parseInstructions(std::string instructionSet) {
 
                 while (current_cycle < cycles) {
                     // DEBUG: This line can be removed after testing
-                    // printf("Clock::parseInstructions:tick: %s -> [%d]\n", clockCycles, current_cycle);
+                    printf("Clock::parseInstructions:tick: %s -> [%d]\n", clockCycles, current_cycle);
                     junk = tick(1);
                     current_cycle++;
                 }
