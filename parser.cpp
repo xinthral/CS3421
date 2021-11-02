@@ -6,12 +6,15 @@
 #**************************************/
 
 #include "parser.h"
-Parser::Parser() {
+Parser::Parser(int debug) {
+    // Set debug flag
+    DEBUG = debug;
+
     // Instantiate Devices
-    _memory = new Memory();
+    _memory = new Memory(DEBUG);
     _imemory = new IMemory();
-    _cpu = new Cpu(_memory, _imemory);
-    _clock = _clock->getClock(_cpu, _memory, _imemory);
+    _cpu = new Cpu(_memory, _imemory, DEBUG);
+    _clock = _clock->getClock(_cpu, _memory, _imemory, DEBUG);
 
     // Devices Options
     const int dev_num = 4;
@@ -28,8 +31,10 @@ void Parser::readInputFile(char* fileName) {
         return;
     }
 
-    // DEBUG: This line can be removed after testing
-    // printf("FileName: %s\n", fileName);
+    if (DEBUG > 3) {
+        // DEBUG: This line can be removed after testing
+        printf("FileName: %s\n", fileName);
+    }
 
     int device;
     char deviceName[7], operation[8];
@@ -40,13 +45,13 @@ void Parser::readInputFile(char* fileName) {
 
             // Convert std::string to char* for ease of handling
             char* instructionSet = const_cast<char*>(instructions.c_str());
-            // Set all characters to lowercase
-            // Utilities::toLower(instructionSet, instructions.size());
             // Extract device name from instruction
             instructions = Utilities::chunkInstruction(instructions, deviceName);
 
-            // DEBUG: This line can be removed after testing
-            // printf("Device :: %s\n%s", deviceName, instructions.c_str());
+            if (DEBUG > 3) {
+                // DEBUG: This line can be removed after testing
+                printf("Device :: %s\n%s", deviceName, instructions.c_str());
+            }
 
             // Convert deviceName to switch statement
             device = deviceList[deviceName];
@@ -54,26 +59,18 @@ void Parser::readInputFile(char* fileName) {
             switch(device) {
                 case 0:
                     // Clock Execution
-                    // DEBUG: This line can be removed after testing
-                    // printf("Clock Execution Sent.\n");
                     _clock->parseInstructions(instructions);
                     break;
                 case 1:
                     // CPU Execution
-                    // DEBUG: This line can be removed after testing
-                    // printf("CPU Execution Sent.\n");
                     _cpu->parseInstructions(instructions);
                     break;
                 case 2:
                     // Memory Execution
-                    // DEBUG: This line can be removed after testing
-                    // printf("Memory Execution Sent.\n");
                     _memory->parseInstructions(instructions);
                     break;
                 case 3:
                     // Instruction Memory Execution
-                    // DEBUG: This line can be removed after testing
-                    // printf("iMemory Execution Sent.\n");
                     _imemory->parseInstructions(instructions);
                     break;
                 default:
@@ -93,7 +90,7 @@ int main(int argc, char const *argv[]) {
     }
 
     // Parse commands from input file
-    Parser p;
+    Parser p(0);
     p.readInputFile( const_cast<char *>(argv[1]));
     return 0;
 }

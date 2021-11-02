@@ -17,10 +17,15 @@ class Memory;
 class IMemory;
 
 class Cpu {
+protected:
+    int DEBUG{};                                // Debug output control
+
 private:
+    /* Device Objects */
     Memory& _memory;
     IMemory& _imemory;
 
+    /* Binary Handling Variables */
     int current_executable{};                   // Current CPU instruction
     int current_instruction{};                  // Current Operation Instruction
     int current_DDD{};                          // Current DDD
@@ -29,6 +34,7 @@ private:
     int current_III{};                          // Current III
     int current_UHF{};                          // Current Upper Half of III
     int current_LHF{};                          // Current Lower Half of III
+
     bool _clock_enabled;                        // Control if clock is enabled
     bool isMemoryWorking;                       // Boolean flag while working
     bool isCycleWorkPending;
@@ -45,7 +51,7 @@ private:
 
 public:
 
-    Cpu(Memory*, IMemory*);             // Constructor
+    Cpu(Memory*,IMemory*,int);          // Constructor
     void decodeInstruction();           // Decode IMemory Instruction
     void doCycleWork();                 // Main Work Loop
     void dump();                        // Display Register Information
