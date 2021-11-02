@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
 
     // Conditional to ensure filename was provided.
     if (argc < 2) {
-        printf("Error: Filename\n\tUsage: ./cs3421_emul <filename>.\n");
+        printf("Error: Filename\n\tUsage: ./cs3421_emul <filename> <int:optional>.\n");
         return 1;
     } else if (argc > 2) {
         debug_value = std::atoi(argv[2]);
