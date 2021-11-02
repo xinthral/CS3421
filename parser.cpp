@@ -83,14 +83,19 @@ void Parser::readInputFile(char* fileName) {
 }
 
 int main(int argc, char const *argv[]) {
+
+    int debug_value = 0;
+
     // Conditional to ensure filename was provided.
     if (argc < 2) {
         printf("Error: Filename\n\tUsage: ./cs3421_emul <filename>.\n");
         return 1;
+    } else if (argc > 2) {
+        debug_value = std::atoi(argv[2]);
     }
 
     // Parse commands from input file
-    Parser p(0);
+    Parser p(debug_value);
     p.readInputFile( const_cast<char *>(argv[1]));
     return 0;
 }
