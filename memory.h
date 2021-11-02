@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include "utilities.h"          // Utility Functions
+#include <cmath>                // floor
 #include <fstream>              // std::ifstream
 #include <stdint.h>             // uint16_t
 #include <stdexcept>            // std::out_of_range

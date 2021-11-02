@@ -88,11 +88,13 @@ void Memory::dump(int begin, int number_of_elements, int column_span) {
     int ending = (begin + number_of_elements);
     printBankHeaders(column_span);
     int startRow = int(begin / column_span) + 1;
-    int endRow = int(ending / column_span) + 1;
+    int endRow = floor((ending - 1) / column_span) + 1;
+
     if (DEBUG > 3) {
         // DEBUG: This line can be removed after testing
         printf("Memory::dump: Start [%d] -> End [%d]\n", startRow, endRow);
     }
+
     for (int step = 0; step < capacity; step++) {
         if (step % column_span == 0) {
             rowCount++;
