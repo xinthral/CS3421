@@ -45,7 +45,7 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
     int ending = (begin + number_of_elements);
     printBankHeaders(column_span);
     int startRow = int(begin / column_span) + 1;
-    int endRow = int(ending / column_span) + 1;
+    int endRow = int((ending-1) / column_span) + 1;
     // DEBUG: This line can be removed after testing
     // printf("IMemory::dump: Start [%d] -> End [%d]\n", startRow, endRow);
 
@@ -59,7 +59,7 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
             if (step % column_span == 0) {
                 printf("\n0x%0*X", headSize, step);
             }
-            if (step < begin || step >= ending) {
+            if (step < begin || step > ending) {
                 printf(" %*s", dataSize, "");
             }
         }
@@ -67,6 +67,7 @@ void IMemory::dump(int begin, int number_of_elements, int column_span) {
             printf(" %*X", dataSize, registry[step]);
         }
     }
+    printf("\n");
     printf("\n");
 }
 

@@ -26,6 +26,7 @@ private:
     IMemory& _imemory;
 
     /* Binary Handling Variables */
+    int previous_instruction{};                 // Previous Cycle Operation Instruction
     int current_executable{};                   // Current CPU instruction
     int current_instruction{};                  // Current Operation Instruction
     int current_DDD{};                          // Current DDD
@@ -47,6 +48,7 @@ private:
     std::string registrar[8] = {"RA", "RB", "RC", "RD", "RE", "RF", "RG", "RH"};
     enum STATEMODE { IDLE, FETCH, DECODE, REQUEST, WAIT };
     enum EXC { ADD, ADDI, MUL, INV, BRANCH, LW, SW, HALT };
+    enum EXCB { BEQ, BNEQ, BLT };
     enum BITIES { NNN, DDD, SSS, TTT, III, UHF, LHF };
 
 public:
