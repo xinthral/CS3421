@@ -77,12 +77,12 @@ void Cpu::doCycleWork() {
     } else if ((DECODE == STATE) && (isCycleWorkPending)) {
         decodeInstruction();    // initiate dedcode cycle
         nextState();
+    } else if ((REQUEST == STATE) && (isCycleWorkPending)) {
         executeInstruction();   // Memory Request
         nextState();
     } else if (WAIT == STATE) {
         if ((!isMemoryWorking) && (!isCycleWorkPending)) {
             // End Wait State
-            // current_instruction = -1;
             nextState();
             incrementPC();
         }
@@ -168,7 +168,6 @@ void Cpu::fetch_memory() {
         previous_instruction = current_instruction;
         current_instruction = _imemory.get_memory(fetch_memory);
         if (current_instruction > 0) {
-            // isMemoryWorking = true;         // Set Work Flag
             isCycleWorkPending = true;      // Set Work Flag
 
             if (DEBUG > 0) {
@@ -278,11 +277,9 @@ void Cpu::instruction_beq() {
     int inp1 = get_register(current_SSS);
     int inp2 = get_register(current_TTT);
     if (inp1 == inp2) {
-        _pc = current_III;
-    } else {
-        incrementPC();
-        current_instruction = previous_instruction;
+        _pc = current_III - 1;
     }
+
     if (DEBUG > 1) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq [%d] == [%d] |  PC:{%d}\n", inp1, inp2, _pc);
