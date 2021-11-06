@@ -41,7 +41,8 @@ private:
     bool isCycleWorkPending;
     int _registers[8] = { 0 };                  // Register Bank
     int STATE{};                                // Current State
-    int _pc{};                                  // Program Counter
+    int _pc{};                                  // Total Program Counter
+    int _tc{};                                  // Active Tick Counter
     int waitDelay{};                            // Wait delay in ticks
     std::map<std::string,int> cpuOperations;
     std::map<std::string,int> STATES;

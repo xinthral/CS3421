@@ -33,6 +33,7 @@ Cpu::Cpu(Memory* memory, IMemory* imemory, int debug)
 
     _clock_enabled = true;
     _pc = 0;
+    _tc = 0;
     DEBUG = debug;                      // Set debug flag
     STATE = 0;
     isMemoryWorking = false;
@@ -108,6 +109,7 @@ void Cpu::dump() {
     for (int step = 0; step < 8; step++) {
         printf("%s: 0x%02X\n", registrar[step].c_str(), _registers[step]);
     }
+    printf("TC: %02X\n", _tc);
     printf("\n");
 }
 
@@ -327,6 +329,7 @@ void Cpu::instruction_halt() {
 
     // incrementPC();
     _clock_enabled = false;
+    _tc += 1;
     // isCycleWorkPending = false;
 }
 
@@ -497,6 +500,7 @@ void Cpu::reset() {
     for (int step = 0; step < 8; step++) {
         _registers[step] = 0x00;
     }
+    _tc = 0;
 }
 
 void Cpu::set_reg(std::string location, int hbyte) {
@@ -522,6 +526,9 @@ void Cpu::startTick() {
     if (DEBUG > 3) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::startTick: Current State %d : %s.\n", STATE, isMemoryWorking ? "true" : "false");
+    }
+    if (_clock_enabled) {
+        _tc += 1;
     }
 
     if (STATE == IDLE) {
