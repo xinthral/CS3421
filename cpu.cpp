@@ -66,9 +66,9 @@ void Cpu::doCycleWork() {
     // Pre-process if work is needed
     bool workCheck = (isCycleWorkPending || isMemoryWorking);
 
-    if (DEBUG > 1) {
+    if (DEBUG > 0) {
         // DEBUG: This line can be removed after testing
-        printf("Cpu::doCycleWork: Are we waiting? [%s].\n", workCheck ? "true" : "false");
+        printf("Cpu::doCycleWork: Cpu::{%s}\tMem::{%s}\n", isCycleWorkPending ? "true" : "false", isMemoryWorking ? "true" : "false");
     }
 
     if ((FETCH == STATE) && (!workCheck)) {
@@ -286,7 +286,6 @@ void Cpu::instruction_beq() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq [%d] == [%d] |  PC:{%d}\n", inp1, inp2, _pc);
     }
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_blt() {
@@ -326,7 +325,7 @@ void Cpu::instruction_halt() {
         printf("Cpu::instruction_halt %X\n", current_instruction);
     }
 
-    incrementPC();
+    // incrementPC();
     _clock_enabled = false;
     // isCycleWorkPending = false;
 }
@@ -361,7 +360,7 @@ void Cpu::instruction_lw() {
     // Begin fetch
     isMemoryWorking = true;
     _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
-    // isCycleWorkPending = false;
+    isCycleWorkPending = false;
 }
 
 void Cpu::instruction_mul() {
@@ -408,7 +407,7 @@ void Cpu::instruction_sw() {
     // Begin store
     isMemoryWorking = true;
     _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
-    // isCycleWorkPending = false;
+    isCycleWorkPending = false;
 }
 
 int Cpu::instructionBitSelector(int option, int instruction) {
