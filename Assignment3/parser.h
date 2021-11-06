@@ -9,9 +9,6 @@
 #include <fstream>              // std::ifstream
 
 class Parser {
-protected:
-    int DEBUG;                             // Debug output control 
-
 private:
     // Clock Singleton
     Clock*  _clock;                         // Clock Device;
@@ -23,7 +20,7 @@ private:
     std::map<std::string, int> deviceList;
 
 public:
-    Parser(int);
+    Parser();
     // Parser Functions
     void readInputFile(char* fileName);
 };

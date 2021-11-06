@@ -10,17 +10,17 @@
 **************************************/
 #include "clock.h"
 
-Clock::Clock(Cpu* cpu, Memory* memory, IMemory* imemory, int debug) {
+Clock::Clock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     /* Constructor Method for the Clock Class */
     _cpu = cpu;
     _memory = memory;
     _imemory = imemory;
 
+    reset();
+    clock_enabled = true;
     const int clk_option_num = 3;
     char* clk_operations[clk_option_num] = {"dump", "reset", "tick"};
     Utilities::loadOptions(clk_option_num, clk_operations, clkOperations);
-
-    DEBUG = debug;                      // Set debug flag
 }
 
 void Clock::doWork() {
@@ -47,14 +47,12 @@ void Clock::doWork() {
         // has more to do on THIS cycle (not instruction).
         workToDo = _cpu->isMoreCycleWorkNeeded() || _memory->isMoreCycleWorkNeeded();
 
-        if (DEBUG > 2) {
-            // DEBUG: This line can be removed after testing
-            printf("Clock::doWork: CPU: %s\tMEM: %s\n",
-                _cpu->isMoreCycleWorkNeeded() ? "true" : "false",
-                _memory->isMoreCycleWorkNeeded() ? "true" : "false"
-            );
-        }
+        // DEBUG: This line can be removed after testing
+        // printf("CPU: %s\nMEM: %s\n", _cpu->isMoreCycleWorkNeeded() ? "true" : "false", _memory->isMoreCycleWorkNeeded() ? "true" : "false");
     }
+
+    // DEBUG: This line can be removed after testing
+    // printf("Clock::doWork has completed!\n");
 }
 
 void Clock::dump() {
@@ -81,12 +79,9 @@ int Clock::tick(int variant) {
     # attached devices. The internal counter is incremented
     # by the specified number of ticks.
     */
-    clock_enabled = _cpu->isClockEnabled();
     if (clock_enabled) {
-        if (DEBUG > 3) {
-            // DEBUG: This line can be removed after testing
-            printf("Clock::tick: [%d]\n", cycle);
-        }
+        // DEBUG: This line can be removed after testing
+        // printf("Clock::tick: [%d]\n", cycle);
         doWork();
     }
     cycle += variant;
@@ -94,10 +89,8 @@ int Clock::tick(int variant) {
 }
 
 void Clock::parseInstructions(std::string instructionSet) {
-    if (DEBUG > 3) {
-        // DEBUG: This line can be removed after testing
-        printf("Clock::parseInstructions: Instruction Set: %s\n", instructionSet.c_str());
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Clock Instruction: %s\n", instructionSet.c_str());
 
     char operation[8];
     instructionSet = Utilities::chunkInstruction(instructionSet, operation);
@@ -121,10 +114,8 @@ void Clock::parseInstructions(std::string instructionSet) {
                 int junk = 0;
 
                 while (current_cycle < cycles) {
-                    if (DEBUG > 0) {
-                        // DEBUG: This line can be removed after testing
-                        printf("Clock::parseInstructions:tick: %s -> [%d]\n", clockCycles, current_cycle);
-                    }
+                    // DEBUG: This line can be removed after testing
+                    // printf("Clock::parseInstructions:tick: %s -> [%d]\n", clockCycles, current_cycle);
                     junk = tick(1);
                     current_cycle++;
                 }
@@ -137,10 +128,10 @@ void Clock::parseInstructions(std::string instructionSet) {
 
 Clock* Clock::clk_instance(nullptr);        // Instance Instantiation
 
-Clock* Clock::getClock(Cpu* cpu, Memory* memory, IMemory* imemory, int debug) {
+Clock* Clock::getClock(Cpu* cpu, Memory* memory, IMemory* imemory) {
     // Singleton Method
     if (clk_instance == nullptr) {
-        clk_instance = new Clock(cpu, memory, imemory, debug);
+        clk_instance = new Clock(cpu, memory, imemory);
     }
     return clk_instance;
 }

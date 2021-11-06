@@ -6,17 +6,17 @@
 #**************************************/
 #include "memory.h"
 
-Memory::Memory(int debug) {
+Memory::Memory() {
     // create(0x0F);
+    const int mem_operation_count = 4;
     const int mem_states_count = 3;
+
+    char* mem_operations[mem_operation_count] = {"create", "dump", "reset", "set"};
     char* mem_states[mem_states_count] = {"IDLE", "WAIT", "EXEC"};
+
+    Utilities::loadOptions(mem_operation_count, mem_operations, memOperations);
     Utilities::loadOptions(mem_states_count, mem_states, STATES);
 
-    const int mem_operation_count = 4;
-    char* mem_operations[mem_operation_count] = {"create", "dump", "reset", "set"};
-    Utilities::loadOptions(mem_operation_count, mem_operations, memOperations);
-
-    DEBUG = debug;              // Set debug flag
     STATE = 0;                  // FSM
     capacity = 0;               // Data Memory Size
     fetchCount = 0;             // Number of elements
@@ -39,32 +39,28 @@ void Memory::create(int inputSize) {
 void Memory::doCycleWork() {
     // Completed WAIT state, and advanced into the MOVE_DATA state
 
-    if ((EXEC == STATE) && (0 == waitDelay)) {
+    if (2 == STATE && 0 == waitDelay) {
         // memcpy(answerPtr, registry + startPos, fetchCount);
         // printf("Memory::doCycleWork: Current Operation: %d\n", current_operation);
         if (5 == current_operation) {
-            if (DEBUG > 1) {
-                // DEBUG: This line can be removed after testing
-                printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
-            }
+            // DEBUG: This line can be removed after testing
+            // printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
             // copy data back to caller
             *answerPtr = get_memory(startPos);
         }
         if (6 == current_operation) {
-            if (DEBUG > 1) {
-                // DEBUG: This line can be removed after testing
-                printf("Memory::doCycleWork: Storing %X -> M[%d].\n", startPos, *answerPtr);
-            }
+            // DEBUG: This line can be removed after testing
+            // printf("Memory::doCycleWork: Storing M[%d] in M[%d].\n", startPos, *answerPtr);
             // copy data back to caller
-            set_memory(*answerPtr, startPos);
+            set_memory(get_memory(*answerPtr - 1), startPos);
         }
         // Tell caller memory operation is complete
         answerPtr = nullptr;
         current_operation = 0;
         fetchCount = 0;
+        isWorking = false;
         startPos = 0;
         *workResponse = false;
-        isWorking = false;
         nextState();
     }
 }
@@ -88,12 +84,9 @@ void Memory::dump(int begin, int number_of_elements, int column_span) {
     int ending = (begin + number_of_elements);
     printBankHeaders(column_span);
     int startRow = int(begin / column_span) + 1;
-    int endRow = floor((ending - 1) / column_span) + 1;
-
-    if (DEBUG > 3) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::dump: Start [%d] -> End [%d]\n", startRow, endRow);
-    }
+    int endRow = int(ending / column_span) + 1;
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::dump: Start [%d] -> End [%d]\n", startRow, endRow);
 
     for (int step = 0; step < capacity; step++) {
         if (step % column_span == 0) {
@@ -129,10 +122,8 @@ int Memory::get_memory(int position) {
 
 bool Memory::isMoreCycleWorkNeeded() {
     // Check if there more work pending in this clock cycle
-    if (DEBUG > 3) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::isMoreCycleWorkNeeded: isCycleWorkPending %s\n", isCycleWorkPending ? "true" : "false");
     return isCycleWorkPending;
 }
 
@@ -143,17 +134,14 @@ void Memory::nextState() {
 
     STATE = (STATE + 1) % period;               // Cycle States
 
-    if (DEBUG > 1) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::nextState: [%d] -> [%d]\n", previousState, STATE);
+
 }
 
 void Memory::parseInstructions(std::string instructionSet) {
-    if (DEBUG > 2) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory Instruction: %s\n", instructionSet.c_str());
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory Instruction: %s\n", instructionSet.c_str());
     char operation[8];
     instructionSet = Utilities::chunkInstruction(instructionSet, operation);
     int op = memOperations[operation];
@@ -168,7 +156,7 @@ void Memory::parseInstructions(std::string instructionSet) {
             break;
         case 1: {
             // dump 0 8
-            char startPos[6], elementCount[6];
+            char startPos[3], elementCount[3];
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
             instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
             int memStart = std::stoi(startPos, 0, 16);
@@ -182,17 +170,16 @@ void Memory::parseInstructions(std::string instructionSet) {
             break;
         case 3: {
             // set 0x00 0x03 0x03 0x02 0x01
-            char startPos[6], elementCount[6];
+            char startPos[3], elementCount[3];
             instructionSet = Utilities::chunkInstruction(instructionSet, startPos);
             instructionSet = Utilities::chunkInstruction(instructionSet, elementCount);
 
             int starting = std::stoi(startPos, 0, 16);
             int number_of_elements = std::stoi(elementCount, 0, 16);
 
-            if (DEBUG > 2) {
-                // DEBUG: This line can be removed after testing
-                printf("Memory::parseInstructions: Starting [0x%2X] -> Number [0x%2X]\nInstructions: [%s]\n", starting, number_of_elements, instructionSet.c_str());
-            }
+            // DEBUG: This line can be removed after testing
+            // printf("Memory::parseInstructions: Starting [0x%2X] -> Number [0x%2X]\nInstructions: [%s]\n", starting, number_of_elements, instructionSet.c_str());
+
             set(starting, number_of_elements, instructionSet);
             }
             break;
@@ -237,19 +224,16 @@ void Memory::set(int starting, int number_of_elements, std::string elements) {
     for (int i = starting; i < ending; i++) {
         elements = Utilities::chunkInstruction(elements, chunk);
         value = std::stoi(chunk, 0, 16);
-        if (DEBUG > 2) {
-            // DEBUG: This line can be removed after testing
-            printf("Memory::set: Position [%d] <- [0x%2X]\n", i, value);
-        }
+        // DEBUG: This line can be removed after testing
+        // printf("Memory::set: Position [%d] <- [0x%2X]\n", i, value);
         set_memory(i, value);
     }
 }
 
 void Memory::set_memory(int position, int hexValue) {
-    if (DEBUG > 2) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::set_memory: Position [%d] <- Value [0x%X]\n", position, hexValue);
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::set_memory: Position [%d] <- Value [0x%X]\n", position, hexValue);
+
     // Set value of position in memory banks based on index value
     registry[position] = hexValue;
 }
@@ -263,10 +247,8 @@ void Memory::startFetch(int start, int number_of_elements, int* dataPtr, bool* i
     fetchCount = number_of_elements;
     answerPtr = dataPtr;
     workResponse = isWorkPending;
-    if (DEBUG > 2) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::startFetch: Fetching from M[%d]\n", startPos);
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::startFetch: Fetching from M[%d]\n", startPos);
 }
 
 void Memory::startStore(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
@@ -278,10 +260,8 @@ void Memory::startStore(int start, int number_of_elements, int* dataPtr, bool* i
     fetchCount = number_of_elements;
     answerPtr = dataPtr;
     workResponse = isWorkPending;
-    if (DEBUG > 2) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
 }
 
 void Memory::startTick() {
@@ -290,20 +270,16 @@ void Memory::startTick() {
     # should be done in this function, and is instead done in doCycleWork
     # described below.
     */
-    if (DEBUG > 3) {
-        // DEBUG: This line can be removed after testing
-        printf("Memory::startTick: Current State %d : %s.\n", STATE, isWorking ? "true" : "false");
-    }
+    // DEBUG: This line can be removed after testing
+    // printf("Memory::startTick: Current State %d : %s.\n", STATE, isWorking ? "true" : "false");
 
-    if (WAIT == STATE) {
+    if (STATE == 1) {
         if (waitDelay < (latencyFactor - 2)) {
             waitDelay += 1;
-            if (DEBUG > 2) {
-                // DEBUG: This line can be removed after testing
-                printf("Memory::startTick: Waiting: %d\n", waitDelay);
-            }
+            // DEBUG: This line can be removed after testing
+            // printf("Memory::startTick: Waiting: %d\n", waitDelay);
         } else {
-            // isWorking = false;
+            isWorking = false;
             waitDelay = 0;
             nextState();
         }

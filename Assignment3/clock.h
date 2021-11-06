@@ -14,9 +14,6 @@ class IMemory;
 class Memory;
 
 class Clock {
-protected:
-    int DEBUG;                      // Debug Control
-
 private:
     static Clock* clk_instance;     // Singleton Object
 
@@ -27,10 +24,10 @@ private:
     int cycle;                      // Current cycle of clock
     bool clock_enabled;             // CPU tracks if clock is meant to be running
     std::map<std::string,int> clkOperations;
-    Clock(Cpu*,Memory*,IMemory*,int);   // Forces Private Instantiation
+    Clock(Cpu*,Memory*,IMemory*);   // Forces Private Instantiation
 public:
     // Singleton Method
-    static Clock* getClock(Cpu*,Memory*,IMemory*,int);
+    static Clock* getClock(Cpu*,Memory*,IMemory*);
 
     // Class Methods
     void doWork();

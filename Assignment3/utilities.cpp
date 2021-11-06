@@ -52,20 +52,4 @@ namespace Utilities {
             kvpairs.insert(std::pair<std::string, int>(options[i], i));
         }
     }
-
-    int invertTwosCompliment(unsigned int input) {
-        int x = log2(input);
-        int b = 1 << x;
-        b = b | b - 1;
-        input = input ^ b;
-        return input;
-    }
-
-    unsigned int invertTwosCompliment(int input) {
-        int x = log2(input);
-        int b = 1 << x;
-        b = b | b - 1;
-        input = input ^ b;
-        return input;
-    }
 }
