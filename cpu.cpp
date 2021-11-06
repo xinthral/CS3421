@@ -359,8 +359,8 @@ void Cpu::instruction_lw() {
     }
 
     // Begin fetch
-    _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
     isMemoryWorking = true;
+    _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
     // isCycleWorkPending = false;
 }
 
@@ -406,8 +406,8 @@ void Cpu::instruction_sw() {
     }
 
     // Begin store
-    _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
     isMemoryWorking = true;
+    _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
     // isCycleWorkPending = false;
 }
 
