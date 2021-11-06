@@ -80,8 +80,9 @@ void Cpu::doCycleWork() {
     } else if ((REQUEST == STATE) && (isCycleWorkPending)) {
         executeInstruction();   // Memory Request
         nextState();
-    } else if (WAIT == STATE) {
-        if ((!isMemoryWorking) && (!isCycleWorkPending)) {
+    } else if ((WAIT == STATE) && (!isMemoryWorking)) {
+        isCycleWorkPending = false;
+        if (0 == waitDelay) {
             // End Wait State
             nextState();
             incrementPC();
@@ -235,7 +236,7 @@ void Cpu::instruction_add() {
     }
     // Store result
     set_reg(registrar[current_DDD], summ);
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_addi() {
@@ -254,13 +255,13 @@ void Cpu::instruction_addi() {
     }
     // Store result
     set_reg(registrar[current_DDD], summ);
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_branch() {
     /* Manages the decoding and parsing of the instruction */
     // set_reg("RB", 6);
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 
 }
 
@@ -285,7 +286,7 @@ void Cpu::instruction_beq() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq [%d] == [%d] |  PC:{%d}\n", inp1, inp2, _pc);
     }
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_blt() {
@@ -299,7 +300,7 @@ void Cpu::instruction_blt() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_blt %X\n", current_instruction);
     }
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_bneq() {
@@ -312,7 +313,7 @@ void Cpu::instruction_bneq() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_bneq %X\n", current_instruction);
     }
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_halt() {
@@ -327,7 +328,7 @@ void Cpu::instruction_halt() {
 
     incrementPC();
     _clock_enabled = false;
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_inv() {
@@ -345,7 +346,7 @@ void Cpu::instruction_inv() {
     }
 
     set_reg(registrar[current_DDD], output);
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_lw() {
@@ -360,7 +361,7 @@ void Cpu::instruction_lw() {
     // Begin fetch
     _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
     isMemoryWorking = true;
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_mul() {
@@ -391,7 +392,7 @@ void Cpu::instruction_mul() {
 
     // Store result
     set_reg(registrar[current_DDD], result);
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_sw() {
@@ -407,7 +408,7 @@ void Cpu::instruction_sw() {
     // Begin store
     _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
     isMemoryWorking = true;
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 int Cpu::instructionBitSelector(int option, int instruction) {
