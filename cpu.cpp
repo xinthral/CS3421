@@ -278,13 +278,14 @@ void Cpu::instruction_beq() {
     int inp2 = get_register(current_TTT);
     if (inp1 == inp2) {
         _pc = current_III - 1;
+        waitDelay = 1;
     }
 
     if (DEBUG > 1) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq [%d] == [%d] |  PC:{%d}\n", inp1, inp2, _pc);
     }
-    isCycleWorkPending = false;
+    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_blt() {
@@ -410,7 +411,7 @@ void Cpu::instruction_sw() {
 }
 
 int Cpu::instructionBitSelector(int option, int instruction) {
-
+    /* Seperate instruction into bits */
     int response = -1;
     switch (option) {
         case NNN:
@@ -527,6 +528,17 @@ void Cpu::startTick() {
         nextState();
     } else if (STATE == WAIT){
         // Wait state, chillin
+        if (waitDelay > 0) {
+            if (DEBUG > 2) {
+                // DEBUG: This line can be removed after testing
+                printf("Memory::startTick: Waiting: %d\n", waitDelay);
+            }
+            waitDelay -= 1;
+        } else {
+            waitDelay = 0;
+            isCycleWorkPending = false;
+            // nextState();
+        }
     } else {
         // DEBUG: This line can be removed after testing
         printf("Cpu::startTick: Invalid start state: %d.\n", STATE);
