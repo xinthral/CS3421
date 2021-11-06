@@ -285,7 +285,7 @@ void Cpu::instruction_beq() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq [%d] == [%d] |  PC:{%d}\n", inp1, inp2, _pc);
     }
-    // isCycleWorkPending = false;
+    isCycleWorkPending = false;
 }
 
 void Cpu::instruction_blt() {
@@ -536,7 +536,6 @@ void Cpu::startTick() {
             waitDelay -= 1;
         } else {
             waitDelay = 0;
-            isCycleWorkPending = false;
             // nextState();
         }
     } else {
