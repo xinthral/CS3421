@@ -133,7 +133,6 @@ void Cpu::executeInstruction() {
             instruction_inv();
             break;
         case BRANCH:
-            // instruction_branch();
             switch (current_DDD) {
                 case BEQ:
                     instruction_beq();
@@ -238,7 +237,6 @@ void Cpu::instruction_add() {
     }
     // Store result
     set_reg(registrar[current_DDD], summ);
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_addi() {
@@ -257,14 +255,6 @@ void Cpu::instruction_addi() {
     }
     // Store result
     set_reg(registrar[current_DDD], summ);
-    // isCycleWorkPending = false;
-}
-
-void Cpu::instruction_branch() {
-    /* Manages the decoding and parsing of the instruction */
-    // set_reg("RB", 6);
-    // isCycleWorkPending = false;
-
 }
 
 void Cpu::instruction_beq() {
@@ -301,7 +291,6 @@ void Cpu::instruction_blt() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_blt %X\n", current_instruction);
     }
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_bneq() {
@@ -314,7 +303,6 @@ void Cpu::instruction_bneq() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_bneq %X\n", current_instruction);
     }
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_halt() {
@@ -327,10 +315,8 @@ void Cpu::instruction_halt() {
         printf("Cpu::instruction_halt %X\n", current_instruction);
     }
 
-    // incrementPC();
     _clock_enabled = false;
     _tc += 1;
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_inv() {
@@ -348,7 +334,6 @@ void Cpu::instruction_inv() {
     }
 
     set_reg(registrar[current_DDD], output);
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_lw() {
@@ -394,7 +379,6 @@ void Cpu::instruction_mul() {
 
     // Store result
     set_reg(registrar[current_DDD], result);
-    // isCycleWorkPending = false;
 }
 
 void Cpu::instruction_sw() {
@@ -543,7 +527,6 @@ void Cpu::startTick() {
             waitDelay -= 1;
         } else {
             waitDelay = 0;
-            // nextState();
         }
     } else {
         // DEBUG: This line can be removed after testing

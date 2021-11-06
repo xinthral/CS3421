@@ -68,7 +68,6 @@ public:
     bool isMoreCycleWorkNeeded();
     void instruction_add();             // Instruction : add
     void instruction_addi();            // Instruction : addi
-    void instruction_branch();          // Instruction : branch
     void instruction_beq();             // Instruction : beq
     void instruction_blt();             // Instruction : blt
     void instruction_bneq();            // Instruction : bneq
