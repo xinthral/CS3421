@@ -25,14 +25,14 @@ CXXFLAGS = -Wno-unused-result -Wno-format-extra-args -Wno-unused-variable -Wno-u
 
 # The build target
 EXECUTABLE = cs3421_emul
-TESTOUTPUT = tester_emul
+TESTOUTPUT = xtester.exe
 CLK = clock
 CPU = cpu
 CSH = cache
 MEM = memory
 MIM = imemory
 PRS = parser
-TST = test
+TST = xtest
 UTL = utilities
 
 # # Compile Full porgram

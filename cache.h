@@ -8,6 +8,10 @@ private:
     int DEBUG{};
 public:
     Cache(int);
+    void reset();
+    void cacheOn();
+    void cacheOff();
+    void dump();
 };
 
 #endif
