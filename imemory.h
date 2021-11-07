@@ -17,14 +17,15 @@
 
 class IMemory {
 private:
-    int STATE{};
+    int DEBUG{};                    // DEBUG level
     int capacity{};                 // Size of memory bank
     int* registry;                  // Memory Banks
+    int STATE{};
     std::map<std::string, int> memOperations;
     enum STATES {IDLE=0, WAIT=1, MOVE=2};
 public:
     // Constructor
-    IMemory();
+    IMemory(int);
 
     // Class Methods
     void create(int);

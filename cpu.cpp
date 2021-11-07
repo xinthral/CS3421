@@ -19,6 +19,7 @@
 
 Cpu::Cpu(Memory* memory, IMemory* imemory, int debug)
     : _memory(*memory), _imemory(*imemory) {
+    DEBUG = debug;                      // Set debug flag
     _memory = *memory;
     _imemory = *imemory;
 
@@ -34,11 +35,9 @@ Cpu::Cpu(Memory* memory, IMemory* imemory, int debug)
     _clock_enabled = true;
     _pc = 0;
     _tc = 0;
-    DEBUG = debug;                      // Set debug flag
     STATE = 0;
     isMemoryWorking = false;
     isCycleWorkPending = false;
-    // current_instruction = -1;
     reset();
 }
 

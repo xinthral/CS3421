@@ -6,8 +6,9 @@
 #**************************************/
 #include "imemory.h"
 
-IMemory::IMemory() {
+IMemory::IMemory(int debug) {
     // create(0x0F);
+    DEBUG = debug;
     capacity = 0;
     const int mem_option_num = 4;
     char* mem_operations[mem_option_num] = {"create", "dump", "reset", "set"};

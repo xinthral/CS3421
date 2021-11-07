@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "cache.h"              // Local Cache object
 #include "clock.h"              // Local Clock object
 #include "cpu.h"                // Local CPU object
 #include "imemory.h"            // Local iMemory Object
@@ -10,10 +11,10 @@
 
 class Parser {
 protected:
-    int DEBUG;                             // Debug output control 
-
+    int DEBUG{};                            // Debug output control
 private:
     // Clock Singleton
+    Cache* _cache;                          // Cache Device
     Clock*  _clock;                         // Clock Device;
     Cpu*    _cpu;                           // Cpu Device;
     IMemory* _imemory;                      // Instruction Memory Device

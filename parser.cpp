@@ -6,13 +6,15 @@
 #**************************************/
 
 #include "parser.h"
+
 Parser::Parser(int debug) {
     // Set debug flag
     DEBUG = debug;
 
     // Instantiate Devices
+    _cache = new Cache(DEBUG);
     _memory = new Memory(DEBUG);
-    _imemory = new IMemory();
+    _imemory = new IMemory(DEBUG);
     _cpu = new Cpu(_memory, _imemory, DEBUG);
     _clock = _clock->getClock(_cpu, _memory, _imemory, DEBUG);
 
