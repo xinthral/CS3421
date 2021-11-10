@@ -1,6 +1,7 @@
-#ifndef EMULATOR_TEST_H
-#define EMULATOR_TEST_H
+#ifndef XTEST_H
+#define XTEST_H
 
+#include <cassert>              // assert, assertm
 #include "cache.h"              // Local Cache object
 #include "clock.h"              // Local Clock object
 #include "cpu.h"                // Local CPU object
@@ -19,12 +20,14 @@ protected:
     Cpu*        _cpu;           // Cpu Device;
     IMemory*    _imemory;       // Instruction Memory Device
     Memory*     _memory;        // Memory Device
+
 public:
     EmulatorTest(int);          // Construct
-    // void constructCsh();
-    // void constructCpu();
-    // void constructMem();
-    // void constructMim();
+    // void buildClk(int);
+    // void buildCpu(int);
+    // void buildCsh(int);
+    // void buildMem(int);
+    // void buildMim(int);
     void printTest();
     // ~EmulatorTest();            // Destructor
 
@@ -32,10 +35,42 @@ public:
     virtual void tearDown(){};
 };
 
+class ClkTest : public EmulatorTest {
+public:
+    ClkTest(int);
+    void setUp();
+    void tickEmpty();
+    void tickReset();
+    void tickSingle();
+    void tearDown();
+};
+
 class CpuTest : public EmulatorTest {
 public:
-    void setUp(){};
-    void tearDown(){};
+    CpuTest(int);
+    void setUp();
+    void tearDown();
+};
+
+class CshTest : public EmulatorTest {
+public:
+    CshTest(int);
+    void setUp();
+    void tearDown();
+};
+
+class MemTest : public EmulatorTest {
+public:
+    MemTest(int);
+    void setUp();
+    void tearDown();
+};
+
+class MimTest : public EmulatorTest {
+public:
+    MimTest(int);
+    void setUp();
+    void tearDown();
 };
 
 #endif
