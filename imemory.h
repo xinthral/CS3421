@@ -31,7 +31,6 @@ public:
     void create(int);
     void dump(int,int,int);
     int get_memory(int);
-    void nextState();
     void parseInstructions(std::string);
     void printBankHeaders(int);
     void reset();

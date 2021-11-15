@@ -43,6 +43,7 @@ public:
     void tickReset();
     void tickSingle();
     void tearDown();
+    ~ClkTest();
 };
 
 class CpuTest : public EmulatorTest {
@@ -50,13 +51,17 @@ public:
     CpuTest(int);
     void setUp();
     void tearDown();
+    ~CpuTest();
 };
 
 class CshTest : public EmulatorTest {
 public:
     CshTest(int);
     void setUp();
+    void cacheOn();
+    void cacheOff();
     void tearDown();
+    ~CshTest();
 };
 
 class MemTest : public EmulatorTest {
@@ -64,6 +69,7 @@ public:
     MemTest(int);
     void setUp();
     void tearDown();
+    ~MemTest();
 };
 
 class MimTest : public EmulatorTest {
@@ -71,6 +77,7 @@ public:
     MimTest(int);
     void setUp();
     void tearDown();
+    ~MimTest();
 };
 
 #endif

@@ -18,11 +18,8 @@
 #include "cpu.h"
 
 Cpu::Cpu(Memory* memory, IMemory* imemory, int debug)
-    : _memory(*memory), _imemory(*imemory) {
-    DEBUG = debug;                      // Set debug flag
-    _memory = *memory;
-    _imemory = *imemory;
-
+    : _memory(*memory), _imemory(*imemory), DEBUG(debug) {
+    // Constructor Method
     const int cpu_option_num = 3;
     const int cpu_states_count = 5;
 
@@ -262,7 +259,7 @@ void Cpu::instruction_beq() {
     # Note the use of the destination register field to distinguish from other
     # branch instructions.
     */
-    if (DEBUG > 2) {
+    if (DEBUG > 1) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq %X\n", current_instruction);
     }
@@ -273,7 +270,7 @@ void Cpu::instruction_beq() {
         waitDelay = 1;
     }
 
-    if (DEBUG > 1) {
+    if (DEBUG > 2) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_beq [%d] == [%d] |  PC:{%d}\n", inp1, inp2, _pc);
     }
@@ -290,6 +287,18 @@ void Cpu::instruction_blt() {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_blt %X\n", current_instruction);
     }
+    int inp1 = get_register(current_SSS);
+    int inp2 = get_register(current_TTT);
+    if (inp1 < inp2) {
+        _pc = current_III - 1;
+        waitDelay = 1;
+    }
+
+    if (DEBUG > 2) {
+        // DEBUG: This line can be removed after testing
+        printf("Cpu::instruction_blt [%d] < [%d] |  PC:{%d}\n", inp1, inp2, _pc);
+    }
+
 }
 
 void Cpu::instruction_bneq() {
@@ -301,6 +310,17 @@ void Cpu::instruction_bneq() {
     if (DEBUG > 1) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::instruction_bneq %X\n", current_instruction);
+    }
+    int inp1 = get_register(current_SSS);
+    int inp2 = get_register(current_TTT);
+    if (inp1 != inp2) {
+        _pc = current_III - 1;
+        waitDelay = 1;
+    }
+
+    if (DEBUG > 2) {
+        // DEBUG: This line can be removed after testing
+        printf("Cpu::instruction_bneq [%d] != [%d] |  PC:{%d}\n", inp1, inp2, _pc);
     }
 }
 
@@ -484,6 +504,11 @@ void Cpu::reset() {
         _registers[step] = 0x00;
     }
     _tc = 0;
+}
+
+void Cpu::setClock(bool state) {
+    // Set the state of the internal clock
+    _clock_enabled = state;
 }
 
 void Cpu::set_reg(std::string location, int hbyte) {

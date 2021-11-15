@@ -8,12 +8,13 @@
 
 #include "xtest.h"
 
-EmulatorTest::EmulatorTest(int debug) {
-    DEBUG = debug;
+EmulatorTest::EmulatorTest(int debug)
+    : DEBUG(debug) {
+
     // Instantiate Devices
-    _cache = new Cache(DEBUG);
     _memory = new Memory(DEBUG);
     _imemory = new IMemory(DEBUG);
+    _cache = new Cache(_memory, DEBUG);
     _cpu = new Cpu(_memory, _imemory, DEBUG);
     _clock = _clock->getClock(_cpu, _memory, _imemory, DEBUG);
 }
@@ -22,29 +23,15 @@ void EmulatorTest::printTest() {
     printf("Test Print.\n");
 }
 
-// EmulatorTest::~EmulatorTest() {
-// }
-
-/* CshTestSuite */
-CshTest::CshTest(int debug) : EmulatorTest(debug) {
-    setUp();
-}
-
-void CshTest::setUp(){
-    printf("Cache Test SetUp\n");
-}
-
-void CshTest::tearDown(){
-    printf("Cache Test TearDown\n");
-}
-
 /* ClkTestSuite */
-ClkTest::ClkTest(int debug) : EmulatorTest(debug) {
+ClkTest::ClkTest(int debug)
+    : EmulatorTest(debug) {
     setUp();
 }
 
 void ClkTest::setUp(){
     printf("Clock Test SetUp\n");
+    _cpu->setClock(false);
     tickEmpty();
     tickReset();
     tickSingle();
@@ -67,16 +54,20 @@ void ClkTest::tickEmpty() {
 void ClkTest::tickSingle() {
     printf("ClkTest::tickSingle: Running...\n");
     _clock->reset();
-    int intialValue = 1;
-    assert(intialValue == _clock->tick(1));
+    assert(1 == _clock->tick(1));
 }
 
 void ClkTest::tearDown(){
     printf("Clock Test TearDown\n");
 }
 
+ClkTest::~ClkTest() {
+    tearDown();
+}
+
 /* CpuTestSuite */
-CpuTest::CpuTest(int debug) : EmulatorTest(debug) {
+CpuTest::CpuTest(int debug)
+    : EmulatorTest(debug) {
     setUp();
 }
 
@@ -88,8 +79,45 @@ void CpuTest::tearDown(){
     printf("Cpu Test TearDown\n");
 }
 
+CpuTest::~CpuTest() {
+    tearDown();
+}
+
+/* CshTestSuite */
+CshTest::CshTest(int debug)
+    : EmulatorTest(debug) {
+    setUp();
+}
+
+void CshTest::setUp(){
+    printf("Cache Test SetUp\n");
+    cacheOn();
+    cacheOff();
+}
+
+void CshTest::cacheOn() {
+    printf("CshTest::cacheOn: Running...\n");
+    _cache->cacheOn();
+    assert(true == _cache->isCacheEnabled());
+}
+
+void CshTest::cacheOff() {
+    printf("CshTest::cacheOff: Running...\n");
+    _cache->cacheOff();
+    assert(false == _cache->isCacheEnabled());
+}
+
+void CshTest::tearDown(){
+    printf("Cache Test TearDown\n");
+}
+
+CshTest::~CshTest() {
+    tearDown();
+}
+
 /* MemTestSuite */
-MemTest::MemTest(int debug) : EmulatorTest(debug) {
+MemTest::MemTest(int debug)
+    : EmulatorTest(debug) {
     setUp();
 }
 
@@ -101,19 +129,31 @@ void MemTest::tearDown(){
     printf("Mem Test TearDown\n");
 }
 
+MemTest::~MemTest() {
+    tearDown();
+}
+
+/* MimTestSuite */
+MimTest::MimTest(int debug)
+    : EmulatorTest(debug) {
+    setUp();
+}
+
+void MimTest::setUp(){
+    printf("Mim Test SetUp\n");
+}
+
+void MimTest::tearDown(){
+    printf("Mim Test TearDown\n");
+}
+
+MimTest::~MimTest() {
+    tearDown();
+}
+
 int main(int argc, char const *argv[]) {
     printf("EmulatorTest Parser!!\n");
-    // EmulatorTest t(0);
-    // int input = std::stoi("A5422", 0, 16);
-    // int NNN = (input >> 17) & 7;
-    // int DDD = (input >> 14) & 7;
-    // int SSS = (input >> 11) & 7;
-    // int TTT = (input >> 8) & 7;
-    // int III = (input & 255);
-    // int UHF = (III >> 4) & 15;
-    // int LHF = III & 15;
-    // printf("NNN: %X\nDDD: %X\nSSS: %X\nTTT: %X\nIII: %d\n\n", NNN, DDD, SSS, TTT, III);
-    // printf("UHF: %d\nLHF: %d\n", UHF, LHF);
     ClkTest clk(0);
+    CshTest csh(0);
     return 0;
 }

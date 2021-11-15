@@ -80,6 +80,7 @@ public:
     void nextState();
     void parseInstructions(std::string);
     void reset();
+    void setClock(bool);
     void set_reg(std::string,int);      // ([RA-RH,PC], HEX) -> (RB, 0xAA)
     void startTick();
 };

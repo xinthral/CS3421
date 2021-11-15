@@ -6,9 +6,9 @@
 #**************************************/
 #include "imemory.h"
 
-IMemory::IMemory(int debug) {
-    // create(0x0F);
-    DEBUG = debug;
+IMemory::IMemory(int debug)
+    : DEBUG(debug) {
+    // Constructor
     capacity = 0;
     const int mem_option_num = 4;
     char* mem_operations[mem_option_num] = {"create", "dump", "reset", "set"};
@@ -20,9 +20,6 @@ void IMemory::create(int inputSize) {
     # which indicates the size of the memory in bytes.
     #   Example: "memory create 0x10000".
     */
-    // for (int i = 0; i < inputSize; i++) {
-    //     registry.push_back(0x00);
-    // }
     registry = new int[inputSize];
     capacity = inputSize;
 }
@@ -80,14 +77,6 @@ int IMemory::get_memory(int position) {
     } catch (const std::out_of_range& exc) {
         throw exc.what();
     }
-}
-
-void IMemory::nextState() {
-    // Advances Finite State Machine to the next state
-    int period = sizeof(STATES) - 1;
-    // DEBUG: This line can be removed after testing
-    // printf("IMemory::nextState: [%d] -> [%d]\n", STATE, ((STATE+1) % period));
-    STATE = (STATE + 1) % period;
 }
 
 void IMemory::parseInstructions(std::string instructionSet) {
