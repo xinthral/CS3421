@@ -131,7 +131,7 @@ void Clock::parseInstructions(std::string instructionSet) {
             }
             break;
         default:
-            printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
+            printf("Error: Clock::parseInstructions recieved a bad operation < %s >.\n", operation);
     }
 }
 

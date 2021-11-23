@@ -494,7 +494,7 @@ void Cpu::parseInstructions(std::string instructionSet) {
             }
             break;
         default:
-            printf("Error: Parser::parseClock recieved a bad operation < %s >.\n", operation);
+            printf("Error: Cpu::parseInstructions recieved a bad operation < %s >.\n", operation);
     }
 }
 

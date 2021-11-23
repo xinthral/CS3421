@@ -39,7 +39,6 @@ void ClkTest::setUp(){
 
 void ClkTest::tickReset() {
     printf("ClkTest::tickReset: Running...\n");
-    _clock->tick(1);
     _clock->reset();
     assert(0 == _clock->tick(0));
 }
@@ -47,8 +46,7 @@ void ClkTest::tickReset() {
 void ClkTest::tickEmpty() {
     printf("ClkTest::tickEmpty: Running...\n");
     _clock->reset();
-    int intialValue = 0;
-    assert(intialValue == _clock->tick(0));
+    assert(0 == _clock->tick(0));
 }
 
 void ClkTest::tickSingle() {

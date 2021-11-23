@@ -19,8 +19,8 @@ Parser::Parser(int debug) {
     _clock = _clock->getClock(_cpu, _memory, _imemory, DEBUG);
 
     // Devices Options
-    const int dev_num = 4;
-    char* device_objects[dev_num] = {"clock", "cpu", "memory", "imemory"};
+    const int dev_num = 5;
+    char* device_objects[dev_num] = {"cache", "clock", "cpu", "memory", "imemory"};
 
     // Load up device list, and options
     Utilities::loadOptions(dev_num, device_objects, deviceList);
@@ -47,6 +47,7 @@ void Parser::readInputFile(char* fileName) {
 
             // Convert std::string to char* for ease of handling
             char* instructionSet = const_cast<char*>(instructions.c_str());
+            
             // Extract device name from instruction
             instructions = Utilities::chunkInstruction(instructions, deviceName);
 
@@ -60,18 +61,22 @@ void Parser::readInputFile(char* fileName) {
 
             switch(device) {
                 case 0:
+                    // Cache Execution
+                    _cache->parseInstructions(instructions);
+                    break;
+                case 1:
                     // Clock Execution
                     _clock->parseInstructions(instructions);
                     break;
-                case 1:
+                case 2:
                     // CPU Execution
                     _cpu->parseInstructions(instructions);
                     break;
-                case 2:
+                case 3:
                     // Memory Execution
                     _memory->parseInstructions(instructions);
                     break;
-                case 3:
+                case 4:
                     // Instruction Memory Execution
                     _imemory->parseInstructions(instructions);
                     break;
@@ -79,7 +84,6 @@ void Parser::readInputFile(char* fileName) {
                     // Catch-all condition incase command is invalid.
                     printf("Error: Invalid Device choice < %d:%s >.\n", device, deviceName);
             }
-
         }
     }
 }
