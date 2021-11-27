@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include <algorithm>            // std::transform
+#include "cache.h"              // Internal Cache Object
 #include <cassert>              // assert
 #include <cmath>                // log2
 #include "clock.h"              // Internal Clock Object
@@ -13,6 +14,7 @@
 #include <string.h>             // std::string, strcmp
 
 // Forward Declarations
+class Cache;
 class Memory;
 class IMemory;
 
@@ -22,6 +24,7 @@ protected:
 
 private:
     /* Device Objects */
+    Cache& _cache;
     Memory& _memory;
     IMemory& _imemory;
 
@@ -55,7 +58,7 @@ private:
 
 public:
 
-    Cpu(Memory*,IMemory*,int);          // Constructor
+    Cpu(Cache*,Memory*,IMemory*,int);   // Constructor
     void decodeInstruction();           // Decode IMemory Instruction
     void doCycleWork();                 // Main Work Loop
     void dump();                        // Display Register Information

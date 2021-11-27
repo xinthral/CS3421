@@ -11,6 +11,19 @@
 
 Cache::Cache(Memory* memory, int debug)
     : _memory(*memory), DEBUG(debug) {
+    // Constructor Method
+    _CLO = 0x00;
+    _cache_enabled = true;
+
+    const int csh_option_num = 4;
+    char* csh_operations[csh_option_num] = {"dump", "on", "off", "reset"};
+    Utilities::loadOptions(csh_option_num, csh_operations, cshOperations);
+}
+
+int Cache::blockId(int instruction) {
+    /* Identify the CLO for the block */
+    int response = (instruction >> 3) & 3;
+    return response;
 }
 
 void Cache::cacheOn() {
@@ -38,10 +51,24 @@ void Cache::dump() {
     #       CLO         : 0x04
     #       cache data  : 0x00 0x18 0x22 0xFF 0xEE 0x27 0x1E 0xAE
     #       Flags       :   I    W    I    I    I    W    I    I
+    #
     #       CLO         : 0x01
     #       cache data  : 0x00 0x18 0x22 0xFF 0xEE 0x27 0x1E 0xAE
     #       Flags       :   V    V    W    W    V    V    V    V
     */
+    int cacheSize = 8;
+    printf("%13s: 0x%02X\n", "CLO", _CLO);
+    printf("%13s:", "cache data");
+    for (int i = 0; i < cacheSize; i++) {
+        printf(" 0x%02X", _registry[i]);
+    }
+    printf("\n");
+    printf("%13s:", "Flags");
+    for (int j = 0; j < cacheSize; j++) {
+        printf("   %c ", _flags[j]);
+    }
+    printf("\n");
+    printf("\n");
 }
 
 bool Cache::isCacheEnabled() {
@@ -49,7 +76,82 @@ bool Cache::isCacheEnabled() {
     return _cache_enabled;
 }
 
+void Cache::memoryFetch() {
+
+}
+
+void Cache::memoryStore() {
+}
+
+void Cache::parseInstructions(std::string instructionSet) {
+    if (DEBUG > 3) {
+        // DEBUG: This line can be removed after testing
+        printf("Cache::parseInstructions: Instruction Set: %s\n", instructionSet.c_str());
+    }
+
+    char operation[8];
+    instructionSet = Utilities::chunkInstruction(instructionSet, operation);
+    int op = cshOperations[operation];
+
+    switch (op) {
+        case 0:
+            // dump
+            dump();
+            break;
+        case 1:
+            // on
+            cacheOn();
+            break;
+        case 2:
+            // on
+            cacheOff();
+            break;
+        case 3:
+            // reset
+            reset();
+            break;
+        default:
+            printf("Error: Cache::parseInstructions recieved a bad operation < %s >.\n", operation);
+    }
+}
+
 void Cache::reset() {
     /* The "reset" command resets the cache to disabled, setting CLO to zero,
-    # and data to be invalid. */
+    # and data to be invalid.
+    */
+    int cacheSize = 8;
+    _CLO = 0x00;
+    for (int i = 0; i < cacheSize; i++) {
+        _flags[i] = 'I';
+    }
+}
+
+void Cache::startFetch(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
+    // This API is called by the cpu to initiate a fetch (read) from memory
+    // nextState();
+    // current_operation = 5;
+    // isWorking = true;
+    // startPos = start;
+    // fetchCount = number_of_elements;
+    // answerPtr = dataPtr;
+    // workResponse = isWorkPending;
+    // if (DEBUG > 2) {
+    //     // DEBUG: This line can be removed after testing
+    //     printf("Cache::startFetch: Fetching from M[%d]\n", startPos);
+    // }
+}
+
+void Cache::startStore(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
+    // This API is called by memory clients to initiate store (write) to memory
+    // nextState();
+    // current_operation = 6;
+    // isWorking = true;
+    // startPos = start;
+    // fetchCount = number_of_elements;
+    // answerPtr = dataPtr;
+    // workResponse = isWorkPending;
+    // if (DEBUG > 2) {
+    //     // DEBUG: This line can be removed after testing
+    //     printf("Cache::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
+    // }
 }

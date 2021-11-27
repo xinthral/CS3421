@@ -58,6 +58,7 @@ class CshTest : public EmulatorTest {
 public:
     CshTest(int);
     void setUp();
+    void blockId();
     void cacheOn();
     void cacheOff();
     void tearDown();

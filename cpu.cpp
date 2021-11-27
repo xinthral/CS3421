@@ -17,8 +17,8 @@
 #**************************************/
 #include "cpu.h"
 
-Cpu::Cpu(Memory* memory, IMemory* imemory, int debug)
-    : _memory(*memory), _imemory(*imemory), DEBUG(debug) {
+Cpu::Cpu(Cache* cache, Memory* memory, IMemory* imemory, int debug)
+    : _cache(*cache), _memory(*memory), _imemory(*imemory), DEBUG(debug) {
     // Constructor Method
     const int cpu_option_num = 3;
     const int cpu_states_count = 5;
@@ -153,7 +153,6 @@ void Cpu::executeInstruction() {
         default:
             // DEBUG: This line can be removed after testing
             printf("Cpu::executeInstruction: Unimplmemented instruction type: %d\n", current_executable);
-            break;
     }
 }
 
@@ -366,7 +365,8 @@ void Cpu::instruction_lw() {
 
     // Begin fetch
     isMemoryWorking = true;
-    _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
+    _cache.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
+    // _memory.startFetch(get_register(current_TTT), 1, &(_registers[current_DDD]), &isMemoryWorking);
     isCycleWorkPending = false;
 }
 
@@ -444,7 +444,6 @@ int Cpu::instructionBitSelector(int option, int instruction) {
         default:
             break;
     }
-
     return response;
 }
 

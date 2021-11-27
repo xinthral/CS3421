@@ -89,8 +89,15 @@ CshTest::CshTest(int debug)
 
 void CshTest::setUp(){
     printf("Cache Test SetUp\n");
+    blockId();
     cacheOn();
     cacheOff();
+}
+
+void CshTest::blockId() {
+    printf("CshTest::blockId: Running...\n");
+    int instruction = 120;
+    assert(3 == _cache->blockId(instruction));
 }
 
 void CshTest::cacheOn() {

@@ -15,7 +15,7 @@ Parser::Parser(int debug) {
     _memory = new Memory(DEBUG);
     _imemory = new IMemory(DEBUG);
     _cache = new Cache(_memory, DEBUG);
-    _cpu = new Cpu(_memory, _imemory, DEBUG);
+    _cpu = new Cpu(_cache, _memory, _imemory, DEBUG);
     _clock = _clock->getClock(_cpu, _memory, _imemory, DEBUG);
 
     // Devices Options
@@ -47,7 +47,7 @@ void Parser::readInputFile(char* fileName) {
 
             // Convert std::string to char* for ease of handling
             char* instructionSet = const_cast<char*>(instructions.c_str());
-            
+
             // Extract device name from instruction
             instructions = Utilities::chunkInstruction(instructions, deviceName);
 
