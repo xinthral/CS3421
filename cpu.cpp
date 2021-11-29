@@ -105,7 +105,7 @@ void Cpu::dump() {
     for (int step = 0; step < 8; step++) {
         printf("%s: 0x%02X\n", registrar[step].c_str(), _registers[step]);
     }
-    printf("TC: %02X\n", _tc);
+    printf("TC: %02d\n", _tc);
     printf("\n");
 }
 
@@ -412,7 +412,8 @@ void Cpu::instruction_sw() {
 
     // Begin store
     isMemoryWorking = true;
-    _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
+    _cache.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
+    // _memory.startStore(get_register(current_SSS), 1, &(_registers[current_TTT]), &isMemoryWorking);
     isCycleWorkPending = false;
 }
 
@@ -502,7 +503,12 @@ void Cpu::reset() {
     for (int step = 0; step < 8; step++) {
         _registers[step] = 0x00;
     }
+    isCycleWorkPending = false;
+    // isMemoryWorking = false;
+    _pc = 0;
     _tc = 0;
+    // STATE = 0;
+    _clock_enabled = true;
 }
 
 void Cpu::setClock(bool state) {
@@ -530,7 +536,7 @@ void Cpu::startTick() {
     # should be done in this function, and is instead done in doCycleWork
     # described below.
     */
-    if (DEBUG > 3) {
+    if (DEBUG > 1) {
         // DEBUG: This line can be removed after testing
         printf("Cpu::startTick: Current State %d : %s.\n", STATE, isMemoryWorking ? "true" : "false");
     }

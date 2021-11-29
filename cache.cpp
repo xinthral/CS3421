@@ -12,8 +12,8 @@
 Cache::Cache(Memory* memory, int debug)
     : _memory(*memory), DEBUG(debug) {
     // Constructor Method
-    _CLO = 0x00;
-    _cache_enabled = true;
+    _CLO = -1;
+    _cache_enabled = false;
 
     const int csh_option_num = 4;
     char* csh_operations[csh_option_num] = {"dump", "on", "off", "reset"};
@@ -24,6 +24,12 @@ int Cache::blockId(int instruction) {
     /* Identify the CLO for the block */
     int response = (instruction >> 3) & 3;
     return response;
+}
+
+void Cache::cacheData() {
+    int element = *answerPtr;
+    // printf("Cache::cacheData: %d\n", element);
+    // NEEDS WORK
 }
 
 void Cache::cacheOn() {
@@ -40,6 +46,7 @@ void Cache::cacheOff() {
     # memory (cache flush). The coder may assume cache will only be disabled
     # when the CPU is idle (about to start a new instruction). */
     _cache_enabled = false;
+    reset();
 }
 
 void Cache::dump() {
@@ -71,16 +78,37 @@ void Cache::dump() {
     printf("\n");
 }
 
+bool Cache::isBlockValid(int inputValue) {
+    /* Check if the input value is in the current cached block */
+    return blockId(inputValue) == _CLO;
+}
+
 bool Cache::isCacheEnabled() {
     /* Return true if the cache is enabled */
     return _cache_enabled;
 }
 
-void Cache::memoryFetch() {
+void Cache::invalidateCache() {
+    for (int i = 0; i < cacheSize; i++) {
+        _flags[i] = 'I';
+    }
+}
 
+void Cache::memoryFetch() {
+    if (DEBUG > 0) {
+        // DEBUG: This line can be removed after testing
+        printf("Cache::memoryFetch: Fetching from M[%d]\n", startPos);
+    }
+    _CLO = blockId(startPos);
+    _memory.startFetch(startPos, 8, &_registry[0], workResponse);
 }
 
 void Cache::memoryStore() {
+    if (DEBUG > 0) {
+        // DEBUG: This line can be removed after testing
+        printf("Cache::memoryStore: Storing to M[%d]\n", startPos);
+    }
+    _CLO = blockId(startPos);
 }
 
 void Cache::parseInstructions(std::string instructionSet) {
@@ -120,38 +148,64 @@ void Cache::reset() {
     # and data to be invalid.
     */
     int cacheSize = 8;
-    _CLO = 0x00;
-    for (int i = 0; i < cacheSize; i++) {
-        _flags[i] = 'I';
+    _CLO = -1;
+    invalidateCache();
+    if (DEBUG > 2) {
+        // DEBUG: This line can be removed after testing
+        printf("Cache::reset: Cache has been invalidated. %s\n", _flags);
     }
 }
 
 void Cache::startFetch(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
-    // This API is called by the cpu to initiate a fetch (read) from memory
-    // nextState();
-    // current_operation = 5;
-    // isWorking = true;
-    // startPos = start;
-    // fetchCount = number_of_elements;
-    // answerPtr = dataPtr;
-    // workResponse = isWorkPending;
-    // if (DEBUG > 2) {
-    //     // DEBUG: This line can be removed after testing
-    //     printf("Cache::startFetch: Fetching from M[%d]\n", startPos);
-    // }
+    // This API is called by the cpu to initiate a fetch (read) from cache
+
+    if (!_cache_enabled) {
+        _memory.startFetch(start, number_of_elements, dataPtr, isWorkPending);
+    } else {
+        startPos = start;
+        fetchCount = number_of_elements;
+        answerPtr = dataPtr;
+        workResponse = isWorkPending;
+        if (isBlockValid(start)) {
+            if (DEBUG > 0) {
+                // DEBUG: This line can be removed after testing
+                printf("Cache::startFetch: Fetching from C[%d]\n", startPos);
+            }
+            *answerPtr = _registry[startPos];
+            *workResponse = false;
+        } else {
+            if (DEBUG > 0) {
+                // DEBUG: This line can be removed after testing
+                printf("Cache::startFetch: Fetching from M[%d]\n", startPos);
+            }
+            memoryFetch();
+        }
+    }
 }
 
 void Cache::startStore(int start, int number_of_elements, int* dataPtr, bool* isWorkPending) {
-    // This API is called by memory clients to initiate store (write) to memory
-    // nextState();
-    // current_operation = 6;
-    // isWorking = true;
-    // startPos = start;
-    // fetchCount = number_of_elements;
-    // answerPtr = dataPtr;
-    // workResponse = isWorkPending;
-    // if (DEBUG > 2) {
-    //     // DEBUG: This line can be removed after testing
-    //     printf("Cache::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
-    // }
+    // This API is called by memory clients to initiate store (write) to cache
+    if (!_cache_enabled) {
+        _memory.startStore(start, number_of_elements, dataPtr, isWorkPending);
+    } else {
+        startPos = start;
+        fetchCount = number_of_elements;
+        answerPtr = dataPtr;
+        workResponse = isWorkPending;
+        if (isBlockValid(start)) {
+            if (DEBUG > 0) {
+                // DEBUG: This line can be removed after testing
+                printf("Cache::startStore: Storing %d @ C[%d]\n", *answerPtr, startPos);
+            }
+            cacheData();
+            *workResponse = false;
+            // _registry[startPos] = *answerPtr;
+        } else {
+            if (DEBUG > 0) {
+                // DEBUG: This line can be removed after testing
+                printf("Cache::startStore: Storing %d @ M[%d]\n", *answerPtr, startPos);
+            }
+            memoryStore();
+        }
+    }
 }

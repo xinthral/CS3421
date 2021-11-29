@@ -38,6 +38,7 @@ public:
     void create(int);
     void doCycleWork();
     void dump(int,int,int);
+    void get(int,int);
     int get_memory(int);
     bool isMoreCycleWorkNeeded();
     void nextState();

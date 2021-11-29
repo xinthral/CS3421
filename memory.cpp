@@ -19,7 +19,7 @@ Memory::Memory(int debug) {
     DEBUG = debug;              // Set debug flag
     STATE = 0;                  // FSM
     capacity = 0;               // Data Memory Size
-    fetchCount = 0;             // Number of elements
+    fetchCount = 1;             // Number of elements
     isWorking = false;          // FSM Trigger
     isCycleWorkPending = false; // Cycle Work Sentinal
     latencyFactor = 5;          // Device Processing Time
@@ -47,8 +47,12 @@ void Memory::doCycleWork() {
                 // DEBUG: This line can be removed after testing
                 printf("Memory::doCycleWork: Loading R[%d] with %d.\n", startPos, get_memory(startPos));
             }
-            // copy data back to caller
-            *answerPtr = get_memory(startPos);
+            if (fetchCount == 1) {
+                // copy data back to caller
+                *answerPtr = get_memory(startPos);
+            } else {
+                get(startPos, fetchCount);
+            }
         }
         if (6 == current_operation) {
             if (DEBUG > 1) {
@@ -61,7 +65,7 @@ void Memory::doCycleWork() {
         // Tell caller memory operation is complete
         answerPtr = nullptr;
         current_operation = 0;
-        fetchCount = 0;
+        fetchCount = 1;
         startPos = 0;
         *workResponse = false;
         isWorking = false;
@@ -115,6 +119,18 @@ void Memory::dump(int begin, int number_of_elements, int column_span) {
     }
     printf("\n");
     printf("\n");
+}
+
+void Memory::get(int starting, int number_of_elements) {
+    int i = starting;
+    for (int *p = registry + starting; *p; ++p) {
+        if (i < number_of_elements) {
+            *p = get_memory(i);
+        }
+        i++;
+        // printf("Memory::get: Element %d is: %d\n", i, *p);
+    }
+
 }
 
 int Memory::get_memory(int position) {
