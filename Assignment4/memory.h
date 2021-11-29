@@ -1,0 +1,55 @@
+#ifndef MEMORY_H
+#define MEMORY_H
+
+#include "utilities.h"          // Utility Functions
+#include <cmath>                // floor
+#include <fstream>              // std::ifstream
+#include <stdint.h>             // uint16_t
+#include <stdexcept>            // std::out_of_range
+#include <stdio.h>              // printf
+#include <string.h>             // std::string, std::stoi
+#include <vector>               // std::vector
+
+class Memory {
+protected:
+    int DEBUG{};                        // Debug output control
+
+private:
+    int* answerPtr;                     // startFetch answer reponse pointer
+    int capacity{};                     // Size of memory bank
+    int current_operation{};            // Most recent memory operation
+    int fetchCount{};                   // startFetch number of elements
+    int latencyFactor{};                // startTick data memory device delay
+    int* registry;                      // Memory Banks
+    int startPos{};                     // startFetch starting position
+    int STATE{};                        // State for FSM
+    int waitDelay{};                    // startTick delay counter
+    bool isWorking;
+    bool isCycleWorkPending;
+    bool* workResponse;                 // startFetch isWorking response pointer
+    std::map<std::string, int> memOperations;
+    std::map<std::string, int> STATES;
+    enum STATEMODE { IDLE, WAIT, EXEC };
+
+public:
+    Memory(int);                        // Forces Public Instantiation
+
+    // Class Methods
+    void create(int);
+    void doCycleWork();
+    void dump(int,int,int);
+    void get(int,int);
+    int get_memory(int);
+    bool isMoreCycleWorkNeeded();
+    void nextState();
+    void parseInstructions(std::string);
+    void printBankHeaders(int);
+    void reset();
+    void set(int,int,std::string);
+    void set_memory(int,int);
+    void startFetch(int,int,int*, bool*);
+    void startStore(int,int,int*, bool*);
+    void startTick();
+};
+
+#endif
