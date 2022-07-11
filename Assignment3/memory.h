@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include "utilities.h"          // Utility Functions
+#include <cmath>                // floor
 #include <fstream>              // std::ifstream
 #include <stdint.h>             // uint16_t
 #include <stdexcept>            // std::out_of_range
@@ -10,6 +11,9 @@
 #include <vector>               // std::vector
 
 class Memory {
+protected:
+    int DEBUG{};                        // Debug output control
+
 private:
     int* answerPtr;                     // startFetch answer reponse pointer
     int capacity{};                     // Size of memory bank
@@ -28,7 +32,7 @@ private:
     enum STATEMODE { IDLE, WAIT, EXEC };
 
 public:
-    Memory();                           // Forces Public Instantiation
+    Memory(int);                        // Forces Public Instantiation
 
     // Class Methods
     void create(int);
