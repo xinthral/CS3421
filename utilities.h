@@ -14,6 +14,7 @@ namespace Utilities {
     void loadOptions(int, char**, std::map<std::string, int>&);
     int invertTwosCompliment(unsigned int);
     unsigned int invertTwosCompliment(int);
+    void print_binary(int,int)
 }
 
 #endif

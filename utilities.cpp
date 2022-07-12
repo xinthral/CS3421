@@ -68,4 +68,13 @@ namespace Utilities {
         input = input ^ b;
         return input;
     }
+
+    void print_binary(int nbytes, int number) {
+        int b;
+        for (int i = (nbytes-1); i >= 0; i--) {
+            b = number >> i;
+            printf("%d", (b&1) ? 1 : 0);
+        }
+        printf("\n");
+    }
 }
